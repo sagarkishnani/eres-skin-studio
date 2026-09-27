@@ -1,0 +1,69 @@
+---
+import type { WooProduct } from "../../lib/woo/types";
+import { formatPrice, discountPercent, stockLabel, stripHtml } from "../../lib/woo/format";
+import { localizeHref } from "../../utils/i18n";
+import type { Locale } from "../../i18n/config";
+
+interface Props {
+  product: WooProduct;
+  locale: Locale;
+  lowStockThreshold?: number;
+}
+
+const { product, locale, lowStockThreshold = 5 } = Astro.props;
+
+const image = product.images[0];
+const discount = discountPercent(product);
+const stock = stockLabel(product, lowStockThreshold);
+const href = localizeHref(`/tienda/${product.slug}`, locale, false);
+
+const TONE = {
+  ok: "text-emerald-400",
+  low: "text-amber-400",
+  out: "text-content-subtle",
+};
+---
+
+<article class="card group relative flex flex-col overflow-hidden" data-woo-id={product.id}>
+  <a href={href} class="block aspect-square overflow-hidden bg-surface-raised">
+    {image ? (
+      <img
+        src={image.src}
+        alt={image.alt || product.name}
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+    ) : (
+      <div class="flex h-full w-full items-center justify-center text-content-subtle">Sin imagen</div>
+    )}
+  </a>
+
+  {discount !== null && (
+    <span class="absolute left-3 top-3 rounded-full bg-brand-primary px-2.5 py-1 text-xs font-semibold text-white">
+      -{discount}%
+    </span>
+  )}
+
+  <div class="flex flex-1 flex-col p-4">
+    <h3 class="text-body font-medium leading-snug">
+      <a href={href} class="after:absolute after:inset-0">{product.name}</a>
+    </h3>
+
+    {product.short_description && (
+      <p class="mt-1.5 line-clamp-2 text-sm text-content-subtle">{stripHtml(product.short_description, 90)}</p>
+    )}
+
+    <div class="mt-auto pt-4">
+      <div class="flex items-baseline gap-2" data-woo-price>
+        <span class="text-body-lg font-semibold">{formatPrice(product.price)}</span>
+        {discount !== null && (
+          <span class="text-sm text-content-subtle line-through">{formatPrice(product.regular_price)}</span>
+        )}
+      </div>
+      <p class={`mt-1 text-xs ${TONE[stock.tone]}`} data-woo-stock>{stock.text}</p>
+    </div>
+  </div>
+</article>

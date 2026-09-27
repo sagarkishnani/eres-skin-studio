@@ -1,0 +1,129 @@
+---
+import Header from "../components/shared/Header.astro";
+import Footer from "../components/shared/Footer.astro";
+import client from "../../tina/__generated__/client";
+import { ClientRouter } from "astro:transitions";
+import { getLocale, tField } from "../utils/i18n";
+import { isLocale } from "../i18n/config";
+import "../styles/global.css";
+import CookieConsent from "../components/cookies/CookieConsent.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  headerTheme?: "light" | "dark";
+}
+
+const { title, description, headerTheme = "dark" } = Astro.props;
+
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
+
+let globalData: any = null;
+try {
+  const result = await client.queries.global({ relativePath: "index.json" });
+  globalData = result.data?.global;
+} catch {}
+
+const seoTitle = title || tField(globalData?.seo, "title", locale) || "ERES Skin Studio";
+const seoDescription =
+  description || tField(globalData?.seo, "description", locale) || "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima.";
+const ogImage = globalData?.seo?.ogImage || "";
+const injectHead = globalData?.codeInjection?.head || "";
+const injectBodyEnd = globalData?.codeInjection?.bodyEnd || "";
+
+const canonical = new URL(Astro.url.pathname, Astro.site || "https://eresskinstudio.com").href;
+
+const orgSocials = (globalData?.footer?.social || [])
+  .map((s: any) => s?.url)
+  .filter(Boolean);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "ERES Skin Studio",
+  url: Astro.site?.href || "https://eresskinstudio.com",
+  description: seoDescription,
+  email: "hola@eresskinstudio.com",
+  ...(globalData?.nav?.logo ? { logo: new URL(globalData.nav.logo, Astro.site || "https://eresskinstudio.com").href } : {}),
+  ...(orgSocials.length ? { sameAs: orgSocials } : {}),
+};
+
+let maintenance: any = null;
+try {
+  const result = await client.queries.maintenance({ relativePath: "index.json" });
+  maintenance = result.data?.maintenance?.enabled ? result.data.maintenance : null;
+} catch {}
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <title>{seoTitle}</title>
+    <meta name="description" content={seoDescription} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={seoTitle} />
+    <meta property="og:description" content={seoDescription} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500;600;700&display=swap" />
+
+    <ClientRouter />
+    <Fragment set:html={injectHead} />
+  </head>
+  <body>
+    {maintenance ? (
+      <main class="flex min-h-screen items-center justify-center px-6 text-center">
+        <div class="max-w-xl">
+          <h1 class="text-heading-lg">{maintenance.title || "Estamos en mantenimiento"}</h1>
+          <p class="mt-4 text-body-lg text-content-muted">
+            {maintenance.message || "Volvemos en unos minutos."}
+          </p>
+          {maintenance.showContact && (
+            <a class="btn-primary mt-8" href={maintenance.contactUrl || "/"}>
+              {maintenance.contactText || "Contáctanos"}
+            </a>
+          )}
+        </div>
+      </main>
+    ) : (
+      <>
+        <Header locale={locale} theme={headerTheme} />
+        <main>
+          <slot />
+        </main>
+        <Footer locale={locale} />
+        <CookieConsent />
+      </>
+    )}
+    <Fragment set:html={injectBodyEnd} />
+    <script>
+      import Lenis from "lenis";
+
+      let lenis: any = null;
+
+      function startLenis() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        lenis?.destroy();
+        lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        const raf = (time: number) => {
+          lenis?.raf(time);
+          requestAnimationFrame(raf);
+        };
+        requestAnimationFrame(raf);
+      }
+
+      startLenis();
+      document.addEventListener("astro:after-swap", startLenis);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "eyebrow": "ERES Skin Studio",
+    "title": "Un título que explica qué haces en una línea",
+    "subtitle": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima.",
+    "buttons": [
+      { "text": "Conversemos", "url": "/#cta", "variant": "primary" },
+      { "text": "Ver más", "url": "/#features", "variant": "secondary" }
+    ]
+  },
+  "features": {
+    "title": "Por qué trabajar con nosotros",
+    "description": "Reemplaza estos textos desde el panel en /admin.",
+    "items": [
+      { "icon": "bolt", "title": "Rápido", "description": "Sitio estático: entrega en milisegundos desde cualquier CDN." },
+      { "icon": "shield", "title": "Seguro", "description": "Sin base de datos ni servidor de aplicaciones que mantener." },
+      { "icon": "chart", "title": "Medible", "description": "Analítica y píxeles se inyectan desde el CMS, sin tocar el código." }
+    ]
+  },
+  "cta": {
+    "title": "¿Empezamos?",
+    "description": "Cuéntanos qué necesitas y te respondemos el mismo día.",
+    "buttonText": "Escríbenos",
+    "buttonUrl": "/contacto"
+  },
+  "seo": {
+    "title": "ERES Skin Studio",
+    "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."
+  }
+}

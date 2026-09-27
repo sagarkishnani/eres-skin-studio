@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import DynamicForm from "../components/dynamic-form/DynamicForm.astro";
+---
+
+<BaseLayout title="Contacto — ERES Skin Studio" description="Escríbenos y te respondemos pronto.">
+  <section class="section pt-[128px]">
+    <div class="container-lg">
+      <h1 class="text-heading-lg">Contacto</h1>
+      <p class="mt-3 max-w-xl text-body-lg text-content-muted">
+        Escríbenos y te respondemos el mismo día.
+      </p>
+
+      <div class="mt-10">
+        <DynamicForm formSlug="contacto" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

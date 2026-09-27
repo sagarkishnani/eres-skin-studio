@@ -1,0 +1,62 @@
+---
+// El umbral viaja por data- y no por define:vars: un script inline no pasa por Vite y sus imports no resolverían.
+interface Props {
+  lowStockThreshold?: number;
+}
+const { lowStockThreshold = 5 } = Astro.props;
+---
+
+<div id="woo-stock-refresher" data-low-stock={String(lowStockThreshold)} hidden></div>
+
+<script>
+  import { fetchStock } from "../../utils/wooClient";
+  import { formatPrice, discountPercent, stockLabel } from "../../lib/woo/format";
+
+  const TONE = { ok: "text-emerald-400", low: "text-amber-400", out: "text-content-subtle" };
+
+  async function refresh() {
+    const config = document.getElementById("woo-stock-refresher");
+    if (!config) return;
+    const lowStock = Number(config.dataset.lowStock || 5);
+
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-woo-id]"));
+    const ids = nodes.map((n) => Number(n.dataset.wooId)).filter(Boolean);
+    if (!ids.length) return;
+
+    const fresh = await fetchStock(ids);
+    if (!fresh.size) return;
+
+    for (const node of nodes) {
+      const data = fresh.get(Number(node.dataset.wooId));
+      if (!data) continue;
+
+      const priceBox = node.querySelector("[data-woo-price]");
+      if (priceBox) {
+        const off = discountPercent(data);
+        priceBox.innerHTML =
+          `<span class="text-body-lg font-semibold">${formatPrice(data.price)}</span>` +
+          (off !== null
+            ? `<span class="text-sm text-content-subtle line-through">${formatPrice(data.regular_price)}</span>`
+            : "");
+      }
+
+      const stockBox = node.querySelector("[data-woo-stock]");
+      if (stockBox) {
+        const label = stockLabel(data, lowStock);
+        stockBox.textContent = label.text;
+        stockBox.className = `mt-1 text-xs ${TONE[label.tone]}`;
+      }
+
+      node.querySelectorAll("[data-woo-buy]").forEach((btn) => {
+        const unavailable = data.stock_status === "outofstock" || !data.purchasable;
+        btn.toggleAttribute("disabled", unavailable);
+        btn.classList.toggle("opacity-40", unavailable);
+        btn.classList.toggle("pointer-events-none", unavailable);
+      });
+    }
+  }
+
+  refresh();
+  // Con View Transitions el script no se vuelve a ejecutar al navegar.
+  document.addEventListener("astro:after-swap", refresh);
+</script>

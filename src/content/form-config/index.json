@@ -1,0 +1,10 @@
+{
+  "forms": [
+    {
+      "formType": "contacto",
+      "label": "Formulario de contacto",
+      "enabled": true,
+      "recipients": ["hola@eresskinstudio.com"]
+    }
+  ]
+}

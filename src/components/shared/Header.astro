@@ -1,0 +1,23 @@
+---
+import HeaderReact from "./HeaderReact";
+import client from "../../../tina/__generated__/client";
+import type { Locale } from "../../i18n/config";
+
+interface Props {
+  locale: Locale;
+  theme?: "light" | "dark";
+}
+
+const { locale, theme = "dark" } = Astro.props;
+
+const result = await client.queries.global({ relativePath: "index.json" });
+---
+
+<HeaderReact
+  query={result.query}
+  variables={result.variables}
+  data={result.data}
+  locale={locale}
+  theme={theme}
+  client:load
+/>

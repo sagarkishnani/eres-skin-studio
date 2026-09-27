@@ -1,0 +1,21 @@
+---
+import { client } from "../../../tina/__generated__/client";
+import CookieConsentReact from "./CookieConsentReact.tsx";
+
+let result: any = null;
+try {
+  result = await client.queries.cookieConsent({ relativePath: "index.json" });
+} catch {}
+---
+
+{
+  result && (
+    <CookieConsentReact
+      client:idle
+      transition:persist="cookies"
+      query={result.query}
+      variables={result.variables}
+      data={result.data}
+    />
+  )
+}

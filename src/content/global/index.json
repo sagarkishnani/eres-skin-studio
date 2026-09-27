@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "logoAlt": "ERES Skin Studio",
+    "links": [
+      { "label": "Inicio", "url": "/" },
+      { "label": "Nosotros", "url": "/#features" },
+      { "label": "Contacto", "url": "/#cta" }
+    ],
+    "cta": { "label": "Conversemos", "url": "/#cta" }
+  },
+  "footer": {
+    "tagline": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima.",
+    "columns": [
+      {
+        "title": "Sitio",
+        "links": [
+          { "label": "Inicio", "url": "/" },
+          { "label": "Contacto", "url": "/#cta" }
+        ]
+      }
+    ],
+    "social": [],
+    "legal": "© 2026 ERES Skin Studio. Todos los derechos reservados."
+  },
+  "seo": {
+    "title": "ERES Skin Studio",
+    "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."
+  },
+  "codeInjection": { "head": "", "bodyEnd": "" }
+}

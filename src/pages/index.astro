@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/home/Hero.astro";
+import Features from "../components/home/Features.astro";
+import CTA from "../components/home/CTA.astro";
+import client from "../../tina/__generated__/client";
+import { getLocale } from "../utils/i18n";
+import { isLocale } from "../i18n/config";
+
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
+const result = await client.queries.home({ relativePath: "index.json" });
+const { query, variables, data } = result;
+const seo = data?.home?.seo;
+---
+
+<BaseLayout title={seo?.title} description={seo?.description}>
+  <Hero query={query} variables={variables} data={data} locale={locale} />
+  <Features query={query} variables={variables} data={data} locale={locale} />
+  <CTA query={query} variables={variables} data={data} locale={locale} />
+</BaseLayout>

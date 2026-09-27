@@ -1,0 +1,99 @@
+{
+  "formId": "contacto",
+  "formTitle": "¿Conversamos?",
+  "formTitle_en": "Let's talk?",
+  "description": "Completa tus datos y te respondemos pronto.",
+  "description_en": "Fill in your details and we'll get back to you soon.",
+  "styleVariant": "contact",
+  "submitButtonText": "Enviar",
+  "submitButtonText_en": "Send",
+  "successTitle": "¡Mensaje enviado!",
+  "successTitle_en": "Message sent!",
+  "successMessage": "Gracias por escribirnos. Te contactaremos pronto.",
+  "successMessage_en": "Thanks for reaching out. We'll contact you soon.",
+  "errorMessage": "Ocurrió un error al enviar. Inténtalo de nuevo.",
+  "errorMessage_en": "Something went wrong. Please try again.",
+  "validationMessage": "Por favor completa los campos obligatorios.",
+  "validationMessage_en": "Please complete the required fields.",
+  "showCorrelativo": false,
+  "fields": [
+    {
+      "fieldType": "text",
+      "name": "nombre",
+      "label": "Nombre",
+      "label_en": "First name",
+      "placeholder": "Tu nombre",
+      "placeholder_en": "Your first name",
+      "required": true,
+      "width": "half",
+      "order": 1
+    },
+    {
+      "fieldType": "text",
+      "name": "apellido",
+      "label": "Apellido",
+      "label_en": "Last name",
+      "placeholder": "Tu apellido",
+      "placeholder_en": "Your last name",
+      "required": true,
+      "width": "half",
+      "order": 2
+    },
+    {
+      "fieldType": "text",
+      "name": "empresa",
+      "label": "Empresa",
+      "label_en": "Company",
+      "placeholder": "Nombre de tu empresa",
+      "placeholder_en": "Your company name",
+      "required": false,
+      "width": "half",
+      "order": 3
+    },
+    {
+      "fieldType": "text",
+      "name": "telefono",
+      "label": "Teléfono",
+      "label_en": "Phone",
+      "placeholder": "999 999 999",
+      "required": false,
+      "width": "half",
+      "order": 4,
+      "validation": {
+        "pattern": "^[0-9+()\\\\s-]{6,20}$",
+        "patternMessage": "Ingresa un teléfono válido",
+        "patternMessage_en": "Enter a valid phone number"
+      }
+    },
+    {
+      "fieldType": "email",
+      "name": "correo",
+      "label": "Correo electrónico",
+      "label_en": "Email",
+      "placeholder": "nombre@empresa.com",
+      "required": true,
+      "width": "full",
+      "order": 5
+    },
+    {
+      "fieldType": "textarea",
+      "name": "mensaje",
+      "label": "Mensaje",
+      "label_en": "Message",
+      "placeholder": "Cuéntanos en qué podemos ayudarte",
+      "placeholder_en": "Tell us how we can help",
+      "required": true,
+      "width": "full",
+      "order": 6
+    },
+    {
+      "fieldType": "checkbox",
+      "name": "aceptaPoliticas",
+      "label": "He leído y acepto la política de privacidad",
+      "label_en": "I have read and accept the privacy policy",
+      "required": true,
+      "width": "full",
+      "order": 7
+    }
+  ]
+}

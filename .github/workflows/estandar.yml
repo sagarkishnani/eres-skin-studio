@@ -1,0 +1,48 @@
+name: Estándar de desarrollo
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  estandar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build
+        env:
+          TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: ${{ github.ref_name }}
+          WOO_STORE_URL: ${{ secrets.WOO_STORE_URL }}
+          WOO_CONSUMER_KEY: ${{ secrets.WOO_CONSUMER_KEY }}
+          WOO_CONSUMER_SECRET: ${{ secrets.WOO_CONSUMER_SECRET }}
+        run: |
+          if [ -n "$TINA_CLIENT_ID" ]; then
+            npm run build
+          else
+            echo "::warning::Sin TINA_CLIENT_ID: se usa build:local. El presupuesto de JS saldrá inflado porque React va en modo desarrollo."
+            npm run build:local
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Verificar el estándar
+        run: npm run check:standard
+
+      - name: Auditoría de dependencias
+        run: npm audit --audit-level=high
+        continue-on-error: true

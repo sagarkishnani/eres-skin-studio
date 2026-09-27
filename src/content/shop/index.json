@@ -1,0 +1,17 @@
+{
+  "hero": {
+    "eyebrow": "Tienda",
+    "title": "Nuestros productos",
+    "description": "Explora el catálogo completo. Precios y disponibilidad actualizados al momento.",
+    "badges": [
+      { "label": "Envíos a todo el país", "icon": "truck" },
+      { "label": "Pago 100% seguro", "icon": "card" },
+      { "label": "Garantía de 12 meses", "icon": "shield" }
+    ]
+  },
+  "lowStockThreshold": 5,
+  "seo": {
+    "title": "Tienda — ERES Skin Studio",
+    "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."
+  }
+}
