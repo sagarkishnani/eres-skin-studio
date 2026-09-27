@@ -1,0 +1,71 @@
+name: Deploy a producción
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [woo-catalog-changed]
+  schedule:
+    # 04:00 en Lima (UTC-5): red de seguridad por si se pierde algún webhook de WooCommerce.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build
+        env:
+          TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: main
+          WOO_STORE_URL: ${{ secrets.WOO_STORE_URL }}
+          WOO_CONSUMER_KEY: ${{ secrets.WOO_CONSUMER_KEY }}
+          WOO_CONSUMER_SECRET: ${{ secrets.WOO_CONSUMER_SECRET }}
+          PUBLIC_WOO_CHECKOUT_URL: ${{ vars.PUBLIC_WOO_CHECKOUT_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+        run: npm run build
+
+      - name: Configurar SSH
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      # Los excluidos viven solo en el servidor: --delete no los toca mientras no se use --delete-excluded.
+      # De data/ solo se sube el .htaccess que la protege; el resto (contador, envíos, caché de Woo) lo escribe PHP.
+      - name: Subir a Hostinger
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          rsync -az --delete \
+            --exclude 'site-config.php' \
+            --exclude 'woo-config.php' \
+            --include 'data/.htaccess' \
+            --exclude 'data/*' \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
+            dist/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
