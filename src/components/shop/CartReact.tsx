@@ -40,7 +40,7 @@ export default function CartReact() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-surface-raised"
+        className="relative inline-flex h-10 w-10 items-center justify-center transition-colors hover:bg-surface-raised"
         aria-label={`Carrito, ${count} ${count === 1 ? "producto" : "productos"}`}
       >
         <FaCartShopping className="h-5 w-5" aria-hidden />
@@ -70,7 +70,7 @@ export default function CartReact() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-raised"
+                className="inline-flex h-9 w-9 items-center justify-center hover:bg-surface-raised"
                 aria-label="Cerrar carrito"
               >
                 <FaXmark className="h-5 w-5" aria-hidden />
@@ -92,7 +92,7 @@ export default function CartReact() {
                           alt=""
                           width="64"
                           height="64"
-                          className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                          className="h-16 w-16 shrink-0 object-cover"
                         />
                       )}
 
@@ -104,7 +104,7 @@ export default function CartReact() {
                             type="button"
                             onClick={() => changeQuantity(item.key, item.quantity - 1)}
                             disabled={busy}
-                            className="h-7 w-7 rounded border border-line disabled:opacity-40"
+                            className="h-7 w-7 border border-line disabled:opacity-40"
                             aria-label="Quitar una unidad"
                           >−</button>
                           <span className="w-8 text-center text-sm">{item.quantity}</span>
@@ -112,7 +112,7 @@ export default function CartReact() {
                             type="button"
                             onClick={() => changeQuantity(item.key, item.quantity + 1)}
                             disabled={busy}
-                            className="h-7 w-7 rounded border border-line disabled:opacity-40"
+                            className="h-7 w-7 border border-line disabled:opacity-40"
                             aria-label="Agregar una unidad"
                           >+</button>
 

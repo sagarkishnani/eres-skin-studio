@@ -103,7 +103,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
                 key={i}
                 href={localizeHref(link.url, locale, link.external)}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-2 py-3 text-body-lg text-content-muted hover:bg-surface-raised hover:text-content"
+                className="px-2 py-3 text-body-lg text-content-muted hover:bg-surface-raised hover:text-content"
               >
                 {tField(link, "label", locale)}
               </a>

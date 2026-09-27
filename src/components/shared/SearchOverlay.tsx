@@ -67,7 +67,7 @@ export default function SearchOverlay({ locale }: { locale: Locale }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="mx-auto mt-[12vh] max-w-xl overflow-hidden rounded-xl border border-line bg-surface"
+            className="mx-auto mt-[12vh] max-w-xl overflow-hidden border border-line bg-surface"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-line px-4">

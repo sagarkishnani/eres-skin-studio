@@ -18,7 +18,7 @@ export default function CTAReact({ query, variables, data: initialData, locale }
     <section id="cta" className="section">
       <div className="container-xl">
         {/* text-white is intentional: the brand gradient is dark in both themes. */}
-        <div className="rounded-2xl bg-gradient-to-br from-ink via-ink to-accent px-8 py-14 text-center text-white md:px-16">
+        <div className="bg-gradient-to-br from-ink via-ink to-accent px-8 py-14 text-center text-white md:px-16">
           <h2 className="text-heading-md" data-tina-field={tinaField(cta, "title")}>
             {tField(cta, "title", locale)}
           </h2>

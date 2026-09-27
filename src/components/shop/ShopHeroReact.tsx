@@ -75,7 +75,7 @@ export default function ShopHeroReact({ query, variables, data: initialData, loc
           </div>
 
           {image && (
-            <div className="overflow-hidden rounded-2xl" data-tina-field={tinaField(hero, "image")}>
+            <div className="overflow-hidden" data-tina-field={tinaField(hero, "image")}>
               <img
                 src={image}
                 alt={tField(hero, "title", locale) || ""}

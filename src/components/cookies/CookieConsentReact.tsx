@@ -169,7 +169,7 @@ export default function CookieConsentReact({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-2xl bg-surface shadow-2xl">
+      <div className="w-full max-w-[480px] max-h-[88vh] overflow-y-auto bg-surface shadow-2xl">
         <div className="p-5 md:p-7">
           <div className="flex items-start justify-between gap-4 mb-3">
             <h2 className="text-[#0a0a0a] text-[17px] md:text-[19px] font-medium leading-snug">
@@ -259,21 +259,21 @@ export default function CookieConsentReact({
             <button
               type="button"
               onClick={rejectAll}
-              className="flex-1 px-4 py-2.5 rounded-[8px] border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
+              className="flex-1 px-4 py-2.5 border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
             >
               {btnReject}
             </button>
             <button
               type="button"
               onClick={savePrefs}
-              className="flex-1 px-4 py-2.5 rounded-[8px] border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
+              className="flex-1 px-4 py-2.5 border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
             >
               {btnSave}
             </button>
             <button
               type="button"
               onClick={acceptAll}
-              className="flex-1 px-4 py-2.5 rounded-[8px] bg-[#2E3A33] text-white text-[13px] font-semibold hover:bg-[#232C26] transition-colors"
+              className="flex-1 px-4 py-2.5 bg-[#2E3A33] text-white text-[13px] font-semibold hover:bg-[#232C26] transition-colors"
             >
               {btnAccept}
             </button>

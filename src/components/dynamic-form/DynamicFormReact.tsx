@@ -192,7 +192,7 @@ function getDefaultValue(field: FormField): any {
 const contactLabelCls =
   "block text-caption-sm font-semibold text-content tracking-wider uppercase mb-2";
 const contactInputCls =
-  "w-full border rounded-xl px-4 py-3.5 text-body-sm text-content placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
+  "w-full border px-4 py-3.5 text-body-sm text-content placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
 const contactInputOk = "border-line-strong focus:border-accent focus:ring-accent/20";
 const contactInputErr = "border-red-400 focus:border-red-400 focus:ring-red-400/20";
 const contactErrorCls = "text-caption-sm text-red-500 mt-1";
@@ -200,7 +200,7 @@ const contactErrorCls = "text-caption-sm text-red-500 mt-1";
 const contactLabelDarkCls =
   "block text-caption-sm font-medium text-stone-300 mb-2";
 const contactInputDarkCls =
-  "w-full border rounded-xl px-4 py-3.5 text-body-sm text-content-inverse placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
+  "w-full border px-4 py-3.5 text-body-sm text-content-inverse placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
 const contactInputDarkOk = "border-line focus:border-accent focus:ring-accent/30";
 const contactInputDarkErr = "border-red-400/70 focus:border-red-400 focus:ring-red-400/20";
 
@@ -360,7 +360,7 @@ function ContactCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className={`mt-1 w-4 h-4 shrink-0 basis-4 accent-accent rounded ${dark ? "border-line" : "border-line-strong"}`}
+          className={`mt-1 w-4 h-4 shrink-0 basis-4 accent-accent ${dark ? "border-line" : "border-line-strong"}`}
         />
         <span className={`text-caption-sm leading-relaxed ${dark ? "text-stone-300" : "text-content-muted"}`}>{children}</span>
       </label>
@@ -379,7 +379,7 @@ function ContactSubmitButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`w-full h-12 flex items-center justify-center rounded-[8px] text-content-inverse text-body-md font-semibold transition-all ${
+      className={`w-full h-12 flex items-center justify-center text-content-inverse text-body-md font-semibold transition-all ${
         disabled
           ? "bg-accent/60 cursor-not-allowed"
           : dark

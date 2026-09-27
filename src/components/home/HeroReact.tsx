@@ -36,7 +36,7 @@ export default function HeroReact({ query, variables, data: initialData, locale 
         <div className="max-w-3xl">
           {hero.eyebrow && (
             <p
-              className="mb-4 font-mono text-body-sm uppercase tracking-[0.2em] text-accent"
+              className="mb-4 text-body-sm uppercase tracking-[0.2em] text-accent"
               data-tina-field={tinaField(hero, "eyebrow")}
             >
               {tField(hero, "eyebrow", locale)}

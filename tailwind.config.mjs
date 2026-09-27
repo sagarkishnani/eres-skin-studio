@@ -27,6 +27,10 @@ export default {
       'caption-sm': ['0.75rem',   { lineHeight: '1.4', letterSpacing: '0', fontWeight: '400' }],
       'caption-xs': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '400' }],
     },
+    borderRadius: {
+      none: '0px',
+      full: '9999px',
+    },
     extend: {
       colors: {
         semantics: {
@@ -79,9 +83,6 @@ export default {
           strong:  '#D9D6CF',
         },
         accent: '#2E3A33',
-      },
-      borderRadius: {
-        sm: '4px', md: '8px', lg: '12px', xl: '16px', '2xl': '24px',
       },
       keyframes: {
         'fade-up': {

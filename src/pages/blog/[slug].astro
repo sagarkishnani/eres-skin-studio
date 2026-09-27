@@ -40,7 +40,7 @@ const body = richField(post, "body", locale);
         </time>
       )}
       {post?.coverImage && (
-        <img src={mediaUrl(post.coverImage)} alt="" class="mt-8 w-full rounded-xl object-cover" />
+        <img src={mediaUrl(post.coverImage)} alt="" class="mt-8 w-full object-cover" />
       )}
       <div class="prose mt-10 max-w-none prose-headings:font-heading prose-a:text-sage-500">
         <PostBody content={body} client:visible />

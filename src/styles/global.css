@@ -25,7 +25,7 @@
   .section-alt  { @apply bg-surface-raised; }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3
            text-body-md font-medium transition-colors duration-200;
   }
   /* text-white is intentional: the brand color is dark in both themes. */
@@ -33,7 +33,7 @@
   .btn-secondary { @apply btn border border-line-strong text-content hover:border-accent hover:bg-surface-raised; }
 
   .card {
-    @apply rounded-xl border border-line bg-surface-raised p-6
+    @apply border border-line bg-surface-raised p-6
            transition-colors duration-200 hover:border-accent/50;
   }
 }

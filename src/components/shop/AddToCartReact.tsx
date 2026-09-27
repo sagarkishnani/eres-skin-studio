@@ -36,7 +36,7 @@ export default function AddToCartReact({ productId, disabled = false, label = "A
           max={99}
           value={qty}
           onChange={(e) => setQty(Math.min(99, Math.max(1, Number(e.target.value) || 1)))}
-          className="w-20 rounded-lg border border-line bg-surface-raised px-3 py-2.5 text-center"
+          className="w-20 border border-line bg-surface-raised px-3 py-2.5 text-center"
           disabled={disabled}
         />
 
