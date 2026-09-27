@@ -18,11 +18,12 @@
 }
 
 @layer components {
-  .container-xl { @apply mx-auto w-full max-w-[1280px] px-5 md:px-8; }
-  .container-lg { @apply mx-auto w-full max-w-[1024px] px-5 md:px-8; }
+  .container-xl   { @apply mx-auto w-full max-w-container px-gutter; }
+  .container-lg   { @apply mx-auto w-full max-w-container-lg px-gutter; }
+  .container-text { @apply mx-auto w-full max-w-container-text px-gutter; }
 
-  .section      { @apply py-16 md:py-24; }
-  .section-alt  { @apply bg-surface-raised; }
+  .section      { @apply py-section; }
+  .section-alt  { @apply bg-surface-sunken; }
 
   .btn {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3

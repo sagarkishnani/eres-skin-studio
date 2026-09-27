@@ -84,6 +84,17 @@ export default {
         },
         accent: '#2E3A33',
       },
+      maxWidth: {
+        container:        '1440px',
+        'container-lg':   '1200px',
+        'container-text': '760px',
+      },
+      spacing: {
+        gutter:       'clamp(1.25rem, 5vw, 4.5rem)',
+        section:      'clamp(4rem, 9vw, 7.5rem)',
+        'section-sm': 'clamp(2.5rem, 5vw, 4rem)',
+        'section-lg': 'clamp(4.5rem, 10vw, 8.75rem)',
+      },
       keyframes: {
         'fade-up': {
           '0%':   { opacity: '0', transform: 'translateY(16px)' },
