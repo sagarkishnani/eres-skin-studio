@@ -8,9 +8,14 @@
   }
   body {
     @apply bg-surface text-content font-sans antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-medium;
+    @apply font-heading font-normal;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
   }
   :focus-visible {
     @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface;
@@ -25,17 +30,35 @@
   .section      { @apply py-section; }
   .section-alt  { @apply bg-surface-sunken; }
 
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3
-           text-body-md font-medium transition-colors duration-200;
+  .eyebrow {
+    @apply text-caption-sm font-medium uppercase tracking-[.22em] text-content-muted;
   }
-  /* text-white is intentional: the brand color is dark in both themes. */
-  .btn-primary   { @apply btn bg-accent text-white hover:bg-ink; }
-  .btn-secondary { @apply btn border border-line-strong text-content hover:border-accent hover:bg-surface-raised; }
+
+  .btn {
+    @apply inline-flex h-[52px] items-center justify-center gap-3 px-[30px]
+           text-caption-md font-medium uppercase tracking-[.14em]
+           bg-bottom bg-no-repeat bg-[length:100%_0%] hover:bg-[length:100%_100%]
+           transition-[background-size,color,border-color] duration-400 ease-out-expo;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-content-inverse;
+    background-image: linear-gradient(theme('colors.sage.900'), theme('colors.sage.900'));
+  }
+  .btn-secondary {
+    @apply btn border border-ink bg-surface-raised text-ink hover:text-content-inverse;
+    background-image: linear-gradient(theme('colors.ink'), theme('colors.ink'));
+  }
+  .btn-link {
+    @apply inline-flex items-center gap-2.5 py-1.5
+           text-caption-md font-medium uppercase tracking-[.14em]
+           bg-left-bottom bg-no-repeat bg-[length:0%_1px] hover:bg-[length:100%_1px]
+           transition-[background-size] duration-400 ease-out-expo;
+    background-image: linear-gradient(currentColor, currentColor);
+  }
 
   .card {
     @apply border border-line bg-surface-raised p-6
-           transition-colors duration-200 hover:border-accent/50;
+           transition-colors hover:border-line-strong;
   }
 }
 
