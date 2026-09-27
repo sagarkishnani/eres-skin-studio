@@ -145,42 +145,85 @@ configurado.
 ### Estilos
 
 Tailwind CSS 3 con tokens propios en `tailwind.config.mjs`. Las clases
-reutilizables (`btn-primary`, `btn-secondary`, `card`, `section`, `container-xl`,
-`container-lg`) están en `src/styles/global.css`, que **BaseLayout importa** —
-un CSS que nadie importa no se bundlea y no llega al sitio.
+reutilizables (`container-xl`, `container-lg`, `container-text`, `section`,
+`section-alt`, `eyebrow`, `btn`, `btn-primary`, `btn-secondary`, `btn-link`,
+`card`) están en `src/styles/global.css`, que **BaseLayout importa** — un CSS
+que nadie importa no se bundlea y no llega al sitio.
 
 Iconos: `react-icons` (Font Awesome 6, `react-icons/fa6`).
 
-**Tema: light.** Los componentes NO escriben colores: piden tokens
+El origen de los valores es `specs/01-tokens-y-estilos-base.md`.
+
+**Tema: light, cálido.** Los componentes NO escriben colores: piden tokens
 semánticos, y por eso el tema se puede cambiar sin tocar una sola clase.
 
 | Token | Para qué | Valor |
 |---|---|---|
-| `surface` | Fondo de la página | `#FFFFFF` |
-| `surface-raised` | Tarjetas, footer | `#F7F8FA` |
-| `content` | Texto principal | `#16181D` |
-| `content-muted` | Texto secundario | `#4B5563` |
-| `content-subtle` | Metadatos | `#6B7280` |
-| `line` / `line-strong` | Bordes | `#E5E7EB` / `#CBD1D9` |
-| `accent` | Marca legible sobre el fondo | `#232C26` |
+| `surface` | Fondo de la página (crema) | `#FAFAF5` |
+| `surface-raised` | Tarjetas, inputs | `#FFFFFF` |
+| `surface-sunken` | Secciones alternas (`section-alt`) | `#EEEAE3` |
+| `content` | Texto principal | `#1D1D1B` |
+| `content-muted` | Texto secundario | `#3A3A36` |
+| `content-subtle` | Metadatos | `#6B6A66` |
+| `content-inverse` | Texto sobre `bg-ink` / `bg-accent` | `#FAFAF5` |
+| `line` / `line-strong` | Bordes | `#E4E0D8` / `#D9D6CF` |
+| `accent` | Marca legible sobre el fondo | `#2E3A33` |
 
-Los tonos de texto cumplen 4.5:1 sobre su fondo. Si cambias uno, vuelve a medir.
+Los tonos de texto cumplen 4.5:1 sobre las tres superficies (`content-subtle`
+sobre `surface-sunken` queda justo en 4.52:1: no oscurezcas ese fondo). Si
+cambias uno, vuelve a medir.
 
 **Nunca escribas `text-white/65` ni `bg-white/5`**: asumen fondo oscuro y rompen
 el tema. Las únicas excepciones legítimas son los bloques con fondo oscuro fijo
 (el scrim del hero sobre una foto, el degradado de marca del CTA) y el texto
-sobre `bg-brand-primary`.
+sobre `bg-ink` o `bg-accent`, que usa `text-content-inverse`.
 
-Para "texto en color de marca" usa `text-accent`, **no** `text-brand-primary-light`:
-sobre fondo claro ese tono es ilegible.
+Para "texto en color de marca" usa `text-accent`.
 
-**Rampa de marca**: `brand-primary` (`#2E3A33`), `brand-primary-dark`
-(`#232C26`), `brand-primary-darkest` (`#171D1A`).
+**Paleta cruda** (para acentos puntuales; los componentes usan los semánticos):
 
-**Tipografías**: DM Sans (títulos), DM Sans (cuerpo),
-DM Mono (acentos técnicos). La escala está como utilidades de Tailwind
-(`heading-xxl` → `caption-sm`).
+- `ink` `#1D1D1B`
+- `stone` — `800 #3A3A36`, `600 #6B6A66`, `500 #7C7B78`, `400 #B0AFAA`,
+  `300 #D9D6CF`, `200 #E4E0D8`, `150 #EEEAE3`, `100 #F0F0EC`, `50 #FAFAF5`
+- `sage` — `900 #2E3A33`, `700 #4E5E55`, `600 #556555`, `500 #718471`,
+  `300 #B0BAA8`, `100 #DCE2D5`
+- `clay` — `800 #5E4F3F`, `600 #8C7A66`, `300 #D8C9B8`, `100 #E8DDCF`
+- `blush` `#F2EDE9`
+- `semantics` — `success`, `alert`, `error` (estados de formulario)
 
+`sage-500` y `clay-600` no llegan a 4.5:1 sobre fondos claros: úsalos solo en
+fondos, líneas o texto de 24px o más.
+
+**Tipografía**: DM Sans variable autoalojada (`@fontsource-variable/dm-sans`,
+normal e itálica, importada en `BaseLayout.astro`). No hay segunda familia ni
+Google Fonts. Los títulos van en peso 400 con tracking negativo; las frases
+destacadas, en `subtitle-lg` + `italic`.
+
+| Token | Rango | Uso |
+|---|---|---|
+| `heading-xxl` | 42–80px | Hero, bloques de impacto |
+| `heading-xl` | 40–72px | H1 de página |
+| `heading-lg` | 34–60px | H2 destacado |
+| `heading-md` | 32–54px | H2 de sección |
+| `heading-sm` | 28–48px | H1 de artículo |
+| `heading-xs` | 22–26px | H3 de tarjeta |
+| `subtitle-lg` | 20–24px, peso 300 | Citas |
+| `subtitle-md` | 18–21px | Lead de artículo |
+| `subtitle-sm` | 15–18px | Bajada de hero |
+| `body-lg` / `body-md` / `body-sm` / `body-xs` | 17 / 16 / 15 / 14px | Cuerpo |
+| `caption-md` / `caption-sm` / `caption-xs` | 13 / 12 / 11px | Botones, eyebrows, metadatos |
+
+**Esquinas rectas.** La escala de radios solo tiene `rounded-none` y
+`rounded-full` (círculos y pills): `rounded-lg` y compañía no existen.
+
+**Layout**: `max-w-container` (1440px), `max-w-container-lg` (1200px),
+`max-w-container-text` (760px); `px-gutter` y `py-section` / `py-section-sm` /
+`py-section-lg` son `clamp()` fluidos.
+
+**Motion**: el easing por defecto es `ease-out-expo`
+(`cubic-bezier(.16,1,.3,1)`), con `ease-out-soft` y `ease-spring` como
+alternativas; la duración por defecto es 400ms. Sombras `shadow-sm` → `shadow-xl`
+basadas en la tinta (`rgba(29,29,27,…)`).
 
 ### Panel del CMS
 
