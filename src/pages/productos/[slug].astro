@@ -39,12 +39,12 @@ const TONE = { ok: "text-emerald-400", low: "text-amber-400", out: "text-content
   <section class="section pt-[128px]" data-woo-id={product.id}>
     <div class="container-xl">
       <nav class="mb-8 text-sm text-content-subtle" aria-label="Miga de pan">
-        <a href={localizeHref("/tienda", locale, false)} class="hover:text-content">Tienda</a>
+        <a href={localizeHref("/productos", locale, false)} class="hover:text-content">Productos</a>
         {product.categories[0] && (
           <>
             <span class="mx-2">/</span>
             <a
-              href={localizeHref(`/tienda/categoria/${product.categories[0].slug}`, locale, false)}
+              href={localizeHref(`/productos/categoria/${product.categories[0].slug}`, locale, false)}
               class="hover:text-content"
             >
               {product.categories[0].name}

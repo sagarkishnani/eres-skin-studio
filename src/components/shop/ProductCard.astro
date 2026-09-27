@@ -15,7 +15,7 @@ const { product, locale, lowStockThreshold = 5 } = Astro.props;
 const image = product.images[0];
 const discount = discountPercent(product);
 const stock = stockLabel(product, lowStockThreshold);
-const href = localizeHref(`/tienda/${product.slug}`, locale, false);
+const href = localizeHref(`/productos/${product.slug}`, locale, false);
 
 const TONE = {
   ok: "text-emerald-400",

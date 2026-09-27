@@ -30,7 +30,7 @@ const [products, categories] = await Promise.all([getAllProducts(), getAllCatego
           </span>
           {categories.map((cat) => (
             <a
-              href={localizeHref(`/tienda/categoria/${cat.slug}`, locale, false)}
+              href={localizeHref(`/productos/categoria/${cat.slug}`, locale, false)}
               class="rounded-full border border-line px-4 py-2 text-sm transition-colors hover:border-line-strong"
             >
               {cat.name} <span class="text-content-subtle">({cat.count})</span>
