@@ -110,7 +110,7 @@ En el repo → Settings → Secrets and variables → Actions.
 ## 9. Verificación de punta a punta
 
 1. `npm run build` en local con las claves del paso 2. Se generan `dist/productos/<slug>/` para cada producto publicado y `dist/productos/categoria/<slug>/` para cada categoría con productos.
-2. `grep -r "ck_\|cs_" dist/` no devuelve nada.
+2. `grep -rE "(ck|cs)_[0-9a-f]{40}" dist/` no devuelve nada.
 3. En el sitio desplegado, agrega un producto desde su ficha. El contador del carrito sube sin recargar.
 4. Recarga la página. El carrito sigue ahí.
 5. "Finalizar compra" abre el checkout de WooCommerce con los mismos productos y cantidades.
