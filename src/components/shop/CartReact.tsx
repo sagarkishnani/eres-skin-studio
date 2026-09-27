@@ -34,6 +34,7 @@ export default function CartReact() {
   }, []);
 
   const count = cart?.items_count ?? 0;
+  const checkout = checkoutUrl();
 
   return (
     <>
@@ -151,12 +152,16 @@ export default function CartReact() {
                   </span>
                 </div>
 
-                <a href={checkoutUrl()} className="btn-primary w-full justify-center">
-                  Finalizar compra
-                </a>
-                <p className="mt-2 text-center text-xs text-content-subtle">
-                  El pago se completa de forma segura en nuestra tienda.
-                </p>
+                {checkout && (
+                  <>
+                    <a href={checkout} className="btn-primary w-full justify-center">
+                      Finalizar compra
+                    </a>
+                    <p className="mt-2 text-center text-xs text-content-subtle">
+                      El pago se completa de forma segura en nuestra tienda.
+                    </p>
+                  </>
+                )}
               </footer>
             )}
           </aside>

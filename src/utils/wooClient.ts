@@ -120,9 +120,13 @@ export async function removeCartItem(key: string): Promise<WooCart | null> {
   );
 }
 
-// ?cart-token permite a Woo recuperar la sesión si el navegador bloquea cookies de terceros.
-export function checkoutUrl(): string {
-  const store = "https://eresskinstudio.com".replace(/\/$/, "");
+// El carrito vive en la sesión de la Store API, no en la cookie de WordPress: wordpress/mu-plugins/eres-cart-handoff.php lo traspasa con ?cart-token.
+export function checkoutUrl(): string | null {
+  const checkout = import.meta.env.PUBLIC_WOO_CHECKOUT_URL;
+  if (!checkout) return null;
   const token = cartToken();
-  return token ? `${store}/checkout/?cart-token=${encodeURIComponent(token)}` : `${store}/checkout/`;
+  if (!token) return checkout;
+  const url = new URL(checkout);
+  url.searchParams.set("cart-token", token);
+  return url.toString();
 }

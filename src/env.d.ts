@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly BASE_URL: string;
   readonly PUBLIC_TURNSTILE_SITE_KEY: string;
+  readonly PUBLIC_WOO_CHECKOUT_URL: string;
 }
 
 interface ImportMeta {
