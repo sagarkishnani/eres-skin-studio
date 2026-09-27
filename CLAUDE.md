@@ -110,6 +110,7 @@ Colecciones:
 - `dynamicForms` — definición completa de cada formulario (un JSON por formulario).
 - `maintenance` — modo mantenimiento del sitio.
 - `cookieConsent` — textos del banner de cookies.
+- `shop` — cabecera, umbral de "quedan pocas" y SEO de `/productos`.
 
 ### Formularios (definidos en el CMS)
 
@@ -136,6 +137,41 @@ Los formularios no están hardcodeados:
 `siteverify` con `turnstile_secret` y **falla cerrado** (token inválido o
 `siteverify` inalcanzable ⇒ no se envía correo), solo mientras el secreto esté
 configurado.
+
+### Tienda (WooCommerce)
+
+Los productos viven en un WordPress + WooCommerce aparte; el sitio solo los
+muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
+`specs/02-integracion-woocommerce.md`; guía de configuración: `wordpress/README.md`.
+
+| Pieza | Dominio |
+|---|---|
+| Astro | `eresskinstudio.com` |
+| WordPress | `checkout.eresskinstudio.com` (hasta la migración: `eresskinstudio.com`) |
+
+- **Build time** — `src/lib/woo/rest.ts` lee la API REST v3 con claves de solo
+  lectura (`WOO_STORE_URL`, `WOO_CONSUMER_KEY`, `WOO_CONSUMER_SECRET`, sin
+  `PUBLIC_`). Genera `/productos`, `/productos/<slug>` y
+  `/productos/categoria/<slug>`. **Solo desde frontmatter**: importarlo en un
+  `.tsx` metería las claves en el bundle.
+- **Navegador** — `src/utils/wooClient.ts` solo habla con `public/woo-api.php`,
+  un proxy con allowlist de rutas que proyecta campo a campo. `StockRefresher`
+  refresca precio y stock; el carrito usa la Store API y guarda el `Cart-Token`
+  en `localStorage`. Un recurso nuevo se agrega primero a `$ROUTES` del proxy.
+- **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
+  (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
+  copia ese carrito a la sesión del navegador.
+- **Rebuild** — los webhooks de producto de Woo llaman a
+  `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
+  (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
+  corre en cada push a `main` y todos los días a las 04:00 de Lima.
+- **Redirecciones** — `public/.htaccess` manda `/product/<slug>/` y
+  `/product-category/<slug>/` (URLs heredadas de WordPress) a `/productos/…`.
+
+**Secretos**: `public/woo-config.php` (git-ignored, plantilla en
+`public/woo-config.example.php`), compartido por `woo-api.php` y
+`rebuild-hook.php`. El deploy no pisa `woo-config.php`, `site-config.php` ni el
+contenido de `data/`.
 
 ### Modo mantenimiento
 
