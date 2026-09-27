@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # URLs heredadas de WooCommerce cuando WordPress vivía en el dominio raíz.
+  RewriteRule ^product/([^/]+)/?$ /productos/$1/ [R=301,L]
+  RewriteRule ^product-category/([^/]+)/?$ /productos/categoria/$1/ [R=301,L]
+</IfModule>
