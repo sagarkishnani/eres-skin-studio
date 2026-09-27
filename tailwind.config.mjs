@@ -95,14 +95,35 @@ export default {
         'section-sm': 'clamp(2.5rem, 5vw, 4rem)',
         'section-lg': 'clamp(4.5rem, 10vw, 8.75rem)',
       },
+      boxShadow: {
+        sm: '0 2px 10px rgba(29,29,27,.08)',
+        md: '0 4px 20px rgba(29,29,27,.15)',
+        lg: '0 20px 40px -20px rgba(29,29,27,.25)',
+        xl: '0 30px 60px -30px rgba(29,29,27,.25)',
+      },
+      transitionTimingFunction: {
+        DEFAULT:    'cubic-bezier(.16,1,.3,1)',
+        'out-expo': 'cubic-bezier(.16,1,.3,1)',
+        'out-soft': 'cubic-bezier(.22,.61,.36,1)',
+        spring:     'cubic-bezier(.34,1.56,.64,1)',
+      },
+      transitionDuration: {
+        DEFAULT: '400ms',
+        400:     '400ms',
+      },
       keyframes: {
         'fade-up': {
           '0%':   { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to:   { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
-        'fade-up': 'fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'fade-up': 'fade-up 600ms cubic-bezier(.16,1,.3,1) both',
+        marquee:   'marquee 48s linear infinite',
       },
     },
   },
