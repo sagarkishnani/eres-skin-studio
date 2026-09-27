@@ -54,7 +54,7 @@ export default function FooterReact({ query, variables, data: initialData, local
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={item.network}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-content-muted transition-colors hover:border-brand-primary hover:text-content"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-content-muted transition-colors hover:border-accent hover:text-content"
                     >
                       <Icon size={15} />
                     </a>

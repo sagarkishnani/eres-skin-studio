@@ -28,7 +28,7 @@ export default function HeroReact({ query, variables, data: initialData, locale 
             aria-hidden="true"
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-greyscale-darkest via-greyscale-darkest/85 to-greyscale-darkest/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-content via-content/85 to-content/40" />
         </>
       )}
 

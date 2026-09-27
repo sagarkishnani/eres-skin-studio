@@ -45,7 +45,7 @@ export default function CartReact() {
       >
         <FaCartShopping className="h-5 w-5" aria-hidden />
         {count > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-primary px-1 text-[11px] font-semibold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-semibold text-white">
             {count}
           </span>
         )}

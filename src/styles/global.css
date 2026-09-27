@@ -13,7 +13,7 @@
     @apply font-heading font-medium;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-primary ring-offset-2 ring-offset-surface;
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface;
   }
 }
 
@@ -29,12 +29,12 @@
            text-body-md font-medium transition-colors duration-200;
   }
   /* text-white is intentional: the brand color is dark in both themes. */
-  .btn-primary   { @apply btn bg-brand-primary text-white hover:bg-brand-primary-dark; }
-  .btn-secondary { @apply btn border border-line-strong text-content hover:border-brand-primary hover:bg-surface-raised; }
+  .btn-primary   { @apply btn bg-accent text-white hover:bg-ink; }
+  .btn-secondary { @apply btn border border-line-strong text-content hover:border-accent hover:bg-surface-raised; }
 
   .card {
     @apply rounded-xl border border-line bg-surface-raised p-6
-           transition-colors duration-200 hover:border-brand-primary/50;
+           transition-colors duration-200 hover:border-accent/50;
   }
 }
 

@@ -26,27 +26,10 @@ export default {
     },
     extend: {
       colors: {
-        brand: {
-          primary: {
-            darkest:  '#171D1A',
-            dark:     '#232C26',
-            DEFAULT:  '#2E3A33',
-            light:    '#718471',
-            lightest: '#DCE2D5',
-          },
-        },
         semantics: {
           success: { dark: '#267C35', DEFAULT: '#37B24D', lightest: '#EBF7ED' },
           alert:   { dark: '#CA7900', DEFAULT: '#FC9700', lightest: '#FFF4D8' },
           error:   { dark: '#8C1D1D', DEFAULT: '#EB0E0E', lightest: '#F9EBEA' },
-        },
-        greyscale: {
-          darkest:  '#16181D',
-          dark:     '#3F3F3F',
-          DEFAULT:  '#717274',
-          light:    '#E5E7EB',
-          lightest: '#F2F3F5',
-          white:    '#FFFFFF',
         },
 
         ink: '#1D1D1B',

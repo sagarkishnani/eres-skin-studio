@@ -35,7 +35,7 @@ export default function ShopHeroReact({ query, variables, data: initialData, loc
           <div>
             {hero.eyebrow && (
               <p
-                className="text-sm font-semibold uppercase tracking-widest text-brand-primary"
+                className="text-sm font-semibold uppercase tracking-widest text-accent"
                 data-tina-field={tinaField(hero, "eyebrow")}
               >
                 {tField(hero, "eyebrow", locale)}
@@ -65,7 +65,7 @@ export default function ShopHeroReact({ query, variables, data: initialData, loc
                       className="flex items-center gap-2 text-sm text-content-muted"
                       data-tina-field={tinaField(badge, "label")}
                     >
-                      {Icon && <Icon className="h-4 w-4 text-brand-primary" aria-hidden />}
+                      {Icon && <Icon className="h-4 w-4 text-accent" aria-hidden />}
                       {tField(badge, "label", locale)}
                     </li>
                   );

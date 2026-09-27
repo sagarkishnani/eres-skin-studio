@@ -18,7 +18,7 @@ export default function CTAReact({ query, variables, data: initialData, locale }
     <section id="cta" className="section">
       <div className="container-xl">
         {/* text-white is intentional: the brand gradient is dark in both themes. */}
-        <div className="rounded-2xl bg-gradient-to-br from-brand-primary-darkest via-brand-primary-dark to-brand-primary px-8 py-14 text-center text-white md:px-16">
+        <div className="rounded-2xl bg-gradient-to-br from-ink via-ink to-accent px-8 py-14 text-center text-white md:px-16">
           <h2 className="text-heading-md" data-tina-field={tinaField(cta, "title")}>
             {tField(cta, "title", locale)}
           </h2>
@@ -30,7 +30,7 @@ export default function CTAReact({ query, variables, data: initialData, locale }
           {cta.buttonText && (
             <a
               href={localizeHref(cta.buttonUrl, locale)}
-              className="btn mt-8 bg-white text-brand-primary-darkest hover:bg-white/90"
+              className="btn mt-8 bg-white text-accent hover:bg-white/90"
             >
               {tField(cta, "buttonText", locale)}
             </a>

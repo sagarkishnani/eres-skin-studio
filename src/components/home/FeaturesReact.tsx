@@ -50,7 +50,7 @@ export default function FeaturesReact({ query, variables, data: initialData, loc
             return (
               <article key={i} className="card" data-tina-field={tinaField(item, "title")}>
                 {Icon && (
-                  <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-primary/15 text-accent">
+                  <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-accent/15 text-accent">
                     <Icon size={19} />
                   </span>
                 )}
