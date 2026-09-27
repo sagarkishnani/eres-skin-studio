@@ -3,9 +3,8 @@ export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}'],
   theme: {
     fontFamily: {
-      sans: ['DM Sans', 'system-ui', 'sans-serif'],
-      heading: ['DM Sans', 'system-ui', 'sans-serif'],
-      mono: ['DM Mono', 'ui-monospace', 'monospace'],
+      sans: ['"DM Sans Variable"', 'system-ui', 'sans-serif'],
+      heading: ['"DM Sans Variable"', 'system-ui', 'sans-serif'],
     },
     fontSize: {
       'heading-xxl': ['clamp(2.5rem, 5vw + 1rem, 4.25rem)',        { lineHeight: '1.1',  fontWeight: '500' }],
