@@ -6,11 +6,7 @@ import { mediaUrl } from "../../utils/mediaUrl";
 import type { Locale } from "../../i18n/config";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { hasSubmenu, presentLinks, type NavLink, type SimpleLink } from "./navTypes";
-
-interface Social {
-  network?: string | null;
-  url?: string | null;
-}
+import { presentSocials, socialLabel, type Social } from "./socialLinks";
 
 interface Contact {
   address?: string | null;
@@ -32,10 +28,6 @@ interface Props {
 }
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
-
-function socialLabel(network: string): string {
-  return network === "x" ? "X" : network.charAt(0).toUpperCase() + network.slice(1);
-}
 
 function phoneHref(contact: Contact): string {
   return contact.phoneUrl || `tel:${(contact.phone || "").replace(/\s+/g, "")}`;
@@ -68,7 +60,7 @@ export default function MobileDrawer({ open, onClose, links, activeIndex, cta, c
 
   const submenuLink = links[lastSubmenuIndex];
   const submenuOpen = submenuIndex !== null;
-  const presentSocials = socials.filter((social) => social?.network && social?.url);
+  const visibleSocials = presentSocials(socials);
 
   return (
     <aside
@@ -167,9 +159,9 @@ export default function MobileDrawer({ open, onClose, links, activeIndex, cta, c
               </div>
             )}
 
-            {presentSocials.length > 0 && (
+            {visibleSocials.length > 0 && (
               <div className="mt-5 flex flex-wrap gap-5 text-caption-xs font-medium uppercase tracking-[.16em] text-content">
-                {presentSocials.map((social) => (
+                {visibleSocials.map((social) => (
                   <a key={social.network} href={social.url!} target="_blank" rel="noopener noreferrer">
                     {socialLabel(social.network!)}
                   </a>
