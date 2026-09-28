@@ -186,7 +186,9 @@ reutilizables (`container-xl`, `container-lg`, `container-text`, `section`,
 `card`) están en `src/styles/global.css`, que **BaseLayout importa** — un CSS
 que nadie importa no se bundlea y no llega al sitio.
 
-Iconos: `react-icons` (Font Awesome 6, `react-icons/fa6`).
+Iconos: `react-icons`. El header, el drawer, la búsqueda y el carrito usan
+Phosphor en peso Light (`react-icons/pi`, p. ej. `PiHandbagLight`) porque su
+trazo fino encaja con el diseño; elige el set que mejor encaje en cada pieza.
 
 El origen de los valores es `specs/01-tokens-y-estilos-base.md`.
 
