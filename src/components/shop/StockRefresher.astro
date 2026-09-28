@@ -30,21 +30,21 @@ const { lowStockThreshold = 5 } = Astro.props;
       const data = fresh.get(Number(node.dataset.wooId));
       if (!data) continue;
 
-      const priceBox = node.querySelector("[data-woo-price]");
+      const priceBox = node.querySelector<HTMLElement>("[data-woo-price]");
       if (priceBox) {
         const off = discountPercent(data);
+        const priceClass = priceBox.dataset.priceClass || "text-body-lg font-semibold";
+        const regularClass = priceBox.dataset.regularClass || "text-sm text-content-subtle line-through";
         priceBox.innerHTML =
-          `<span class="text-body-lg font-semibold">${formatPrice(data.price)}</span>` +
-          (off !== null
-            ? `<span class="text-sm text-content-subtle line-through">${formatPrice(data.regular_price)}</span>`
-            : "");
+          `<span class="${priceClass}">${formatPrice(data.price)}</span>` +
+          (off !== null ? `<span class="${regularClass}">${formatPrice(data.regular_price)}</span>` : "");
       }
 
       const stockBox = node.querySelector("[data-woo-stock]");
       if (stockBox) {
         const label = stockLabel(data, lowStock);
         stockBox.textContent = label.text;
-        stockBox.className = `mt-1 text-xs ${TONE[label.tone]}`;
+        if (!stockBox.hasAttribute("data-woo-stock-plain")) stockBox.className = `mt-1 text-xs ${TONE[label.tone]}`;
       }
 
       node.querySelectorAll("[data-woo-buy]").forEach((btn) => {

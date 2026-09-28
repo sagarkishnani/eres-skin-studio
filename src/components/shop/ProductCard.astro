@@ -1,8 +1,9 @@
 ---
 import type { WooProduct } from "../../lib/woo/types";
-import { formatPrice, discountPercent, stockLabel, stripHtml } from "../../lib/woo/format";
+import { formatPrice, discountPercent, stockLabel, isBuyable } from "../../lib/woo/format";
 import { localizeHref } from "../../utils/i18n";
 import type { Locale } from "../../i18n/config";
+import QuickAddReact from "./QuickAddReact";
 
 interface Props {
   product: WooProduct;
@@ -12,58 +13,78 @@ interface Props {
 
 const { product, locale, lowStockThreshold = 5 } = Astro.props;
 
-const image = product.images[0];
+const [primaryImage, hoverImage] = product.images;
 const discount = discountPercent(product);
 const stock = stockLabel(product, lowStockThreshold);
+const soldOut = product.stock_status === "outofstock";
+const quickAdd = product.type === "simple" && isBuyable(product);
+const category = product.categories[0]?.name;
 const href = localizeHref(`/productos/${product.slug}`, locale, false);
 
-const TONE = {
-  ok: "text-emerald-400",
-  low: "text-amber-400",
-  out: "text-content-subtle",
-};
+const imageClass = "absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-[700ms,1400ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)]";
+const priceClass = "text-body-xs font-semibold md:text-body-sm";
+const regularPriceClass = "text-caption-sm text-content-subtle line-through md:text-caption-md";
+const badgeClass = "absolute left-2.5 top-2.5 px-2 py-[5px] text-caption-xs font-semibold leading-none tracking-[.04em]";
 ---
 
-<article class="card group relative flex flex-col overflow-hidden" data-woo-id={product.id}>
-  <a href={href} class="block aspect-square overflow-hidden bg-surface-raised">
-    {image ? (
+<article class="group relative flex flex-col gap-3 md:gap-[18px]" data-woo-id={product.id}>
+  <div class="relative aspect-square overflow-hidden bg-stone-100">
+    {primaryImage ? (
       <img
-        src={image.src}
-        alt={image.alt || product.name}
+        src={primaryImage.src}
+        alt={primaryImage.alt || product.name}
         loading="lazy"
         decoding="async"
         width="600"
         height="600"
-        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        class={`${imageClass} lg:group-hover:scale-105`}
       />
     ) : (
-      <div class="flex h-full w-full items-center justify-center text-content-subtle">Sin imagen</div>
+      <div class="flex h-full w-full items-center justify-center text-caption-sm text-content-subtle">Sin imagen</div>
     )}
-  </a>
+    {hoverImage && (
+      <img
+        src={hoverImage.src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+        class={`${imageClass} scale-[1.06] opacity-0 lg:group-hover:scale-100 lg:group-hover:opacity-100`}
+      />
+    )}
 
-  {discount !== null && (
-    <span class="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
-      -{discount}%
-    </span>
-  )}
+    {soldOut ? (
+      <span class={`${badgeClass} bg-surface-raised text-content`}>Agotado</span>
+    ) : (
+      discount !== null && <span class={`${badgeClass} bg-accent text-content-inverse`}>-{discount}%</span>
+    )}
 
-  <div class="flex flex-1 flex-col p-4">
-    <h3 class="text-body font-medium leading-snug">
-      <a href={href} class="after:absolute after:inset-0">{product.name}</a>
+    {quickAdd && <QuickAddReact productId={product.id} productName={product.name} client:visible />}
+  </div>
+
+  <div class="flex min-w-0 flex-col gap-1 md:gap-1.5">
+    {category && (
+      <span class="truncate text-[10px] font-medium uppercase tracking-[.1em] text-content-subtle md:text-caption-xs">
+        {category}
+      </span>
+    )}
+    <h3 class="line-clamp-2 text-body-xs font-medium leading-[1.35] tracking-[-.005em] md:text-body-md md:leading-[1.35]">
+      <a href={href} class="after:absolute after:inset-0">
+        <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-right-bottom bg-no-repeat transition-[background-size] duration-[600ms] ease-out-expo lg:group-hover:bg-[length:100%_1px] lg:group-hover:bg-left-bottom">
+          {product.name}
+        </span>
+      </a>
     </h3>
-
-    {product.short_description && (
-      <p class="mt-1.5 line-clamp-2 text-sm text-content-subtle">{stripHtml(product.short_description, 90)}</p>
-    )}
-
-    <div class="mt-auto pt-4">
-      <div class="flex items-baseline gap-2" data-woo-price>
-        <span class="text-body-lg font-semibold">{formatPrice(product.price)}</span>
-        {discount !== null && (
-          <span class="text-sm text-content-subtle line-through">{formatPrice(product.regular_price)}</span>
-        )}
-      </div>
-      <p class={`mt-1 text-xs ${TONE[stock.tone]}`} data-woo-stock>{stock.text}</p>
+    <div
+      class="mt-0.5 flex flex-wrap items-baseline gap-2"
+      data-woo-price
+      data-price-class={priceClass}
+      data-regular-class={regularPriceClass}
+    >
+      <span class={priceClass}>{formatPrice(product.price)}</span>
+      {discount !== null && <span class={regularPriceClass}>{formatPrice(product.regular_price)}</span>}
     </div>
+    <span class="sr-only" data-woo-stock data-woo-stock-plain>{stock.text}</span>
   </div>
 </article>
