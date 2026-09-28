@@ -32,7 +32,7 @@ interface FooterColumnProps {
   children: ReactNode;
 }
 
-const columnTitle = "text-caption-sm font-medium uppercase tracking-[.18em] text-stone-400";
+const columnTitle = "text-caption-md font-medium uppercase tracking-[.18em] text-stone-400";
 
 function FooterColumn({ title, titleField, open, onToggle, children }: FooterColumnProps) {
   const panelId = useId();
@@ -63,7 +63,7 @@ function FooterColumn({ title, titleField, open, onToggle, children }: FooterCol
         }`}
       >
         <div className="overflow-hidden">
-          <div className="flex flex-col gap-[14px] text-body-xs leading-[1.45] max-md:pb-6">{children}</div>
+          <div className="flex flex-col gap-[14px] text-body-sm leading-[1.45] max-md:pb-6">{children}</div>
         </div>
       </div>
     </div>
@@ -100,7 +100,7 @@ export default function FooterReact({ query, variables, data: initialData, local
             )}
             {footer?.tagline && (
               <p
-                className="max-w-[340px] text-body-sm text-stone-300 [text-wrap:pretty]"
+                className="max-w-[360px] text-body-md text-stone-300 [text-wrap:pretty]"
                 data-tina-field={tinaField(footer, "tagline")}
               >
                 {tField(footer, "tagline", locale)}
@@ -146,7 +146,7 @@ export default function FooterReact({ query, variables, data: initialData, local
                 </a>
               )}
               {hours.map((item: any, index: number) => (
-                <p key={index} className="whitespace-pre-line text-[14px] leading-[1.55] text-stone-300">
+                <p key={index} className="whitespace-pre-line text-body-sm leading-[1.55] text-stone-300">
                   {item.label && <span data-tina-field={tinaField(item, "label")}>{tField(item, "label", locale)}:</span>}
                   {item.label && item.text && "\n"}
                   {item.text && <span data-tina-field={tinaField(item, "text")}>{tField(item, "text", locale)}</span>}
@@ -156,7 +156,7 @@ export default function FooterReact({ query, variables, data: initialData, local
           )}
         </div>
 
-        <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-x-8 gap-y-[18px] border-t border-stone-800 pt-6 text-caption-xs uppercase tracking-[.14em] text-stone-400">
+        <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-between gap-x-8 gap-y-[18px] border-t border-stone-800 pt-6 text-caption-sm uppercase tracking-[.14em] text-stone-400">
           <p>
             © {year}
             {footer?.legal && (
@@ -191,7 +191,7 @@ export default function FooterReact({ query, variables, data: initialData, local
               rel="noopener"
               className="transition-opacity duration-300 hover:opacity-60"
             >
-              <img src={TWNSTUDIOS_LOGO} alt="TWNSTUDIOS" width={86} height={11} className="block h-[11px] w-auto" />
+              <img src={TWNSTUDIOS_LOGO} alt="TWNSTUDIOS" width={86} height={11} className="block h-3 w-auto" />
             </a>
           </p>
         </div>
