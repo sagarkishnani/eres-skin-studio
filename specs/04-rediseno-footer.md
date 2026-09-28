@@ -80,7 +80,7 @@ Entre 768 y 1023px la marca ocupa la primera celda y las tres columnas siguen el
 - Tres bloques:
   1. `© {año} {footer.legal}`. El año sale de `new Date().getFullYear()` en build.
   2. Redes como links de texto (Instagram, Facebook, WhatsApp) con gap de 24px, `text-content-inverse` y el subrayado de las columnas.
-  3. "Diseño y desarrollo por **TWNSTUDIOS**". Solo "TWNSTUDIOS" es link y va en `text-content-inverse`.
+  3. "Diseño y desarrollo por" seguido del logo de TWNSTUDIOS (`public/uploads/footer/twn-logo.svg`, 11px de alto). Solo el logo es link y al hacer hover baja a `opacity-60`.
 
 **Crédito**
 
@@ -219,7 +219,7 @@ Convenciones:
 - [ ] A 360px no hay scroll horizontal y la barra inferior se parte en varias líneas sin cortar texto.
 - [ ] La columna Contacto muestra dirección, teléfono (`tel:+51908686767`), email (`mailto:eresskinstudio@gmail.com`) y los dos bloques de horarios con sus saltos de línea.
 - [ ] El copyright muestra el año actual seguido de "Eres Skin Studio · Todos los derechos reservados".
-- [ ] "TWNSTUDIOS" enlaza a `https://twnstudios.com/?utm_source=eresskin&utm_medium=referral&utm_campaign=client_portfolio` en otra pestaña, y el crédito no aparece en `/admin`.
+- [ ] El logo de TWNSTUDIOS enlaza a `https://twnstudios.com/?utm_source=eresskin&utm_medium=referral&utm_campaign=client_portfolio` en otra pestaña, y el crédito no aparece en `/admin`.
 - [ ] Instagram, Facebook y WhatsApp aparecen como texto en la barra inferior y abren sus URLs en otra pestaña.
 - [ ] El botón flotante usa `FaWhatsapp`, enlaza a `https://wa.link/9tjyvn` y tiene `aria-label`.
 - [ ] El botón desaparece al abrir el drawer, la búsqueda o el carrito, y vuelve al cerrarlos.
@@ -239,6 +239,7 @@ Convenciones:
 - **No: `email` y `hours` dentro de `nav.contact`.** El nombre `nav` confunde cuando los datos los usa el footer.
 - **No: un bloque de contacto propio del footer.** Duplicaría datos.
 - **Sí: el crédito a TWNSTUDIOS fijo en código.** El cliente no puede quitarlo ni alterar los UTM desde el CMS.
+- **Sí: logo SVG de TWNSTUDIOS en lugar del texto.** Pedido del usuario después de aprobar la spec. El SVG ya viene en `#F2F2F2` para fondo oscuro; lleva `alt="TWNSTUDIOS"`.
 - **Sí: `rel="noopener"` sin `noreferrer` en el crédito.** El referrer ayuda a atribuir el tráfico, además de los UTM.
 - **Sí: año automático en build.** El workflow de deploy recompila todos los días a las 04:00, así que el año cambia solo.
 - **Sí: links sembrados con destinos reales cuando existen.** "Sobre nosotras" y "Servicios" van a `/contacto`, como en el header de SPEC 03.
