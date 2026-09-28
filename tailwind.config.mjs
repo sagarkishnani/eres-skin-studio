@@ -83,6 +83,7 @@ export default {
           strong:  '#D9D6CF',
         },
         accent: '#2E3A33',
+        whatsapp: '#25D366',
       },
       maxWidth: {
         container:        '1440px',

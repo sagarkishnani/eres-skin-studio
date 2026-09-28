@@ -1,0 +1,23 @@
+---
+import { FaWhatsapp } from "react-icons/fa6";
+import client from "../../../tina/__generated__/client";
+
+const result = await client.queries.global({ relativePath: "index.json" });
+const global = result.data?.global;
+const whatsappUrl = (global?.footer?.social || []).find((social) => social?.network === "whatsapp")?.url;
+const visible = Boolean(global?.whatsappButton?.enabled && whatsappUrl);
+---
+
+{
+  visible && (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Escríbenos por WhatsApp"
+      class="fixed bottom-5 right-5 z-[46] grid h-14 w-14 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition-transform duration-500 ease-spring hover:scale-[1.08] [html[data-scroll-locked]_&]:scale-0"
+    >
+      <FaWhatsapp size={26} aria-hidden="true" />
+    </a>
+  )
+}
