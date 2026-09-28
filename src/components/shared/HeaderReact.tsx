@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTina, tinaField } from "tinacms/dist/react";
-import { PiCaretDownLight, PiListLight } from "react-icons/pi";
+import { PiCaretDownLight, PiListLight, PiMagnifyingGlassLight } from "react-icons/pi";
 import { tField, localizeHref } from "../../utils/i18n";
 import { mediaUrl } from "../../utils/mediaUrl";
 import type { Locale } from "../../i18n/config";
@@ -73,6 +73,17 @@ export default function HeaderReact({ query, variables, data: initialData, local
     closeMegaMenu();
     closePanel();
   };
+
+  useEffect(() => {
+    const toggleSearchShortcut = (event: globalThis.KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      event.preventDefault();
+      closeMegaMenu();
+      setOpenPanel((panel) => (panel === "search" ? null : "search"));
+    };
+    window.addEventListener("keydown", toggleSearchShortcut);
+    return () => window.removeEventListener("keydown", toggleSearchShortcut);
+  }, []);
 
   useEffect(() => {
     if (openPanel === null) return;
@@ -183,8 +194,16 @@ export default function HeaderReact({ query, variables, data: initialData, local
             })}
           </nav>
 
-          <div onMouseEnter={closeMegaMenu} className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end">
-            <SearchOverlay locale={locale} />
+          <div onMouseEnter={closeMegaMenu} className="col-start-3 row-start-1 flex items-center justify-self-end lg:gap-2">
+            <button
+              type="button"
+              onClick={() => openPanelExclusively("search")}
+              className={iconButton}
+              aria-label="Buscar"
+              aria-expanded={openPanel === "search"}
+            >
+              <PiMagnifyingGlassLight size={20} aria-hidden />
+            </button>
             <CartReact />
           </div>
         </div>
@@ -205,6 +224,14 @@ export default function HeaderReact({ query, variables, data: initialData, local
         logo={nav?.logo}
         logoAlt={nav?.logoAlt}
         locale={locale}
+      />
+
+      <SearchOverlay
+        open={openPanel === "search"}
+        onClose={closePanel}
+        locale={locale}
+        placeholder={global?.search?.placeholder}
+        popular={presentLinks<{ label?: string | null }>(global?.search?.popular).map((item) => tField(item, "label", locale))}
       />
     </>
   );
