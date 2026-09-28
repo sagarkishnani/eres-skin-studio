@@ -1,9 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/home/Hero.astro";
 import client from "../../tina/__generated__/client";
 
-const result = await client.queries.home({ relativePath: "index.json" });
-const seo = result.data?.home?.seo;
+const { query, variables, data } = await client.queries.home({ relativePath: "index.json" });
+const seo = data?.home?.seo;
 ---
 
-<BaseLayout title={seo?.title} description={seo?.description} />
+<BaseLayout title={seo?.title} description={seo?.description}>
+  <Hero query={query} variables={variables} data={data} />
+</BaseLayout>

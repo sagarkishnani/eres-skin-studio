@@ -123,10 +123,15 @@ export default {
           from: { transform: 'translateX(0)' },
           to:   { transform: 'translateX(-50%)' },
         },
+        'hero-progress': {
+          from: { transform: 'scaleX(0)' },
+          to:   { transform: 'scaleX(1)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 600ms cubic-bezier(.16,1,.3,1) both',
         marquee:   'marquee 48s linear infinite',
+        'hero-progress': 'hero-progress 6.5s linear forwards',
       },
       typography: ({ theme }) => ({
         DEFAULT: {

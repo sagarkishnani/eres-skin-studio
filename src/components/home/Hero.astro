@@ -1,0 +1,15 @@
+---
+import HeroReact from "./HeroReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const hero = data?.home?.hero;
+const visible = hero?.enabled !== false && (hero?.slides || []).some(Boolean);
+---
+
+{visible && <HeroReact query={query} variables={variables} data={data} client:load />}
