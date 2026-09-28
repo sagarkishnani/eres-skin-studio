@@ -5,7 +5,8 @@ import { tField, localizeHref } from "../../utils/i18n";
 import { mediaUrl } from "../../utils/mediaUrl";
 import type { Locale } from "../../i18n/config";
 import SearchOverlay from "./SearchOverlay";
-import CartReact from "../shop/CartReact";
+import { CartButton, CartDrawer } from "../shop/CartReact";
+import { useCart } from "../../hooks/useCart";
 import AnnouncementBar from "./AnnouncementBar";
 import { useHeaderScroll } from "../../hooks/useHeaderScroll";
 import MegaMenu, { MEGA_MENU_ID } from "./MegaMenu";
@@ -48,6 +49,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
   const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
   const closePanel = useCallback(() => setOpenPanel(null), []);
 
+  const cart = useCart();
   const scroll = useHeaderScroll();
   const hidden = scroll.hidden && !megaOpen && openPanel === null;
   const elevated = scroll.scrolled || megaOpen;
@@ -204,7 +206,12 @@ export default function HeaderReact({ query, variables, data: initialData, local
             >
               <PiMagnifyingGlassLight size={20} aria-hidden />
             </button>
-            <CartReact />
+            <CartButton
+              count={cart.count}
+              bumping={cart.bumping}
+              expanded={openPanel === "cart"}
+              onOpen={() => openPanelExclusively("cart")}
+            />
           </div>
         </div>
 
@@ -232,6 +239,15 @@ export default function HeaderReact({ query, variables, data: initialData, local
         locale={locale}
         placeholder={global?.search?.placeholder}
         popular={presentLinks<{ label?: string | null }>(global?.search?.popular).map((item) => tField(item, "label", locale))}
+      />
+
+      <CartDrawer
+        open={openPanel === "cart"}
+        onClose={closePanel}
+        cart={cart.cart}
+        count={cart.count}
+        busy={cart.busy}
+        onChangeQuantity={cart.changeQuantity}
       />
     </>
   );

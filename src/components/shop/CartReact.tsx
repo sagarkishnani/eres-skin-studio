@@ -1,173 +1,177 @@
-import { useEffect, useState, useCallback } from "react";
-import { FaCartShopping, FaXmark, FaTrash } from "react-icons/fa6";
-import { getCart, updateCartItem, removeCartItem, checkoutUrl, CART_UPDATED } from "../../utils/wooClient";
-import type { WooCart } from "../../lib/woo/types";
+import { useRef } from "react";
+import { PiHandbagLight, PiMinusLight, PiPlusLight, PiTrashLight, PiXLight } from "react-icons/pi";
+import { checkoutUrl } from "../../utils/wooClient";
+import type { WooCart, WooCartItem } from "../../lib/woo/types";
 import { formatPrice } from "../../lib/woo/format";
-import { lockScroll, unlockScroll } from "../../utils/scrollLock";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
-export default function CartReact() {
-  const [cart, setCart] = useState<WooCart | null>(null);
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
+interface CartButtonProps {
+  count: number;
+  bumping: boolean;
+  expanded: boolean;
+  onOpen: () => void;
+}
 
-  useEffect(() => {
-    getCart();
-    const onUpdate = (e: Event) => setCart((e as CustomEvent<WooCart>).detail);
-    window.addEventListener(CART_UPDATED, onUpdate);
-    return () => window.removeEventListener(CART_UPDATED, onUpdate);
-  }, []);
+export function CartButton({ count, bumping, expanded, onOpen }: CartButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-expanded={expanded}
+      aria-label={`Carrito, ${count} ${count === 1 ? "producto" : "productos"}`}
+      className="relative grid h-11 w-11 place-items-center text-content transition-opacity duration-300 hover:opacity-60"
+    >
+      <PiHandbagLight size={20} aria-hidden />
+      {count > 0 && (
+        <span
+          aria-hidden
+          className={`absolute right-1 top-1.5 grid h-4 min-w-4 place-items-center bg-accent px-1 text-[10px] font-semibold leading-none text-content-inverse transition-transform duration-[350ms] ease-spring ${
+            bumping ? "scale-[1.35]" : "scale-100"
+          }`}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("keydown", onKey);
-    lockScroll();
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      unlockScroll();
-    };
-  }, [open]);
+function fromMinorUnits(amount: string, minorUnit: number): string {
+  return formatPrice(Number(amount) / 10 ** minorUnit);
+}
 
-  const changeQuantity = useCallback(async (key: string, quantity: number) => {
-    setBusy(true);
-    await (quantity <= 0 ? removeCartItem(key) : updateCartItem(key, quantity));
-    setBusy(false);
-  }, []);
+interface CartLineProps {
+  item: WooCartItem;
+  busy: boolean;
+  onChangeQuantity: (key: string, quantity: number) => void;
+}
 
-  const count = cart?.items_count ?? 0;
-  const checkout = checkoutUrl();
+function CartLine({ item, busy, onChangeQuantity }: CartLineProps) {
+  const stepButton = "grid h-[34px] w-9 place-items-center text-content disabled:opacity-40";
+  return (
+    <li className="grid grid-cols-[84px_minmax(0,1fr)] gap-4 border-b border-stone-150 py-5">
+      {item.image ? (
+        <img src={item.image} alt="" width="84" height="84" loading="lazy" className="h-[84px] w-[84px] bg-stone-100 object-cover" />
+      ) : (
+        <span aria-hidden className="h-[84px] w-[84px] bg-stone-100" />
+      )}
+
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-[14.5px] font-medium leading-[1.3] text-content">{item.name}</p>
+          <button
+            type="button"
+            onClick={() => onChangeQuantity(item.key, 0)}
+            disabled={busy}
+            aria-label={`Eliminar ${item.name}`}
+            className="-mr-1 grid h-8 w-8 shrink-0 place-items-center text-content-subtle transition-colors hover:text-content disabled:opacity-40"
+          >
+            <PiTrashLight size={16} aria-hidden />
+          </button>
+        </div>
+
+        <div className="mt-1.5 flex items-center justify-between">
+          <div className="flex h-9 items-center border border-line-strong">
+            <button
+              type="button"
+              onClick={() => onChangeQuantity(item.key, item.quantity - 1)}
+              disabled={busy}
+              aria-label="Quitar una unidad"
+              className={stepButton}
+            >
+              <PiMinusLight size={14} aria-hidden />
+            </button>
+            <span className="min-w-6 text-center text-caption-md tabular-nums">{item.quantity}</span>
+            <button
+              type="button"
+              onClick={() => onChangeQuantity(item.key, item.quantity + 1)}
+              disabled={busy}
+              aria-label="Agregar una unidad"
+              className={stepButton}
+            >
+              <PiPlusLight size={14} aria-hidden />
+            </button>
+          </div>
+          <span className="text-body-xs font-semibold text-content">
+            {item.totals ? fromMinorUnits(item.totals.line_total, item.totals.currency_minor_unit) : ""}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+interface CartDrawerProps {
+  open: boolean;
+  onClose: () => void;
+  cart: WooCart | null;
+  count: number;
+  busy: boolean;
+  onChangeQuantity: (key: string, quantity: number) => void;
+}
+
+export function CartDrawer({ open, onClose, cart, count, busy, onChangeQuantity }: CartDrawerProps) {
+  const drawerRef = useRef<HTMLElement>(null);
+  useFocusTrap(drawerRef, open);
+
+  const checkout = open ? checkoutUrl() : null;
+  const hasItems = Boolean(cart && cart.items.length > 0);
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="relative inline-flex h-10 w-10 items-center justify-center transition-colors hover:bg-surface-raised"
-        aria-label={`Carrito, ${count} ${count === 1 ? "producto" : "productos"}`}
-      >
-        <FaCartShopping className="h-5 w-5" aria-hidden />
-        {count > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-semibold text-white">
-            {count}
-          </span>
+    <aside
+      ref={drawerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Carrito de compras"
+      inert={!open}
+      className={`fixed inset-y-0 right-0 z-[70] flex w-[min(92vw,440px)] flex-col bg-surface-raised transition-transform duration-700 ease-out-expo ${
+        open ? "translate-x-0" : "translate-x-[102%]"
+      }`}
+    >
+      <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-stone-150 pl-6 pr-3">
+        <h2 className="text-[18px] tracking-[-.01em] text-content">
+          Tu carrito <span className="text-content-subtle">({count})</span>
+        </h2>
+        <button type="button" onClick={onClose} aria-label="Cerrar carrito" className="grid h-11 w-11 place-items-center text-content">
+          <PiXLight size={22} aria-hidden />
+        </button>
+      </div>
+
+      <div data-lenis-prevent className="flex-1 overflow-y-auto px-6 py-2">
+        {!cart ? (
+          <p className="py-16 text-body-sm text-content-subtle">Cargando…</p>
+        ) : !hasItems ? (
+          <div className="flex flex-col items-start gap-5 py-16">
+            <p className="text-[22px] tracking-[-.02em] text-content">Tu carrito está vacío.</p>
+            <button type="button" onClick={onClose} className="btn-secondary">
+              Seguir comprando
+            </button>
+          </div>
+        ) : (
+          <ul>
+            {cart.items.map((item) => (
+              <CartLine key={item.key} item={item} busy={busy} onChangeQuantity={onChangeQuantity} />
+            ))}
+          </ul>
         )}
-      </button>
+      </div>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-            aria-hidden
-          />
-
-          <aside
-            role="dialog"
-            aria-modal="true"
-            aria-label="Carrito de compras"
-            className="relative flex h-full w-full max-w-md flex-col bg-surface shadow-2xl"
-          >
-            <header className="flex items-center justify-between border-b border-line px-5 py-4">
-              <h2 className="text-body-lg font-semibold">Tu carrito</h2>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-9 w-9 items-center justify-center hover:bg-surface-raised"
-                aria-label="Cerrar carrito"
-              >
-                <FaXmark className="h-5 w-5" aria-hidden />
-              </button>
-            </header>
-
-            <div className="flex-1 overflow-y-auto px-5 py-4">
-              {!cart ? (
-                <p className="text-content-subtle">Cargando…</p>
-              ) : cart.items.length === 0 ? (
-                <p className="py-12 text-center text-content-subtle">Tu carrito está vacío.</p>
-              ) : (
-                <ul className="flex flex-col gap-4">
-                  {cart.items.map((item) => (
-                    <li key={item.key} className="flex gap-3">
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt=""
-                          width="64"
-                          height="64"
-                          className="h-16 w-16 shrink-0 object-cover"
-                        />
-                      )}
-
-                      <div className="flex-1">
-                        <p className="text-sm font-medium leading-snug">{item.name}</p>
-
-                        <div className="mt-2 flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => changeQuantity(item.key, item.quantity - 1)}
-                            disabled={busy}
-                            className="h-7 w-7 border border-line disabled:opacity-40"
-                            aria-label="Quitar una unidad"
-                          >−</button>
-                          <span className="w-8 text-center text-sm">{item.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => changeQuantity(item.key, item.quantity + 1)}
-                            disabled={busy}
-                            className="h-7 w-7 border border-line disabled:opacity-40"
-                            aria-label="Agregar una unidad"
-                          >+</button>
-
-                          <button
-                            type="button"
-                            onClick={() => changeQuantity(item.key, 0)}
-                            disabled={busy}
-                            className="ml-auto text-content-subtle transition-colors hover:text-red-400 disabled:opacity-40"
-                            aria-label={`Eliminar ${item.name}`}
-                          >
-                            <FaTrash className="h-3.5 w-3.5" aria-hidden />
-                          </button>
-                        </div>
-                      </div>
-
-                      <p className="text-sm font-semibold">
-                        {/* La Store API devuelve totales en la unidad menor (céntimos). */}
-                        {item.totals
-                          ? formatPrice(Number(item.totals.line_total) / 10 ** item.totals.currency_minor_unit)
-                          : ""}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {cart && cart.items.length > 0 && (
-              <footer className="border-t border-line px-5 py-4">
-                <div className="mb-4 flex items-baseline justify-between">
-                  <span className="text-content-muted">Total</span>
-                  <span className="text-heading-sm font-semibold">
-                    {cart.totals
-                      ? formatPrice(Number(cart.totals.total_price) / 10 ** cart.totals.currency_minor_unit)
-                      : ""}
-                  </span>
-                </div>
-
-                {checkout && (
-                  <>
-                    <a href={checkout} className="btn-primary w-full justify-center">
-                      Finalizar compra
-                    </a>
-                    <p className="mt-2 text-center text-xs text-content-subtle">
-                      El pago se completa de forma segura en nuestra tienda.
-                    </p>
-                  </>
-                )}
-              </footer>
-            )}
-          </aside>
+      {cart && hasItems && (
+        <div className="flex flex-col gap-3.5 border-t border-stone-150 px-6 pb-6 pt-5">
+          <div className="flex justify-between text-body-sm text-content">
+            <span>Subtotal</span>
+            <span className="font-semibold">
+              {cart.totals ? fromMinorUnits(cart.totals.total_price, cart.totals.currency_minor_unit) : ""}
+            </span>
+          </div>
+          <p className="text-caption-md text-content-subtle">Envío calculado al finalizar la compra.</p>
+          {checkout && (
+            <a href={checkout} className="btn-primary h-[54px] w-full">
+              Finalizar compra <span aria-hidden>→</span>
+            </a>
+          )}
         </div>
       )}
-    </>
+    </aside>
   );
 }
