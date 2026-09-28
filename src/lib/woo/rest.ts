@@ -64,7 +64,7 @@ export function getAllProducts(): Promise<WooProduct[]> {
 }
 
 export function getAllCategories(): Promise<WooCategory[]> {
-  return wooFetchAll<WooCategory>("/products/categories", { hide_empty: "true", orderby: "menu_order" });
+  return wooFetchAll<WooCategory>("/products/categories", { hide_empty: "true", orderby: "name" });
 }
 
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {
