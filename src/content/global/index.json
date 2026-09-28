@@ -148,11 +148,22 @@
     "cta": {
       "label": "Reserva tu consulta",
       "url": "/contacto"
-    },
-    "contact": {
-      "address": "Calle Libertad 176, oficina 413 – Miraflores, Lima",
-      "phone": "+51 908 686 767"
     }
+  },
+  "contact": {
+    "address": "Calle Libertad 176, oficina 413 – Miraflores, Lima",
+    "phone": "+51 908 686 767",
+    "email": "eresskinstudio@gmail.com",
+    "hours": [
+      {
+        "label": "Lunes a viernes",
+        "text": "Mañana: 9:30 am a 2:00 pm\nTarde: 3:00 pm a 8:00 pm"
+      },
+      {
+        "label": "Sábados",
+        "text": "Mañana: 9:30 am a 2:00 pm\nTarde: 3:00 pm a 6:00 pm"
+      }
+    ]
   },
   "search": {
     "placeholder": "Buscar productos o tratamientos",

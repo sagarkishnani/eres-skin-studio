@@ -226,7 +226,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
         links={links}
         activeIndex={activeIndex}
         cta={nav?.cta}
-        contact={nav?.contact}
+        contact={global?.contact}
         socials={(global?.footer?.social || []).filter(Boolean)}
         logo={nav?.logo}
         logoAlt={nav?.logoAlt}
