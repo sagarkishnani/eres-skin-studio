@@ -183,24 +183,68 @@
     ]
   },
   "footer": {
-    "tagline": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima.",
+    "logo": "/uploads/eres-studio-logo.svg",
+    "logoAlt": "ERES Skin Studio",
+    "tagline": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima. Cada piel es única; cada experiencia en Eres también.",
     "columns": [
       {
-        "title": "Sitio",
+        "title": "Explora",
         "links": [
           {
-            "label": "Inicio",
-            "url": "/"
+            "label": "Sobre nosotras",
+            "url": "/contacto"
           },
           {
-            "label": "Contacto",
-            "url": "/#cta"
+            "label": "Servicios",
+            "url": "/contacto"
+          },
+          {
+            "label": "Productos",
+            "url": "/productos"
+          },
+          {
+            "label": "Skin journal",
+            "url": "/skin-journal"
+          }
+        ]
+      },
+      {
+        "title": "Legales",
+        "links": [
+          {
+            "label": "Términos y condiciones",
+            "url": "/terminos-y-condiciones"
+          },
+          {
+            "label": "Cambios y devoluciones",
+            "url": "/cambios-y-devoluciones"
+          },
+          {
+            "label": "Libro de reclamaciones",
+            "url": "/libro-de-reclamaciones"
           }
         ]
       }
     ],
-    "social": [],
-    "legal": "© 2026 ERES Skin Studio. Todos los derechos reservados."
+    "contactTitle": "Contacto",
+    "social": [
+      {
+        "network": "instagram",
+        "url": "https://www.instagram.com/eres.skinstudio/"
+      },
+      {
+        "network": "facebook",
+        "url": "https://www.facebook.com/eres.skinstudio/"
+      },
+      {
+        "network": "whatsapp",
+        "url": "https://wa.link/9tjyvn"
+      }
+    ],
+    "legal": "Eres Skin Studio · Todos los derechos reservados"
+  },
+  "whatsappButton": {
+    "enabled": true
   },
   "seo": {
     "title": "ERES Skin Studio",

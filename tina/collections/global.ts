@@ -159,7 +159,9 @@ export const globalCollection: Collection = {
       name: "footer",
       label: "Footer",
       fields: [
-        { name: "tagline", label: "Frase", type: "string" },
+        { name: "logo", label: "Logo (versión clara)", type: "image" },
+        { name: "logoAlt", label: "Texto alternativo del logo", type: "string" },
+        { name: "tagline", label: "Frase", type: "string", ui: { component: "textarea" } },
         {
           type: "object",
           name: "columns",
@@ -181,6 +183,7 @@ export const globalCollection: Collection = {
             },
           ],
         },
+        { name: "contactTitle", label: "Título de la columna de contacto", type: "string" },
         {
           type: "object",
           name: "social",
@@ -197,8 +200,20 @@ export const globalCollection: Collection = {
             { name: "url", label: "URL", type: "string" },
           ],
         },
-        { name: "legal", label: "Línea legal", type: "string" },
+        {
+          name: "legal",
+          label: "Línea legal",
+          description: "Sin © ni año: se agregan solos.",
+          type: "string",
+        },
       ],
+    },
+    {
+      type: "object",
+      name: "whatsappButton",
+      label: "Botón flotante de WhatsApp",
+      description: "Usa la URL de la red \"whatsapp\" del footer.",
+      fields: [{ name: "enabled", label: "Mostrar", type: "boolean" }],
     },
     {
       type: "object",
