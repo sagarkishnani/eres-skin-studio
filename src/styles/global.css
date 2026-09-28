@@ -59,6 +59,36 @@
     background-image: linear-gradient(currentColor, currentColor);
   }
 
+  .btn-fill {
+    @apply btn hover:gap-[18px] hover:pr-6 focus-visible:gap-[18px] focus-visible:pr-6;
+    transition:
+      background-size 550ms theme('transitionTimingFunction.out-expo'),
+      color 400ms ease,
+      gap 450ms theme('transitionTimingFunction.out-expo'),
+      padding 450ms theme('transitionTimingFunction.out-expo');
+  }
+  .btn-fill-dark {
+    @apply btn-fill bg-ink text-content-inverse;
+    background-image: linear-gradient(theme('colors.sage.900'), theme('colors.sage.900'));
+  }
+  .btn-fill-light {
+    @apply btn-fill bg-surface-raised text-ink hover:text-content-inverse focus-visible:text-content-inverse;
+    background-image: linear-gradient(theme('colors.ink'), theme('colors.ink'));
+  }
+
+  .link-underline {
+    @apply inline-flex items-center gap-2.5 self-start py-1.5
+           text-caption-sm font-medium uppercase tracking-[.16em]
+           bg-right-bottom bg-no-repeat bg-[length:0%_1px]
+           hover:gap-4 hover:bg-left-bottom hover:bg-[length:100%_1px]
+           focus-visible:gap-4 focus-visible:bg-left-bottom focus-visible:bg-[length:100%_1px]
+           max-lg:bg-[length:100%_1px];
+    background-image: linear-gradient(currentColor, currentColor);
+    transition:
+      background-size 500ms theme('transitionTimingFunction.out-expo'),
+      gap 450ms theme('transitionTimingFunction.out-expo');
+  }
+
   .card {
     @apply border border-line bg-surface-raised p-6
            transition-colors hover:border-line-strong;
