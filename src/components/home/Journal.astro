@@ -1,0 +1,53 @@
+---
+import JournalReact, { type JournalPost } from "./JournalReact";
+import client from "../../../tina/__generated__/client";
+import { mediaUrl } from "../../utils/mediaUrl";
+import { formatShortDate } from "../../utils/formatDate";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const SIDE_POSTS = 2;
+
+const { query, variables, data } = Astro.props;
+const enabled = data?.home?.journal?.enabled !== false;
+
+async function newestPosts(): Promise<any[]> {
+  const result = await client.queries.postConnection();
+  return (result.data?.postConnection?.edges || [])
+    .map((edge: any) => edge?.node)
+    .filter(Boolean)
+    .sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+}
+
+function toJournalPost(post: any): JournalPost {
+  return {
+    title: post.title || "",
+    href: `/blog/${post._sys.filename}`,
+    image: mediaUrl(post.coverImage),
+    date: formatShortDate(post.date),
+    tag: post.tags?.[0] || "",
+    author: post.author || "",
+  };
+}
+
+const posts = enabled ? await newestPosts() : [];
+const featured = posts.find((post) => post.featured) ?? posts[0];
+const side = posts.filter((post) => post !== featured).slice(0, SIDE_POSTS);
+---
+
+{
+  featured && (
+    <JournalReact
+      query={query}
+      variables={variables}
+      data={data}
+      featured={toJournalPost(featured)}
+      side={side.map(toJournalPost)}
+      client:tina
+    />
+  )
+}

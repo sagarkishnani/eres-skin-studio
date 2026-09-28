@@ -31,6 +31,7 @@ export const postCollection: Collection = {
     { name: "coverImage", label: "Imagen de portada", type: "image" },
     { name: "date", label: "Fecha", type: "datetime" },
     { name: "readTime", label: "Tiempo de lectura", type: "string" },
+    { name: "author", label: "Autora", description: "Se muestra como \"Por {autora}\".", type: "string" },
     {
       name: "tags",
       label: "Etiquetas",

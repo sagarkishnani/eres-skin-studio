@@ -7,6 +7,7 @@ import Services from "../components/home/Services.astro";
 import Essence from "../components/home/Essence.astro";
 import Pillars from "../components/home/Pillars.astro";
 import Results from "../components/home/Results.astro";
+import Journal from "../components/home/Journal.astro";
 import { getLocale } from "../utils/i18n";
 import { isLocale } from "../i18n/config";
 import client from "../../tina/__generated__/client";
@@ -23,5 +24,6 @@ const seo = data?.home?.seo;
   <Services query={query} variables={variables} data={data} />
   <Essence query={query} variables={variables} data={data} />
   <Results query={query} variables={variables} data={data} />
+  <Journal query={query} variables={variables} data={data} />
   <Pillars query={query} variables={variables} data={data} />
 </BaseLayout>
