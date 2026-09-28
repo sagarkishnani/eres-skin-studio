@@ -19,7 +19,7 @@ export default function HeroReact({ query, variables, data: initialData, locale 
   const buttons = (hero.buttons || []).filter(Boolean);
 
   return (
-    <section className="relative flex min-h-[88vh] items-center overflow-hidden pt-[72px]">
+    <section className="relative flex min-h-[88vh] items-center overflow-hidden">
       {hero.image && (
         <>
           <img

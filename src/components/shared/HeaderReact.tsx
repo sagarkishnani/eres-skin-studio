@@ -1,121 +1,97 @@
-import { useEffect, useState } from "react";
 import { useTina, tinaField } from "tinacms/dist/react";
-import { FaBars, FaXmark } from "react-icons/fa6";
+import { PiCaretDownLight, PiListLight } from "react-icons/pi";
 import { tField, localizeHref } from "../../utils/i18n";
 import { mediaUrl } from "../../utils/mediaUrl";
 import type { Locale } from "../../i18n/config";
 import SearchOverlay from "./SearchOverlay";
 import CartReact from "../shop/CartReact";
+import AnnouncementBar from "./AnnouncementBar";
+import { activeLinkIndex, hasSubmenu, presentLinks, type NavLink } from "./navTypes";
 
 interface Props {
   query: string;
   variables: object;
   data: any;
   locale: Locale;
-  theme?: "light" | "dark";
+  currentPath: string;
 }
 
-export default function HeaderReact({ query, variables, data: initialData, locale, theme = "dark" }: Props) {
+const iconButton =
+  "grid h-11 w-11 place-items-center text-content transition-opacity duration-300 hover:opacity-60";
+
+function underline(on: boolean): string {
+  return on
+    ? "bg-[length:100%_1px] bg-left-bottom"
+    : "bg-[length:0%_1px] bg-right-bottom group-hover:bg-[length:100%_1px] group-hover:bg-left-bottom";
+}
+
+export default function HeaderReact({ query, variables, data: initialData, locale, currentPath }: Props) {
   const { data } = useTina({ query, variables, data: initialData });
-  const nav = data?.global?.nav;
+  const global = data?.global;
+  const nav = global?.nav;
 
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
-
-  const links = (nav?.links || []).filter(Boolean);
-  const solid = theme === "light" || scrolled || open;
+  const links = presentLinks<NavLink>(nav?.links);
+  const activeIndex = activeLinkIndex(links, currentPath);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        solid ? "bg-surface/95 backdrop-blur border-b border-line" : "bg-transparent"
-      }`}
-    >
-      <div className="container-xl flex h-[72px] items-center justify-between gap-6">
-        <a href={localizeHref("/", locale)} className="flex items-center gap-3" aria-label="ERES Skin Studio">
-          {nav?.logo ? (
-            <img
-              src={mediaUrl(nav.logo)}
-              alt={nav?.logoAlt || "ERES Skin Studio"}
-              className="h-8 w-auto"
-              data-tina-field={tinaField(nav, "logo")}
-            />
-          ) : (
-            <span className="font-heading text-subtitle-sm font-semibold tracking-tight">
-              ERES Skin Studio
-            </span>
-          )}
-        </a>
+    <>
+      <AnnouncementBar announcement={global?.announcement} locale={locale} />
 
-        <nav className="hidden items-center gap-8 lg:flex">
-          {links.map((link: any, i: number) => (
-            <a
-              key={i}
-              href={localizeHref(link.url, locale, link.external)}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className="text-body-md text-content-muted transition-colors hover:text-content"
-              data-tina-field={tinaField(link, "label")}
-            >
-              {tField(link, "label", locale)}
-            </a>
-          ))}
-        </nav>
+      <header className="sticky top-0 z-50 bg-surface-raised shadow-[0_1px_0_theme(colors.line.DEFAULT)]">
+        <div className="mx-auto grid h-16 max-w-container grid-cols-[1fr_auto_1fr] items-center px-2 lg:h-[88px] lg:px-gutter">
+          <button type="button" className={`${iconButton} col-start-1 row-start-1 justify-self-start lg:hidden`} aria-label="Abrir menú">
+            <PiListLight size={24} aria-hidden />
+          </button>
 
-        <div className="hidden items-center gap-4 lg:flex">
-          <SearchOverlay locale={locale} />
-          <CartReact />
-          {nav?.cta?.label && (
-            <a href={localizeHref(nav.cta.url, locale)} className="btn-primary !px-5 !py-2.5 text-body-sm">
-              {tField(nav.cta, "label", locale)}
-            </a>
-          )}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="lg:hidden p-2 text-content"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={open}
-        >
-          {open ? <FaXmark size={22} /> : <FaBars size={22} />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="lg:hidden border-t border-line bg-surface">
-          <nav className="container-xl flex flex-col gap-1 py-4">
-            {links.map((link: any, i: number) => (
-              <a
-                key={i}
-                href={localizeHref(link.url, locale, link.external)}
-                onClick={() => setOpen(false)}
-                className="px-2 py-3 text-body-lg text-content-muted hover:bg-surface-raised hover:text-content"
-              >
-                {tField(link, "label", locale)}
-              </a>
-            ))}
-            {nav?.cta?.label && (
-              <a href={localizeHref(nav.cta.url, locale)} className="btn-primary mt-3">
-                {tField(nav.cta, "label", locale)}
-              </a>
+          <a
+            href={localizeHref("/", locale)}
+            className="col-start-2 row-start-1 flex items-center justify-self-center lg:col-start-1 lg:justify-self-start"
+            aria-label="ERES Skin Studio, inicio"
+          >
+            {nav?.logo ? (
+              <img
+                src={mediaUrl(nav.logo)}
+                alt={nav?.logoAlt || "ERES Skin Studio"}
+                className="block h-[34px] w-auto lg:h-10"
+                data-tina-field={tinaField(nav, "logo")}
+              />
+            ) : (
+              <span className="text-subtitle-sm font-medium tracking-tight">ERES Skin Studio</span>
             )}
+          </a>
+
+          <nav className="col-start-2 row-start-1 hidden h-full items-center gap-9 lg:flex" aria-label="Principal">
+            {links.map((link, index) => {
+              const isActive = index === activeIndex;
+              return (
+                <a
+                  key={index}
+                  href={localizeHref(link.url, locale, link.external)}
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noopener noreferrer" : undefined}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`group flex h-full items-center gap-1.5 text-body-md font-medium tracking-[.01em] transition-colors duration-300 ${
+                    isActive ? "text-sage-700" : "text-content"
+                  }`}
+                  data-tina-field={tinaField(link as any, "label")}
+                >
+                  <span
+                    className={`bg-[linear-gradient(currentColor,currentColor)] bg-no-repeat pb-[3px] transition-[background-size] duration-500 ease-out-expo ${underline(isActive)}`}
+                  >
+                    {tField(link, "label", locale)}
+                  </span>
+                  {hasSubmenu(link) && <PiCaretDownLight size={12} aria-hidden />}
+                </a>
+              );
+            })}
           </nav>
+
+          <div className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end">
+            <SearchOverlay locale={locale} />
+            <CartReact />
+          </div>
         </div>
-      )}
-    </header>
+      </header>
+    </>
   );
 }
