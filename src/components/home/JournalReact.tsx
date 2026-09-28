@@ -55,7 +55,7 @@ function SidePost({ post, index }: { post: JournalPost; index: number }) {
     <a
       href={post.href}
       data-reveal={SIDE_REVEAL_START_MS + index * SIDE_REVEAL_STEP_MS}
-      className="group grid min-h-[180px] grid-cols-[minmax(0,.9fr)_minmax(0,1fr)] bg-blush md:min-h-0"
+      className="group grid min-h-[180px] grid-cols-[minmax(0,.9fr)_minmax(0,1fr)] bg-blush lg:min-h-0"
     >
       <div className="relative overflow-hidden">
         {post.image && <img src={post.image} alt="" loading="lazy" decoding="async" className={zoomingImage} />}
@@ -106,11 +106,11 @@ export default function JournalReact({ query, variables, data: initialData, feat
         </div>
 
         <div
-          className={`grid grid-cols-1 gap-3 ${side.length ? "md:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]" : ""}`}
+          className={`grid grid-cols-1 gap-3 ${side.length ? "lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]" : ""}`}
         >
           <FeaturedPost post={featured} />
           {side.length > 0 && (
-            <div className={`grid gap-3 ${side.length > 1 ? "md:grid-rows-2" : ""}`}>
+            <div className={`grid gap-3 ${side.length > 1 ? "lg:grid-rows-2" : ""}`}>
               {side.map((post, index) => (
                 <SidePost key={post.href} post={post} index={index} />
               ))}

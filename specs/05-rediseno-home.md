@@ -227,8 +227,8 @@ Hay dos variantes:
   - eyebrow y H2 `heading-md`;
   - link con subrayado: "Skin journal" en `≥ md` y "Ver todo" en móvil (dos textos del CMS), que va a `home.journal.ctaUrl`.
 - Grilla:
-  - `≥ md`: `minmax(0,1.55fr) minmax(0,1fr)` con gap de 12px;
-  - móvil: una columna.
+  - `≥ lg`: `minmax(0,1.55fr) minmax(0,1fr)` con gap de 12px;
+  - `< lg`: una columna, con los posts laterales apilados debajo del grande.
 - Post destacado:
   - `<a>` con `min-h-[560px]` (440px en móvil) y la portada de fondo;
   - la portada escala a 1,05 en 1,4s al hacer hover;
@@ -507,6 +507,7 @@ src/utils/reveal.ts
 - **Sí: tokens de SPEC 01 en lugar de los hex del bundle.** Los tamaños sin token (título destacado del Journal y cifras) quedan como valores arbitrarios.
 - **Sí: `heading-xs` para los H3 de los pilares.** El diseño usa 20–24px y el token 22–26px. Se prefiere no crear un token para un solo uso.
 - **No: el marquee como isla React.** Es CSS puro.
+- **Sí: el Journal pasa a dos columnas recién en `lg`, no en `md`.** Cambio hecho durante la implementación. Entre 768 y 1023px, la columna de texto de los posts laterales quedaba en unos 85px y el título se partía palabra por palabra. El diseño original tiene el mismo problema a ese ancho.
 
 ## Riesgos
 
