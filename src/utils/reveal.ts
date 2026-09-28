@@ -1,3 +1,5 @@
+import { resetCount, runCount } from "./countUp";
+
 const READY_CLASS = "reveal-ready";
 const SAFETY_DELAY_MS = 2500;
 const SAFETY_VIEWPORT_FACTOR = 1.2;
@@ -25,7 +27,7 @@ export function revealEnabled(): boolean {
 function show(element: Element) {
   element.setAttribute("data-shown", "");
   observer?.unobserve(element);
-  element.dispatchEvent(new CustomEvent("reveal:shown"));
+  if (element.hasAttribute("data-count")) runCount(element);
 }
 
 function revealNearViewport(targets: HTMLElement[]) {
@@ -45,9 +47,12 @@ export function startReveal() {
     return;
   }
 
-  const targets = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown])"));
+  const targets = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown]), [data-count]:not([data-shown])"),
+  );
   targets.forEach((element) => {
-    element.style.transitionDelay = `${Number(element.dataset.reveal) || 0}ms`;
+    if (element.hasAttribute("data-count")) resetCount(element);
+    if (element.hasAttribute("data-reveal")) element.style.transitionDelay = `${Number(element.dataset.reveal) || 0}ms`;
   });
   root.classList.add(READY_CLASS);
 
