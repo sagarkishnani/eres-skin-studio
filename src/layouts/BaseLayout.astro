@@ -107,14 +107,14 @@ try {
     <script>
       import Lenis from "lenis";
 
-      let lenis: any = null;
-
       function startLenis() {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        lenis?.destroy();
-        lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        window.lenisInstance?.destroy();
+        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        window.lenisInstance = lenis;
         const raf = (time: number) => {
-          lenis?.raf(time);
+          if (window.lenisInstance !== lenis) return;
+          lenis.raf(time);
           requestAnimationFrame(raf);
         };
         requestAnimationFrame(raf);

@@ -3,6 +3,7 @@ import { FaCartShopping, FaXmark, FaTrash } from "react-icons/fa6";
 import { getCart, updateCartItem, removeCartItem, checkoutUrl, CART_UPDATED } from "../../utils/wooClient";
 import type { WooCart } from "../../lib/woo/types";
 import { formatPrice } from "../../lib/woo/format";
+import { lockScroll, unlockScroll } from "../../utils/scrollLock";
 
 export default function CartReact() {
   const [cart, setCart] = useState<WooCart | null>(null);
@@ -20,10 +21,10 @@ export default function CartReact() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    lockScroll();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, [open]);
 
