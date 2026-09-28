@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { PiCaretDownLight, PiListLight } from "react-icons/pi";
 import { tField, localizeHref } from "../../utils/i18n";
@@ -9,6 +9,11 @@ import CartReact from "../shop/CartReact";
 import AnnouncementBar from "./AnnouncementBar";
 import { useHeaderScroll } from "../../hooks/useHeaderScroll";
 import MegaMenu, { MEGA_MENU_ID } from "./MegaMenu";
+import MobileDrawer from "./MobileDrawer";
+import HeaderOverlay from "./HeaderOverlay";
+import { lockScroll, unlockScroll } from "../../utils/scrollLock";
+
+type OpenPanel = null | "drawer" | "search" | "cart";
 import { activeLinkIndex, hasSubmenu, presentLinks, type NavLink } from "./navTypes";
 
 interface Props {
@@ -40,9 +45,11 @@ export default function HeaderReact({ query, variables, data: initialData, local
   const [lastMegaMenuIndex, setLastMegaMenuIndex] = useState(0);
   const navItemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const megaOpen = megaMenuIndex !== null;
+  const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
+  const closePanel = useCallback(() => setOpenPanel(null), []);
 
   const scroll = useHeaderScroll();
-  const hidden = scroll.hidden && !megaOpen;
+  const hidden = scroll.hidden && !megaOpen && openPanel === null;
   const elevated = scroll.scrolled || megaOpen;
 
   const openMegaMenu = (index: number) => {
@@ -56,6 +63,27 @@ export default function HeaderReact({ query, variables, data: initialData, local
     event.preventDefault();
     megaMenuIndex === index ? closeMegaMenu() : openMegaMenu(index);
   };
+
+  const openPanelExclusively = (panel: Exclude<OpenPanel, null>) => {
+    closeMegaMenu();
+    setOpenPanel(panel);
+  };
+
+  const closeEverything = () => {
+    closeMegaMenu();
+    closePanel();
+  };
+
+  useEffect(() => {
+    if (openPanel === null) return;
+    lockScroll();
+    const onKeyDown = (event: globalThis.KeyboardEvent) => event.key === "Escape" && closePanel();
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      unlockScroll();
+    };
+  }, [openPanel, closePanel]);
 
   useEffect(() => {
     if (megaMenuIndex === null) return;
@@ -86,7 +114,13 @@ export default function HeaderReact({ query, variables, data: initialData, local
             scroll.scrolled ? "lg:h-[72px]" : "lg:h-[88px]"
           }`}
         >
-          <button type="button" className={`${iconButton} col-start-1 row-start-1 justify-self-start lg:hidden`} aria-label="Abrir menú">
+          <button
+            type="button"
+            onClick={() => openPanelExclusively("drawer")}
+            className={`${iconButton} col-start-1 row-start-1 justify-self-start lg:hidden`}
+            aria-label="Abrir menú"
+            aria-expanded={openPanel === "drawer"}
+          >
             <PiListLight size={24} aria-hidden />
           </button>
 
@@ -157,6 +191,21 @@ export default function HeaderReact({ query, variables, data: initialData, local
 
         <MegaMenu link={links[lastMegaMenuIndex]} open={megaOpen} locale={locale} onNavigate={closeMegaMenu} />
       </header>
+
+      <HeaderOverlay panelOpen={openPanel !== null} megaMenuOpen={megaOpen} onClose={closeEverything} />
+
+      <MobileDrawer
+        open={openPanel === "drawer"}
+        onClose={closePanel}
+        links={links}
+        activeIndex={activeIndex}
+        cta={nav?.cta}
+        contact={nav?.contact}
+        socials={(global?.footer?.social || []).filter(Boolean)}
+        logo={nav?.logo}
+        logoAlt={nav?.logoAlt}
+        locale={locale}
+      />
     </>
   );
 }
