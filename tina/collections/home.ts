@@ -1,4 +1,29 @@
-import type { Collection } from "tinacms";
+import type { Collection, TinaField } from "tinacms";
+
+const enabledField: TinaField = { name: "enabled", label: "Mostrar sección", type: "boolean" };
+const eyebrowField: TinaField = { name: "eyebrow", label: "Antetítulo", type: "string" };
+const textarea = { component: "textarea" } as const;
+
+function linkField(name: string, label: string): TinaField {
+  return {
+    type: "object",
+    name,
+    label,
+    fields: [
+      { name: "label", label: "Texto", type: "string" },
+      { name: "url", label: "URL", type: "string" },
+    ],
+  };
+}
+
+const paragraphsField: TinaField = {
+  type: "object",
+  name: "paragraphs",
+  label: "Párrafos",
+  list: true,
+  ui: { itemProps: (item) => ({ label: item?.text?.slice(0, 48) || "Párrafo" }) },
+  fields: [{ name: "text", label: "Texto", type: "string", ui: textarea }],
+};
 
 export const homeCollection: Collection = {
   name: "home",
@@ -12,76 +37,175 @@ export const homeCollection: Collection = {
       name: "hero",
       label: "Hero",
       fields: [
-        { name: "eyebrow", label: "Antetítulo", type: "string" },
-        { name: "title", label: "Título", type: "string", required: true },
-        { name: "subtitle", label: "Subtítulo", type: "string", ui: { component: "textarea" } },
-        { name: "image", label: "Imagen de fondo", type: "image" },
+        enabledField,
+        { name: "autoplay", label: "Avanzar solo cada 6,5 s", type: "boolean" },
         {
           type: "object",
-          name: "buttons",
-          label: "Botones",
+          name: "slides",
+          label: "Slides",
           list: true,
-          ui: { itemProps: (item) => ({ label: item?.text || "Botón" }) },
+          ui: { itemProps: (item) => ({ label: item?.title?.replace(/\n/g, " ") || "Slide" }) },
           fields: [
-            { name: "text", label: "Texto", type: "string" },
-            { name: "url", label: "URL", type: "string" },
+            { name: "image", label: "Imagen", type: "image" },
+            { name: "imageAlt", label: "Texto alternativo", type: "string" },
             {
-              name: "variant",
-              label: "Estilo",
+              name: "focus",
+              label: "Encuadre en escritorio",
+              description: "Posición del foco de la imagen, p. ej. 50% 50%.",
               type: "string",
-              options: [
-                { value: "primary", label: "Primario" },
-                { value: "secondary", label: "Secundario" },
-              ],
             },
+            { name: "focusMobile", label: "Encuadre en móvil", description: "p. ej. 62% 50%.", type: "string" },
+            { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", ui: textarea },
+            { name: "text", label: "Texto", type: "string", ui: textarea },
+            linkField("cta", "Botón"),
           ],
         },
       ],
     },
     {
       type: "object",
-      name: "features",
-      label: "Sección de features",
+      name: "marquee",
+      label: "Banda de mensajes",
       fields: [
-        { name: "title", label: "Título", type: "string" },
-        { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
+        enabledField,
         {
           type: "object",
           name: "items",
-          label: "Items",
+          label: "Mensajes",
           list: true,
-          ui: { itemProps: (item) => ({ label: item?.title || "Item" }) },
+          ui: { itemProps: (item) => ({ label: item?.label || "Mensaje" }) },
+          fields: [{ name: "label", label: "Texto", type: "string" }],
+        },
+      ],
+    },
+    {
+      type: "object",
+      name: "products",
+      label: "Productos destacados",
+      description: "Muestra hasta 4 productos marcados como destacados en WooCommerce.",
+      fields: [
+        enabledField,
+        eyebrowField,
+        { name: "title", label: "Título", type: "string", ui: textarea },
+        linkField("cta", "Botón"),
+      ],
+    },
+    {
+      type: "object",
+      name: "services",
+      label: "Servicios",
+      fields: [
+        enabledField,
+        eyebrowField,
+        { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", ui: textarea },
+        { name: "description", label: "Descripción", type: "string", ui: textarea },
+        { name: "ctaLabel", label: "Texto del enlace de cada tarjeta", type: "string" },
+        {
+          type: "object",
+          name: "items",
+          label: "Servicios",
+          list: true,
+          ui: { itemProps: (item) => ({ label: item?.title || "Servicio" }) },
           fields: [
-            {
-              name: "icon",
-              label: "Ícono",
-              type: "string",
-              // Keep in sync with ICONS in src/components/home/FeaturesReact.tsx.
-              options: [
-                { value: "bolt", label: "Rayo / velocidad" },
-                { value: "shield", label: "Escudo / seguridad" },
-                { value: "chart", label: "Gráfico / métricas" },
-                { value: "clock", label: "Reloj / 24-7" },
-                { value: "users", label: "Personas / equipo" },
-                { value: "check", label: "Check" },
-                { value: "none", label: "Sin ícono" },
-              ],
-            },
+            { name: "image", label: "Imagen (16:10)", type: "image" },
             { name: "title", label: "Título", type: "string" },
-            { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
+            { name: "text", label: "Texto", type: "string", ui: textarea },
+            { name: "url", label: "URL", type: "string" },
           ],
         },
       ],
     },
     {
       type: "object",
-      name: "cta",
-      label: "Llamada a la acción",
+      name: "essence",
+      label: "Nuestra esencia",
       fields: [
+        enabledField,
+        eyebrowField,
+        { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", ui: textarea },
+        paragraphsField,
+        linkField("cta", "Enlace"),
+      ],
+    },
+    {
+      type: "object",
+      name: "results",
+      label: "Resultados",
+      fields: [
+        enabledField,
+        eyebrowField,
+        { name: "title", label: "Título", type: "string", ui: textarea },
+        paragraphsField,
+        {
+          type: "object",
+          name: "stats",
+          label: "Cifras",
+          list: true,
+          ui: { itemProps: (item) => ({ label: item?.label || "Cifra" }) },
+          fields: [
+            { name: "value", label: "Valor", type: "number" },
+            { name: "prefix", label: "Prefijo", description: "p. ej. +", type: "string" },
+            { name: "suffix", label: "Sufijo", description: "p. ej. %", type: "string" },
+            { name: "label", label: "Etiqueta", type: "string" },
+          ],
+        },
+        { name: "beforeImage", label: "Imagen de antes", type: "image" },
+        { name: "afterImage", label: "Imagen de después", type: "image" },
+        { name: "beforeLabel", label: "Etiqueta de antes", type: "string" },
+        { name: "afterLabel", label: "Etiqueta de después", type: "string" },
+      ],
+    },
+    {
+      type: "object",
+      name: "journal",
+      label: "Skin Journal",
+      description: "Muestra el post destacado más reciente y los 2 últimos del blog.",
+      fields: [
+        enabledField,
+        eyebrowField,
         { name: "title", label: "Título", type: "string" },
-        { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
-        { name: "buttonText", label: "Texto del botón", type: "string" },
-        { name: "buttonUrl", label: "URL del botón", type: "string" },
+        { name: "ctaLabel", label: "Texto del enlace", type: "string" },
+        { name: "ctaLabelMobile", label: "Texto del enlace en móvil", type: "string" },
+        { name: "ctaUrl", label: "URL del enlace", type: "string" },
+      ],
+    },
+    {
+      type: "object",
+      name: "pillars",
+      label: "Nuestra forma",
+      fields: [
+        enabledField,
+        { name: "title", label: "Título", type: "string" },
+        {
+          type: "object",
+          name: "items",
+          label: "Pilares",
+          list: true,
+          ui: { itemProps: (item) => ({ label: item?.title || "Pilar" }) },
+          fields: [
+            { name: "title", label: "Título", type: "string" },
+            { name: "text", label: "Texto", type: "string", ui: textarea },
+          ],
+        },
+      ],
+    },
+    {
+      type: "object",
+      name: "booking",
+      label: "Reserva",
+      description: "El botón usa la URL de WhatsApp de las redes del footer.",
+      fields: [
+        enabledField,
+        eyebrowField,
+        {
+          name: "title",
+          label: "Título",
+          description: "Admite saltos de línea. Lo que va entre *asteriscos* se muestra en itálica.",
+          type: "string",
+          ui: textarea,
+        },
+        { name: "text", label: "Texto", type: "string", ui: textarea },
+        { name: "ctaLabel", label: "Texto del botón", type: "string" },
       ],
     },
     {
@@ -90,7 +214,7 @@ export const homeCollection: Collection = {
       label: "SEO de la home",
       fields: [
         { name: "title", label: "Título", type: "string" },
-        { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
+        { name: "description", label: "Descripción", type: "string", ui: textarea },
       ],
     },
   ],
