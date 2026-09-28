@@ -245,6 +245,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
         open={openPanel === "cart"}
         onClose={closePanel}
         cart={cart.cart}
+        loaded={cart.loaded}
         count={cart.count}
         busy={cart.busy}
         onChangeQuantity={cart.changeQuantity}

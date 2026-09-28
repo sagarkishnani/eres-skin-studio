@@ -54,7 +54,7 @@ export default function MegaMenu({ link, open, locale, onNavigate }: Props) {
         {[0, 1].map((slot) => {
           const column = columns[slot];
           return (
-            <div key={slot} className="flex flex-col gap-3.5 border-l border-stone-150 px-10">
+            <div key={slot} className={`flex flex-col gap-3.5 px-10 ${column ? "border-l border-stone-150" : ""}`}>
               {column && (
                 <>
                   <p className="mb-1.5 text-caption-sm uppercase tracking-[.16em] text-content-subtle" data-tina-field={tinaField(column as any, "title")}>

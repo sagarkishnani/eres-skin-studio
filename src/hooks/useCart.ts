@@ -6,12 +6,13 @@ const BUMP_MS = 350;
 
 export function useCart() {
   const [cart, setCart] = useState<WooCart | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [bumping, setBumping] = useState(false);
   const previousCount = useRef<number | null>(null);
 
   useEffect(() => {
-    getCart();
+    getCart().finally(() => setLoaded(true));
     const onUpdate = (event: Event) => setCart((event as CustomEvent<WooCart>).detail);
     window.addEventListener(CART_UPDATED, onUpdate);
     return () => window.removeEventListener(CART_UPDATED, onUpdate);
@@ -34,5 +35,5 @@ export function useCart() {
     setBusy(false);
   }, []);
 
-  return { cart, count, busy, bumping, changeQuantity };
+  return { cart, loaded, count, busy, bumping, changeQuantity };
 }

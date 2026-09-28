@@ -105,12 +105,13 @@ interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
   cart: WooCart | null;
+  loaded: boolean;
   count: number;
   busy: boolean;
   onChangeQuantity: (key: string, quantity: number) => void;
 }
 
-export function CartDrawer({ open, onClose, cart, count, busy, onChangeQuantity }: CartDrawerProps) {
+export function CartDrawer({ open, onClose, cart, loaded, count, busy, onChangeQuantity }: CartDrawerProps) {
   const drawerRef = useRef<HTMLElement>(null);
   useFocusTrap(drawerRef, open);
 
@@ -138,7 +139,7 @@ export function CartDrawer({ open, onClose, cart, count, busy, onChangeQuantity 
       </div>
 
       <div data-lenis-prevent className="flex-1 overflow-y-auto px-6 py-2">
-        {!cart ? (
+        {!cart && !loaded ? (
           <p className="py-16 text-body-sm text-content-subtle">Cargando…</p>
         ) : !hasItems ? (
           <div className="flex flex-col items-start gap-5 py-16">
@@ -149,7 +150,7 @@ export function CartDrawer({ open, onClose, cart, count, busy, onChangeQuantity 
           </div>
         ) : (
           <ul>
-            {cart.items.map((item) => (
+            {(cart?.items || []).map((item) => (
               <CartLine key={item.key} item={item} busy={busy} onChangeQuantity={onChangeQuantity} />
             ))}
           </ul>

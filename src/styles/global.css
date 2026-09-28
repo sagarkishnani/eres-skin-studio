@@ -6,6 +6,9 @@
   html {
     scroll-behavior: smooth;
   }
+  [id] {
+    scroll-margin-top: 72px;
+  }
   body {
     @apply bg-surface text-content font-sans antialiased;
     text-rendering: optimizeLegibility;

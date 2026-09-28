@@ -91,7 +91,7 @@ export default function SearchOverlay({ open, onClose, locale, placeholder, popu
             onChange={(event) => setQuery(event.target.value)}
             placeholder={placeholder || "Buscar"}
             aria-label={placeholder || "Buscar"}
-            className="min-w-0 flex-1 bg-transparent py-1.5 text-[clamp(18px,2.2vw,28px)] tracking-[-.015em] text-content outline-none placeholder:text-content-subtle [&::-webkit-search-cancel-button]:hidden"
+            className="min-w-0 flex-1 bg-transparent py-1.5 text-[clamp(18px,2.2vw,28px)] tracking-[-.015em] text-content outline-none placeholder:text-content-subtle focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-search-cancel-button]:hidden"
           />
           <button
             type="button"
