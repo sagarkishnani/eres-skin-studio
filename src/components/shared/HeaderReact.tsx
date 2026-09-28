@@ -6,6 +6,7 @@ import type { Locale } from "../../i18n/config";
 import SearchOverlay from "./SearchOverlay";
 import CartReact from "../shop/CartReact";
 import AnnouncementBar from "./AnnouncementBar";
+import { useHeaderScroll } from "../../hooks/useHeaderScroll";
 import { activeLinkIndex, hasSubmenu, presentLinks, type NavLink } from "./navTypes";
 
 interface Props {
@@ -33,12 +34,24 @@ export default function HeaderReact({ query, variables, data: initialData, local
   const links = presentLinks<NavLink>(nav?.links);
   const activeIndex = activeLinkIndex(links, currentPath);
 
+  const scroll = useHeaderScroll();
+  const hidden = scroll.hidden;
+  const elevated = scroll.scrolled;
+
   return (
     <>
       <AnnouncementBar announcement={global?.announcement} locale={locale} />
 
-      <header className="sticky top-0 z-50 bg-surface-raised shadow-[0_1px_0_theme(colors.line.DEFAULT)]">
-        <div className="mx-auto grid h-16 max-w-container grid-cols-[1fr_auto_1fr] items-center px-2 lg:h-[88px] lg:px-gutter">
+      <header
+        className={`sticky top-0 z-50 bg-surface-raised transition-[transform,box-shadow] duration-[600ms] ease-out-expo ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        } ${elevated ? "shadow-header-raised" : "shadow-header"}`}
+      >
+        <div
+          className={`mx-auto grid h-16 max-w-container grid-cols-[1fr_auto_1fr] items-center px-2 transition-[height] duration-[450ms] ease-out-expo lg:px-gutter ${
+            scroll.scrolled ? "lg:h-[72px]" : "lg:h-[88px]"
+          }`}
+        >
           <button type="button" className={`${iconButton} col-start-1 row-start-1 justify-self-start lg:hidden`} aria-label="Abrir menú">
             <PiListLight size={24} aria-hidden />
           </button>
