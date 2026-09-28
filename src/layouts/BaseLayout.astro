@@ -33,6 +33,9 @@ const ogImage = globalData?.seo?.ogImage || "";
 const injectHead = globalData?.codeInjection?.head || "";
 const injectBodyEnd = globalData?.codeInjection?.bodyEnd || "";
 
+const smoothScroll = globalData?.motion?.smoothScroll !== false;
+const revealAnimations = globalData?.motion?.revealAnimations !== false;
+
 const canonical = new URL(Astro.url.pathname, Astro.site || "https://eresskinstudio.com").href;
 
 const orgSocials = (globalData?.footer?.social || [])
@@ -58,7 +61,11 @@ try {
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html
+  lang={locale}
+  data-smooth-scroll={String(smoothScroll)}
+  data-reveal-animations={String(revealAnimations)}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -108,9 +115,17 @@ try {
     <script>
       import Lenis from "lenis";
 
+      function smoothScrollDisabled() {
+        return (
+          document.documentElement.dataset.smoothScroll === "false" ||
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        );
+      }
+
       function startLenis() {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         window.lenisInstance?.destroy();
+        window.lenisInstance = undefined;
+        if (smoothScrollDisabled()) return;
         const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
         window.lenisInstance = lenis;
         const raf = (time: number) => {

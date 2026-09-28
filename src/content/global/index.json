@@ -246,6 +246,10 @@
   "whatsappButton": {
     "enabled": true
   },
+  "motion": {
+    "smoothScroll": true,
+    "revealAnimations": true
+  },
   "seo": {
     "title": "ERES Skin Studio",
     "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."

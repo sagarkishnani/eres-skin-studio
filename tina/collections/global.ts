@@ -217,6 +217,19 @@ export const globalCollection: Collection = {
     },
     {
       type: "object",
+      name: "motion",
+      label: "Movimiento",
+      fields: [
+        { name: "smoothScroll", label: "Scroll suave (Lenis)", type: "boolean" },
+        {
+          name: "revealAnimations",
+          label: "Animaciones de entrada al hacer scroll",
+          type: "boolean",
+        },
+      ],
+    },
+    {
+      type: "object",
       name: "seo",
       label: "SEO por defecto",
       fields: [
