@@ -82,6 +82,21 @@ try {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
+    <script is:inline>
+      // Se marca antes del primer pintado: si lo hiciera el módulo diferido, el contenido aparecería y luego se ocultaría.
+      (function () {
+        var root = document.documentElement;
+        var inEditor = false;
+        try { inEditor = window.frameElement && window.frameElement.id === "tina-iframe"; } catch (e) {}
+        if (
+          root.dataset.revealAnimations !== "false" &&
+          "IntersectionObserver" in window &&
+          !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+          !inEditor
+        ) root.classList.add("reveal-ready");
+      })();
+    </script>
+
     <ClientRouter />
     <Fragment set:html={injectHead} />
   </head>
@@ -114,6 +129,7 @@ try {
     <Fragment set:html={injectBodyEnd} />
     <script>
       import Lenis from "lenis";
+      import { startReveal } from "../utils/reveal";
 
       function smoothScrollDisabled() {
         return (
@@ -138,6 +154,8 @@ try {
 
       startLenis();
       document.addEventListener("astro:after-swap", startLenis);
+      startReveal();
+      document.addEventListener("astro:after-swap", startReveal);
     </script>
   </body>
 </html>
