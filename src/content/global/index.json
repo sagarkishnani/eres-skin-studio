@@ -1,12 +1,175 @@
 {
+  "announcement": {
+    "enabled": true,
+    "items": [
+      {
+        "label": "Eres única, tu piel también",
+        "url": "/contacto"
+      },
+      {
+        "label": "Reserva tu primera consulta →",
+        "url": "/contacto"
+      }
+    ]
+  },
   "nav": {
+    "logo": "/uploads/eres-studio-logo-dark.svg",
     "logoAlt": "ERES Skin Studio",
     "links": [
-      { "label": "Inicio", "url": "/" },
-      { "label": "Nosotros", "url": "/#features" },
-      { "label": "Contacto", "url": "/#cta" }
+      {
+        "label": "Productos",
+        "url": "/productos",
+        "menu": {
+          "featured": [
+            {
+              "label": "Más vendidos",
+              "url": "/productos"
+            },
+            {
+              "label": "Novedades",
+              "url": "/productos"
+            },
+            {
+              "label": "Ofertas",
+              "url": "/productos"
+            },
+            {
+              "label": "Kits de rutina",
+              "url": "/productos"
+            }
+          ],
+          "columns": [
+            {
+              "title": "Categorías",
+              "links": [
+                {
+                  "label": "Limpieza",
+                  "url": "/productos/categoria/limpieza"
+                },
+                {
+                  "label": "Sérum",
+                  "url": "/productos/categoria/serum"
+                },
+                {
+                  "label": "Hidratante",
+                  "url": "/productos/categoria/hidratante"
+                },
+                {
+                  "label": "Contorno de ojos",
+                  "url": "/productos/categoria/contorno-de-ojos"
+                },
+                {
+                  "label": "Protector solar",
+                  "url": "/productos/categoria/protector-solar"
+                },
+                {
+                  "label": "Maquillaje/base",
+                  "url": "/productos/categoria/maquillaje-base"
+                },
+                {
+                  "label": "Pack",
+                  "url": "/productos/categoria/pack"
+                },
+                {
+                  "label": "Ver todo",
+                  "url": "/productos"
+                }
+              ]
+            }
+          ],
+          "card": {
+            "image": "/uploads/menu/niacinamida-glutation-serum.jpg",
+            "eyebrow": "Nuevo en tienda",
+            "title": "Niacinamida + Glutatión Serum",
+            "ctaLabel": "Descubrir",
+            "url": "/productos/niacinamida-glutation-serum"
+          }
+        }
+      },
+      {
+        "label": "Servicios",
+        "url": "/contacto",
+        "menu": {
+          "featured": [
+            {
+              "label": "Limpiezas faciales",
+              "url": "/contacto"
+            },
+            {
+              "label": "Tratamientos faciales",
+              "url": "/contacto"
+            },
+            {
+              "label": "Depilación láser",
+              "url": "/contacto"
+            }
+          ],
+          "columns": [
+            {
+              "title": "Tu primera visita",
+              "links": [
+                {
+                  "label": "Reserva tu consulta",
+                  "url": "/contacto"
+                }
+              ]
+            },
+            {
+              "title": "El estudio",
+              "links": [
+                {
+                  "label": "Contacto",
+                  "url": "/contacto"
+                }
+              ]
+            }
+          ],
+          "card": {
+            "eyebrow": "Primera consulta",
+            "title": "Eres única, tu piel también.",
+            "ctaLabel": "Reservar",
+            "url": "/contacto"
+          }
+        }
+      },
+      {
+        "label": "Skin Journal",
+        "url": "/blog"
+      },
+      {
+        "label": "Nosotras",
+        "url": "/contacto"
+      },
+      {
+        "label": "Contacto",
+        "url": "/contacto"
+      }
     ],
-    "cta": { "label": "Conversemos", "url": "/#cta" }
+    "cta": {
+      "label": "Reserva tu consulta",
+      "url": "/contacto"
+    },
+    "contact": {
+      "address": "Calle Libertad 176, oficina 413 – Miraflores, Lima",
+      "phone": "+51 908 686 767"
+    }
+  },
+  "search": {
+    "placeholder": "Buscar productos o tratamientos",
+    "popular": [
+      {
+        "label": "Limpieza"
+      },
+      {
+        "label": "Sérum"
+      },
+      {
+        "label": "Hidratante"
+      },
+      {
+        "label": "Protector solar"
+      }
+    ]
   },
   "footer": {
     "tagline": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima.",
@@ -14,8 +177,14 @@
       {
         "title": "Sitio",
         "links": [
-          { "label": "Inicio", "url": "/" },
-          { "label": "Contacto", "url": "/#cta" }
+          {
+            "label": "Inicio",
+            "url": "/"
+          },
+          {
+            "label": "Contacto",
+            "url": "/#cta"
+          }
         ]
       }
     ],
@@ -26,5 +195,8 @@
     "title": "ERES Skin Studio",
     "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."
   },
-  "codeInjection": { "head": "", "bodyEnd": "" }
+  "codeInjection": {
+    "head": "",
+    "bodyEnd": ""
+  }
 }
