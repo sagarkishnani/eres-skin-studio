@@ -48,20 +48,20 @@ Entre 768 y 1023px la marca ocupa la primera celda y las tres columnas siguen el
 
 - Columna flex con gap de 24px.
 - Logo claro a 48px de alto con ancho automático, alineado a la izquierda.
-- Bajada en `body-sm` (15px), line-height 1.6, `text-stone-300`, `max-w-[340px]` y `text-wrap: pretty`.
+- Bajada en `body-md` (16px), `text-stone-300`, `max-w-[360px]` y `text-wrap: pretty`.
 - Debajo de `md` lleva `padding-bottom: 36px`.
 
 **Columnas (Explora, Legales, Contacto)**
 
-- Título en `caption-sm` (12px), tracking `.18em`, `uppercase`, peso 500 y `text-stone-400`.
+- Título en `caption-md` (13px), tracking `.18em`, `uppercase`, peso 500 y `text-stone-400`.
 - En `md+` el título es un `<p>` con `padding-bottom: 20px` y el contenido siempre está visible.
-- Links con gap de 14px, `body-xs` (14px), line-height 1.45 y `text-content-inverse`.
+- Links con gap de 14px, `body-sm` (15px), line-height 1.45 y `text-content-inverse`.
 - Los links llevan el mismo subrayado de 1px que la nav del header (SPEC 03): crece en 500ms `ease-out-expo`.
 - Columna Contacto, en este orden:
   - la dirección, como texto;
   - el teléfono, como `tel:` o `phoneUrl`;
   - el email, como `mailto:`;
-  - los horarios: cada bloque va en 14px, line-height 1.55, `text-stone-300` y `white-space: pre-line`.
+  - los horarios: cada bloque va en `body-sm` (15px), line-height 1.55, `text-stone-300` y `white-space: pre-line`.
 
 **Acordeón (< `md`)**
 
@@ -76,11 +76,11 @@ Entre 768 y 1023px la marca ocupa la primera celda y las tres columnas siguen el
 
 - `border-t border-stone-800`, `margin-top: clamp(40px, 5vw, 64px)` y `padding-top: 24px`.
 - Flex con `flex-wrap`, gap `18px 32px`, `justify-between` y `items-center`.
-- Todo en `caption-xs` (11px), tracking `.14em`, `uppercase` y `text-stone-400`.
+- Todo en `caption-sm` (12px), tracking `.14em`, `uppercase` y `text-stone-400`.
 - Tres bloques:
   1. `© {año} {footer.legal}`. El año sale de `new Date().getFullYear()` en build.
   2. Redes como links de texto (Instagram, Facebook, WhatsApp) con gap de 24px, `text-content-inverse` y el subrayado de las columnas.
-  3. "Diseño y desarrollo por" seguido del logo de TWNSTUDIOS (`public/uploads/footer/twn-logo.svg`, 11px de alto). Solo el logo es link y al hacer hover baja a `opacity-60`.
+  3. "Diseño y desarrollo por" seguido del logo de TWNSTUDIOS (`public/uploads/footer/twn-logo.svg`, 12px de alto). Solo el logo es link y al hacer hover baja a `opacity-60`.
 
 **Crédito**
 
@@ -249,6 +249,7 @@ Convenciones:
 - **Sí: la isla del footer mantiene `client:visible`.** Solo la necesita el acordeón.
 - **Sí: paleta cruda (`ink`, `stone-300/400/800`) dentro del footer.** Es un bloque de fondo oscuro fijo, la excepción que admite CLAUDE.md. Los tokens semánticos asumen el tema claro.
 - **Sí: token `whatsapp` en Tailwind.** El verde de marca de WhatsApp no pertenece a la paleta de ERES, pero ningún componente escribe hex.
+- **Sí: textos un paso más grandes que en la referencia.** Pedido del usuario después de aprobar la spec, para mejorar la lectura.
 - **No: newsletter.** Requiere backend y proveedor, así que va en su propia spec.
 
 ## Riesgos
