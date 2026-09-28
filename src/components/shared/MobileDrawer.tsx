@@ -7,12 +7,7 @@ import type { Locale } from "../../i18n/config";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { hasSubmenu, presentLinks, type NavLink, type SimpleLink } from "./navTypes";
 import { presentSocials, socialLabel, type Social } from "./socialLinks";
-
-interface Contact {
-  address?: string | null;
-  phone?: string | null;
-  phoneUrl?: string | null;
-}
+import { phoneHref, type Contact } from "./contactLinks";
 
 interface Props {
   open: boolean;
@@ -28,10 +23,6 @@ interface Props {
 }
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
-
-function phoneHref(contact: Contact): string {
-  return contact.phoneUrl || `tel:${(contact.phone || "").replace(/\s+/g, "")}`;
-}
 
 export default function MobileDrawer({ open, onClose, links, activeIndex, cta, contact, socials, logo, logoAlt, locale }: Props) {
   const [submenuIndex, setSubmenuIndex] = useState<number | null>(null);
