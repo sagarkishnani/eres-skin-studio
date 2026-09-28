@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { PiCaretDownLight, PiListLight } from "react-icons/pi";
 import { tField, localizeHref } from "../../utils/i18n";
@@ -7,6 +8,7 @@ import SearchOverlay from "./SearchOverlay";
 import CartReact from "../shop/CartReact";
 import AnnouncementBar from "./AnnouncementBar";
 import { useHeaderScroll } from "../../hooks/useHeaderScroll";
+import MegaMenu, { MEGA_MENU_ID } from "./MegaMenu";
 import { activeLinkIndex, hasSubmenu, presentLinks, type NavLink } from "./navTypes";
 
 interface Props {
@@ -34,15 +36,47 @@ export default function HeaderReact({ query, variables, data: initialData, local
   const links = presentLinks<NavLink>(nav?.links);
   const activeIndex = activeLinkIndex(links, currentPath);
 
+  const [megaMenuIndex, setMegaMenuIndex] = useState<number | null>(null);
+  const [lastMegaMenuIndex, setLastMegaMenuIndex] = useState(0);
+  const navItemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const megaOpen = megaMenuIndex !== null;
+
   const scroll = useHeaderScroll();
-  const hidden = scroll.hidden;
-  const elevated = scroll.scrolled;
+  const hidden = scroll.hidden && !megaOpen;
+  const elevated = scroll.scrolled || megaOpen;
+
+  const openMegaMenu = (index: number) => {
+    setMegaMenuIndex(index);
+    setLastMegaMenuIndex(index);
+  };
+  const closeMegaMenu = () => setMegaMenuIndex(null);
+
+  const toggleMegaMenuFromKeyboard = (event: KeyboardEvent, index: number) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    megaMenuIndex === index ? closeMegaMenu() : openMegaMenu(index);
+  };
+
+  useEffect(() => {
+    if (megaMenuIndex === null) return;
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      navItemRefs.current[megaMenuIndex]?.focus();
+      closeMegaMenu();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [megaMenuIndex]);
 
   return (
     <>
       <AnnouncementBar announcement={global?.announcement} locale={locale} />
 
       <header
+        onMouseLeave={closeMegaMenu}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closeMegaMenu();
+        }}
         className={`sticky top-0 z-50 bg-surface-raised transition-[transform,box-shadow] duration-[600ms] ease-out-expo ${
           hidden ? "-translate-y-full" : "translate-y-0"
         } ${elevated ? "shadow-header-raised" : "shadow-header"}`}
@@ -58,6 +92,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
 
           <a
             href={localizeHref("/", locale)}
+            onMouseEnter={closeMegaMenu}
             className="col-start-2 row-start-1 flex items-center justify-self-center lg:col-start-1 lg:justify-self-start"
             aria-label="ERES Skin Studio, inicio"
           >
@@ -75,10 +110,19 @@ export default function HeaderReact({ query, variables, data: initialData, local
 
           <nav className="col-start-2 row-start-1 hidden h-full items-center gap-9 lg:flex" aria-label="Principal">
             {links.map((link, index) => {
+              const withSubmenu = hasSubmenu(link);
+              const isOpen = megaMenuIndex === index;
               const isActive = index === activeIndex;
               return (
                 <a
                   key={index}
+                  ref={(element) => {
+                    navItemRefs.current[index] = element;
+                  }}
+                  onMouseEnter={() => (withSubmenu ? openMegaMenu(index) : closeMegaMenu())}
+                  onKeyDown={withSubmenu ? (event) => toggleMegaMenuFromKeyboard(event, index) : undefined}
+                  aria-expanded={withSubmenu ? isOpen : undefined}
+                  aria-controls={withSubmenu ? MEGA_MENU_ID : undefined}
                   href={localizeHref(link.url, locale, link.external)}
                   target={link.external ? "_blank" : undefined}
                   rel={link.external ? "noopener noreferrer" : undefined}
@@ -89,21 +133,29 @@ export default function HeaderReact({ query, variables, data: initialData, local
                   data-tina-field={tinaField(link as any, "label")}
                 >
                   <span
-                    className={`bg-[linear-gradient(currentColor,currentColor)] bg-no-repeat pb-[3px] transition-[background-size] duration-500 ease-out-expo ${underline(isActive)}`}
+                    className={`bg-[linear-gradient(currentColor,currentColor)] bg-no-repeat pb-[3px] transition-[background-size] duration-500 ease-out-expo ${underline(isActive || isOpen)}`}
                   >
                     {tField(link, "label", locale)}
                   </span>
-                  {hasSubmenu(link) && <PiCaretDownLight size={12} aria-hidden />}
+                  {withSubmenu && (
+                    <PiCaretDownLight
+                      size={12}
+                      aria-hidden
+                      className={`transition-transform duration-400 ease-out-expo ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  )}
                 </a>
               );
             })}
           </nav>
 
-          <div className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end">
+          <div onMouseEnter={closeMegaMenu} className="col-start-3 row-start-1 flex items-center gap-2 justify-self-end">
             <SearchOverlay locale={locale} />
             <CartReact />
           </div>
         </div>
+
+        <MegaMenu link={links[lastMegaMenuIndex]} open={megaOpen} locale={locale} onNavigate={closeMegaMenu} />
       </header>
     </>
   );
