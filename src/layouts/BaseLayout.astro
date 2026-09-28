@@ -45,7 +45,7 @@ const jsonLd = {
   name: "ERES Skin Studio",
   url: Astro.site?.href || "https://eresskinstudio.com",
   description: seoDescription,
-  email: "hola@eresskinstudio.com",
+  ...(globalData?.contact?.email ? { email: globalData.contact.email } : {}),
   ...(globalData?.nav?.logo ? { logo: new URL(globalData.nav.logo, Astro.site || "https://eresskinstudio.com").href } : {}),
   ...(orgSocials.length ? { sameAs: orgSocials } : {}),
 };
