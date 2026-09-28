@@ -1,0 +1,15 @@
+---
+import ServicesReact from "./ServicesReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const services = data?.home?.services;
+const visible = services?.enabled !== false && (services?.items || []).some(Boolean);
+---
+
+{visible && <ServicesReact query={query} variables={variables} data={data} client:tina />}

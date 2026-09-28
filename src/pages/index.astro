@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/home/Hero.astro";
 import Marquee from "../components/home/Marquee.astro";
 import FeaturedProducts from "../components/home/FeaturedProducts.astro";
+import Services from "../components/home/Services.astro";
 import { getLocale } from "../utils/i18n";
 import { isLocale } from "../i18n/config";
 import client from "../../tina/__generated__/client";
@@ -16,4 +17,5 @@ const seo = data?.home?.seo;
   <Hero query={query} variables={variables} data={data} />
   <Marquee data={data} />
   <FeaturedProducts query={query} variables={variables} data={data} locale={locale} />
+  <Services query={query} variables={variables} data={data} />
 </BaseLayout>
