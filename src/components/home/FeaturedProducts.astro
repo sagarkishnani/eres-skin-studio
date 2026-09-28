@@ -1,0 +1,39 @@
+---
+import FeaturedProductsReact from "./FeaturedProductsReact";
+import ProductCard from "../shop/ProductCard.astro";
+import StockRefresher from "../shop/StockRefresher.astro";
+import { getFeaturedProducts } from "../../lib/woo/rest";
+import type { Locale } from "../../i18n/config";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  locale: Locale;
+}
+
+const FEATURED_LIMIT = 4;
+const REVEAL_STEP_MS = 90;
+
+const { query, variables, data, locale } = Astro.props;
+const enabled = data?.home?.products?.enabled !== false;
+const products = enabled ? await getFeaturedProducts(FEATURED_LIMIT) : [];
+---
+
+{
+  products.length > 0 && (
+    <section class="bg-surface py-section">
+      <div class="container-xl">
+        <FeaturedProductsReact query={query} variables={variables} data={data} client:tina />
+        <div class="grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-4 md:gap-x-6 md:gap-y-12">
+          {products.map((product, index) => (
+            <div data-reveal={(index % FEATURED_LIMIT) * REVEAL_STEP_MS}>
+              <ProductCard product={product} locale={locale} />
+            </div>
+          ))}
+        </div>
+      </div>
+      <StockRefresher />
+    </section>
+  )
+}

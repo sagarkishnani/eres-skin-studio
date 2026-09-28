@@ -2,8 +2,12 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/home/Hero.astro";
 import Marquee from "../components/home/Marquee.astro";
+import FeaturedProducts from "../components/home/FeaturedProducts.astro";
+import { getLocale } from "../utils/i18n";
+import { isLocale } from "../i18n/config";
 import client from "../../tina/__generated__/client";
 
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
 const { query, variables, data } = await client.queries.home({ relativePath: "index.json" });
 const seo = data?.home?.seo;
 ---
@@ -11,4 +15,5 @@ const seo = data?.home?.seo;
 <BaseLayout title={seo?.title} description={seo?.description}>
   <Hero query={query} variables={variables} data={data} />
   <Marquee data={data} />
+  <FeaturedProducts query={query} variables={variables} data={data} locale={locale} />
 </BaseLayout>
