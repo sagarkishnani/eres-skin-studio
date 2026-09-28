@@ -1,0 +1,15 @@
+---
+import BookingReact from "./BookingReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  whatsappUrl: string;
+}
+
+const { query, variables, data, whatsappUrl } = Astro.props;
+const visible = data?.home?.booking && data.home.booking.enabled !== false;
+---
+
+{visible && <BookingReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:tina />}
