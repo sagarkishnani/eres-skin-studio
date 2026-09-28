@@ -11,6 +11,8 @@ import { phoneHref } from "./contactLinks";
 const TWNSTUDIOS_CREDIT_URL =
   "https://twnstudios.com/?utm_source=eresskin&utm_medium=referral&utm_campaign=client_portfolio";
 
+const TWNSTUDIOS_LOGO = mediaUrl("/uploads/footer/twn-logo.svg");
+
 const underlinedLink =
   "self-start bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-right-bottom bg-no-repeat transition-[background-size] duration-500 ease-out-expo hover:bg-[length:100%_1px] hover:bg-left-bottom focus-visible:bg-[length:100%_1px] focus-visible:bg-left-bottom";
 
@@ -181,15 +183,15 @@ export default function FooterReact({ query, variables, data: initialData, local
             </div>
           )}
 
-          <p>
-            Diseño y desarrollo por{" "}
+          <p className="flex items-center gap-2.5">
+            Diseño y desarrollo por
             <a
               href={TWNSTUDIOS_CREDIT_URL}
               target="_blank"
               rel="noopener"
-              className={`pb-0.5 text-content-inverse ${underlinedLink}`}
+              className="transition-opacity duration-300 hover:opacity-60"
             >
-              TWNSTUDIOS
+              <img src={TWNSTUDIOS_LOGO} alt="TWNSTUDIOS" width={86} height={11} className="block h-[11px] w-auto" />
             </a>
           </p>
         </div>
