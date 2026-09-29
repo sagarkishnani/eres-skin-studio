@@ -101,6 +101,10 @@ contenido; cada colección vive en su propio archivo en `tina/collections/`.
 Los tipos, las queries y el cliente se generan en `tina/__generated__/`
 (**no editar a mano**).
 
+**Toda imagen que venga del CMS pasa por `mediaUrl()`** (`src/utils/mediaUrl.ts`).
+Con TinaCloud los campos de imagen llegan con el prefijo `assets.tina.io`, que
+da 404 para la media guardada en git; `mediaUrl` los devuelve a `/uploads/…`.
+
 Colecciones:
 
 - `global` — navegación, footer, SEO por defecto, código inyectado.
@@ -174,6 +178,10 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `precio-asc`, `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
   puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
   usan `ClientRouter` para que su `pushState` no choque con el del router.
+- **Imágenes** — `ProductCard` optimiza las fotos en build con
+  `productCardImage()` (`src/lib/woo/productImage.ts`): WebP en cuatro anchos
+  con `srcset`. El host de `WOO_STORE_URL` se autoriza en `image.domains` de
+  `astro.config.mjs`; si una imagen falla, se sirve el original.
 - **Ficha** — `/productos/<slug>` (spec `specs/10-ficha-de-producto.md`). El
   acordeón lee los meta `eres_beneficios`, `eres_ingredientes` y
   `eres_modo_uso`, que se editan con `wordpress/mu-plugins/eres-product-fields.php`;
