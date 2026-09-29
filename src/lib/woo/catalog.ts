@@ -37,9 +37,13 @@ function skinOptions(tags: WooTerm[], usedSlugs: Set<string>): FacetOption[] {
   return [...allTypes, ...options.filter((option) => option.slug !== ALL_SKIN_TYPES_TAG)];
 }
 
+export function featuredRank(products: WooProductWithStats[]): Map<number, number> {
+  return rankBy(products, (a, b) => Number(b.featured) - Number(a.featured));
+}
+
 export function buildCatalog(products: WooProductWithStats[], sources: CatalogSources): { items: CatalogItem[]; facets: CatalogFacets } {
   const now = sources.now ?? new Date();
-  const featuredRank = rankBy(products, (a, b) => Number(b.featured) - Number(a.featured));
+  const featured = featuredRank(products);
   const salesRank = rankBy(products, (a, b) => (b.total_sales || 0) - (a.total_sales || 0));
   const newestRank = rankBy(products, (a, b) => Date.parse(b.date_created) - Date.parse(a.date_created));
 
@@ -54,7 +58,7 @@ export function buildCatalog(products: WooProductWithStats[], sources: CatalogSo
     inStock: product.stock_status !== "outofstock",
     isNew: isNewProduct(product, sources.newProductDays, now),
     rank: {
-      destacados: featuredRank.get(product.id) ?? 0,
+      destacados: featured.get(product.id) ?? 0,
       "mas-vendidos": salesRank.get(product.id) ?? 0,
       novedades: newestRank.get(product.id) ?? 0,
     },

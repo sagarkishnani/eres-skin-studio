@@ -4,6 +4,7 @@ import StockRefresher from "../../components/shop/StockRefresher.astro";
 import AddToCartReact from "../../components/shop/AddToCartReact";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
+import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
 import { formatPrice, discountPercent, stockLabel, stripHtml, isBuyable } from "../../lib/woo/format";
 import { getLocale, localizeHref } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
@@ -13,11 +14,14 @@ export async function getStaticPaths() {
   const products = await getAllProducts();
   return products.map((product) => ({
     params: { slug: product.slug },
-    props: { product },
+    props: { product, page: buildProductPage(product, products) },
   }));
 }
 
-interface Props { product: WooProduct }
+interface Props {
+  product: WooProduct;
+  page: ProductPageData;
+}
 const { product } = Astro.props;
 
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);

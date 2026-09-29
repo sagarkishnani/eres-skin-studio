@@ -38,10 +38,18 @@ export interface WooProduct {
   attributes: { name: string; options: string[] }[];
 }
 
+export interface WooMeta {
+  key: string;
+  value: unknown;
+}
+
 export interface WooProductWithStats extends WooProduct {
   total_sales: number;
   date_created: string;
   featured: boolean;
+  cross_sell_ids: number[];
+  upsell_ids: number[];
+  meta_data: WooMeta[];
 }
 
 export interface WooTerm {
