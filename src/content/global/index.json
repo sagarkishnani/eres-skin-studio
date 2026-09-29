@@ -138,7 +138,7 @@
       },
       {
         "label": "Nosotras",
-        "url": "/contacto"
+        "url": "/nosotras"
       },
       {
         "label": "Contacto",
@@ -192,7 +192,7 @@
         "links": [
           {
             "label": "Sobre nosotras",
-            "url": "/contacto"
+            "url": "/nosotras"
           },
           {
             "label": "Servicios",
