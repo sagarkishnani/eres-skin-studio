@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { PiSlidersHorizontalLight } from "react-icons/pi";
 import { useCatalogState } from "../../../hooks/useCatalogState";
-import { runCatalog } from "../../../utils/catalog/applyFilters";
+import { activeFilterCount, runCatalog } from "../../../utils/catalog/applyFilters";
 import {
   emptyCatalogState,
   type CatalogFacets,
@@ -14,6 +15,7 @@ import SortMenu from "./SortMenu";
 import ActiveFilterChips from "./ActiveFilterChips";
 import Pagination from "./Pagination";
 import { buildFilterChips } from "./filterChips";
+import FilterDrawer from "./FilterDrawer";
 
 interface Props {
   items: CatalogItem[];
@@ -50,6 +52,10 @@ export default function CatalogReact({ items, facets, implicitCategory, children
   const view = useMemo(() => runCatalog(items, state), [items, state]);
   const gridRef = useRef<HTMLDivElement>(null);
   const [openGroups, setOpenGroups] = useState<Set<FilterKey>>(() => new Set(DEFAULT_OPEN_GROUPS));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const filterCount = activeFilterCount(state);
+  const countLabel = productCountLabel(view.results.length);
 
   useLayoutEffect(() => {
     if (ready && gridRef.current) applyViewToGrid(gridRef.current, view.pageItems.map((item) => item.id));
@@ -99,51 +105,83 @@ export default function CatalogReact({ items, facets, implicitCategory, children
   );
 
   return (
-    <div className="grid items-start gap-14 lg:grid-cols-[260px_minmax(0,1fr)]">
-      <aside
-        aria-label="Filtros"
-        data-lenis-prevent
-        className="sticky top-[120px] hidden max-h-[calc(100vh-144px)] overflow-y-auto overscroll-contain border-t border-line lg:block"
-      >
-        {panel}
-        {chips.length > 0 && (
-          <button
-            type="button"
-            onClick={clearAll}
-            className="mt-5 py-1 text-caption-sm font-medium uppercase tracking-[.16em] text-content underline decoration-1 underline-offset-4"
-          >
-            Limpiar filtros
-          </button>
-        )}
-      </aside>
-
-      <div className="min-w-0">
-        <div className="mb-6 hidden min-h-11 items-center justify-between gap-6 lg:flex">
-          <span className="text-body-md text-content">{productCountLabel(view.results.length)}</span>
-          <SortMenu value={state.orden} onChange={changeSort} />
-        </div>
-
-        <ActiveFilterChips chips={chips} onClearAll={clearAll} />
-
-        <div ref={gridRef} className="grid grid-cols-2 gap-x-3 gap-y-7 md:gap-x-6 md:gap-y-12 lg:grid-cols-3">
-          {children}
-        </div>
-
-        {view.results.length === 0 && (
-          <div className="flex flex-col items-start gap-5 py-20">
-            <span className="text-[24px] tracking-[-.02em] text-content">No encontramos productos con esos filtros.</span>
+    <>
+      <div className="grid items-start gap-14 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside
+          aria-label="Filtros"
+          data-lenis-prevent
+          className="sticky top-[120px] hidden max-h-[calc(100vh-144px)] overflow-y-auto overscroll-contain border-t border-line lg:block"
+        >
+          {panel}
+          {chips.length > 0 && (
             <button
               type="button"
               onClick={clearAll}
-              className="h-[52px] border border-ink px-7 text-caption-md font-medium uppercase tracking-[.14em] text-content transition-colors duration-[400ms] hover:bg-ink hover:text-content-inverse"
+              className="mt-5 py-1 text-caption-sm font-medium uppercase tracking-[.16em] text-content underline decoration-1 underline-offset-4"
             >
               Limpiar filtros
             </button>
-          </div>
-        )}
+          )}
+        </aside>
 
-        <Pagination page={view.page} pageCount={view.pageCount} onChange={changePage} />
+        <div className="min-w-0">
+          <div className="sticky top-16 z-30 -mx-gutter mb-5 flex items-center gap-3 border-b border-stone-150 bg-surface px-gutter py-3 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={drawerOpen}
+              className="flex h-11 items-center gap-2.5 border border-ink px-4 text-caption-sm font-medium uppercase tracking-[.14em] text-content"
+            >
+              <PiSlidersHorizontalLight size={16} aria-hidden />
+              Filtrar
+              {filterCount > 0 && (
+                <span className="grid h-[18px] min-w-[18px] place-items-center bg-accent px-[5px] text-[10px] tracking-normal text-content-inverse">
+                  {filterCount}
+                </span>
+              )}
+            </button>
+            <span className="flex-1 text-caption-md text-content-subtle">{countLabel}</span>
+          </div>
+
+          <div className="mb-6 hidden min-h-11 items-center justify-between gap-6 lg:flex">
+            <span className="text-body-md text-content">{countLabel}</span>
+            <SortMenu value={state.orden} onChange={changeSort} />
+          </div>
+
+          <ActiveFilterChips chips={chips} onClearAll={clearAll} />
+
+          <div ref={gridRef} className="grid grid-cols-2 gap-x-3 gap-y-7 md:gap-x-6 md:gap-y-12 lg:grid-cols-3">
+            {children}
+          </div>
+
+          {view.results.length === 0 && (
+            <div className="flex flex-col items-start gap-5 py-20">
+              <span className="text-[24px] tracking-[-.02em] text-content">No encontramos productos con esos filtros.</span>
+              <button
+                type="button"
+                onClick={clearAll}
+                className="h-[52px] border border-ink px-7 text-caption-md font-medium uppercase tracking-[.14em] text-content transition-colors duration-[400ms] hover:bg-ink hover:text-content-inverse"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          )}
+
+          <Pagination page={view.page} pageCount={view.pageCount} onChange={changePage} />
+        </div>
       </div>
-    </div>
+
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={closeDrawer}
+        sort={state.orden}
+        onSortChange={changeSort}
+        onClear={clearAll}
+        applyLabel={`Ver ${countLabel}`}
+      >
+        {panel}
+      </FilterDrawer>
+    </>
   );
 }

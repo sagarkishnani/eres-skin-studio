@@ -52,16 +52,16 @@ interface FilterOptionProps {
 export function FilterOption({ label, count, checked, onChange }: FilterOptionProps) {
   const dimmed = count === 0 && !checked;
   return (
-    <label className={`flex min-h-6 cursor-pointer items-center gap-3 text-body-sm text-content ${dimmed ? "opacity-40" : ""}`}>
+    <label className={`flex min-h-6 cursor-pointer items-center gap-3 text-body-sm ${dimmed ? "text-stone-400" : "text-content"}`}>
       <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
       <span
         aria-hidden="true"
-        className="grid h-[18px] w-[18px] shrink-0 place-items-center border border-stone-400 bg-surface-raised text-content-inverse transition-[background-color,border-color] duration-[250ms] peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100"
+        className={`grid h-[18px] w-[18px] shrink-0 place-items-center border bg-surface-raised ${dimmed ? "border-line-strong" : "border-stone-400"} text-content-inverse transition-[background-color,border-color] duration-[250ms] peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100`}
       >
         <PiCheckBold size={12} className="transition-opacity duration-200" />
       </span>
       <span>
-        {label} <span className="text-content-subtle">({count})</span>
+        {label} <span className={dimmed ? undefined : "text-content-subtle"}>({count})</span>
       </span>
     </label>
   );
