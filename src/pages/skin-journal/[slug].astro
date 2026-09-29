@@ -3,6 +3,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostBody from "../../components/blog/PostBody";
 import JournalBreadcrumb from "../../components/blog/JournalBreadcrumb.astro";
 import PostAdjacent from "../../components/blog/PostAdjacent.astro";
+import PostProgressReact from "../../components/blog/PostProgressReact";
+import ShareButtonReact from "../../components/blog/ShareButtonReact";
 import { formatShortDate } from "../../utils/formatDate";
 import { mediaUrl } from "../../utils/mediaUrl";
 import {
@@ -59,7 +61,9 @@ const postJsonLd = {
 <BaseLayout title={`${title} — ERES Skin Studio`} description={excerpt}>
   <script type="application/ld+json" set:html={JSON.stringify(postJsonLd)} />
 
-  <article class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-[clamp(24px,4vw,48px)]">
+  <PostProgressReact articleId="journal-article" client:idle />
+
+  <article id="journal-article" class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-[clamp(24px,4vw,48px)]">
     <header class="mx-auto flex max-w-[920px] flex-col items-center gap-[18px] px-[clamp(20px,5vw,40px)] text-center">
       <JournalBreadcrumb linkJournal />
       {post.date && (
@@ -125,6 +129,7 @@ const postJsonLd = {
             ))}
           </div>
         )}
+        <ShareButtonReact title={title} client:visible />
       </div>
 
       {adjacent && <PostAdjacent adjacent={adjacent} />}

@@ -1,51 +1,17 @@
-import { useEffect, useState } from "react";
 import { PiArrowBendUpRightLight, PiQuestionLight } from "react-icons/pi";
+import { useShareLink } from "../../../hooks/useShareLink";
 
 interface Props {
   productName: string;
   askUrl: string | null;
 }
 
-type ShareMode = "native" | "copy" | null;
-
-const COPIED_FEEDBACK_MS = 2200;
-
 const actionClass = "flex items-center gap-2.5 py-1.5 text-content";
 const underlineClass =
   "bg-[length:0%_1px] bg-right-bottom bg-no-repeat transition-[background-size] duration-500 ease-out-expo [background-image:linear-gradient(currentColor,currentColor)] group-hover:bg-[length:100%_1px] group-hover:bg-left-bottom group-focus-visible:bg-[length:100%_1px] group-focus-visible:bg-left-bottom";
 
-function detectShareMode(): ShareMode {
-  const touch = window.matchMedia("(pointer: coarse)").matches;
-  if (touch && typeof navigator.share === "function") return "native";
-  if (typeof navigator.clipboard?.writeText === "function") return "copy";
-  if (typeof navigator.share === "function") return "native";
-  return null;
-}
-
 export default function ProductActionsReact({ productName, askUrl }: Props) {
-  const [shareMode, setShareMode] = useState<ShareMode>(null);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => setShareMode(detectShareMode()), []);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  async function share() {
-    if (shareMode === "native") {
-      try {
-        await navigator.share({ title: productName, url: window.location.href });
-      } catch {}
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-    } catch {}
-  }
+  const { shareMode, copied, share } = useShareLink(productName);
 
   if (!shareMode && !askUrl) return null;
 
