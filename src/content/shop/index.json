@@ -1,14 +1,17 @@
 {
   "hero": {
-    "eyebrow": "Tienda",
-    "title": "Nuestros productos",
-    "description": "Explora el catálogo completo. Precios y disponibilidad actualizados al momento.",
-    "badges": [
-      { "label": "Envíos a todo el país", "icon": "truck" },
-      { "label": "Pago 100% seguro", "icon": "card" },
-      { "label": "Garantía de 12 meses", "icon": "shield" }
-    ]
+    "title": "Productos\npara tu piel.",
+    "description": "Una selección curada de marcas premium en skincare. Cada producto en Eres está pensado para ayudarte a entender tu piel y construir una rutina honesta, eficiente y a tu medida.",
+    "image": "/uploads/productos/banner.jpg",
+    "imageAlt": "Productos Eres Skin Studio"
   },
+  "benefits": [
+    { "title": "Validado por expertas", "text": "Recomendado por nuestras skin coaches", "icon": "check" },
+    { "title": "Sin parabenos", "text": "Fórmula limpia y dermatológicamente probada", "icon": "drop" },
+    { "title": "Envío seguro", "text": "Lima Metropolitana en 48h.", "icon": "truck" },
+    { "title": "Asesoría experta", "text": "Resolvemos dudas por WhatsApp", "icon": "chat" }
+  ],
+  "newProductDays": 30,
   "lowStockThreshold": 5,
   "seo": {
     "title": "Tienda — ERES Skin Studio",

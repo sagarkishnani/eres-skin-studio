@@ -1,44 +1,51 @@
 import type { Collection } from "tinacms";
+import { seoField, textarea } from "./fields";
 
 export const shopCollection: Collection = {
   name: "shop",
   label: "Tienda",
   path: "src/content/shop",
   format: "json",
-  ui: { allowedActions: { create: false, delete: false } },
+  ui: { allowedActions: { create: false, delete: false }, router: () => "/productos" },
   fields: [
     {
       type: "object",
       name: "hero",
-      label: "Cabecera",
+      label: "Banner",
       fields: [
-        { name: "eyebrow", label: "Antetítulo", type: "string" },
-        { name: "title", label: "Título", type: "string", required: true },
-        { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
+        { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", required: true, ui: textarea },
+        { name: "description", label: "Descripción", type: "string", ui: textarea },
         { name: "image", label: "Imagen", type: "image" },
+        { name: "imageAlt", label: "Texto alternativo", type: "string" },
+      ],
+    },
+    {
+      type: "object",
+      name: "benefits",
+      label: "Beneficios",
+      list: true,
+      ui: { itemProps: (item) => ({ label: item?.title || "Beneficio" }) },
+      fields: [
+        { name: "title", label: "Título", type: "string", required: true },
+        { name: "text", label: "Texto", type: "string" },
         {
-          type: "object",
-          name: "badges",
-          label: "Sellos de confianza",
-          list: true,
-          ui: { itemProps: (item) => ({ label: item?.label || "Sello" }) },
-          fields: [
-            { name: "label", label: "Texto", type: "string" },
-            {
-              name: "icon",
-              label: "Ícono",
-              type: "string",
-              options: [
-                { value: "truck", label: "Envío" },
-                { value: "shield", label: "Garantía" },
-                { value: "card", label: "Pago seguro" },
-                { value: "returns", label: "Devoluciones" },
-                { value: "support", label: "Soporte" },
-              ],
-            },
+          name: "icon",
+          label: "Ícono",
+          type: "string",
+          options: [
+            { value: "check", label: "Check" },
+            { value: "drop", label: "Gota" },
+            { value: "truck", label: "Envío" },
+            { value: "chat", label: "Conversación" },
           ],
         },
       ],
+    },
+    {
+      name: "newProductDays",
+      label: "Días con la etiqueta “Nuevo”",
+      type: "number",
+      description: "Un producto muestra “Nuevo” durante estos días desde que se publica en Woo. Se recalcula en cada build.",
     },
     {
       name: "lowStockThreshold",
@@ -47,14 +54,6 @@ export const shopCollection: Collection = {
       description:
         "Unidades en stock a partir de las cuales el producto muestra el aviso de últimas unidades. Es la señal que más mueve la conversión.",
     },
-    {
-      type: "object",
-      name: "seo",
-      label: "SEO",
-      fields: [
-        { name: "title", label: "Título", type: "string" },
-        { name: "description", label: "Descripción", type: "string", ui: { component: "textarea" } },
-      ],
-    },
+    seoField("SEO"),
   ],
 };
