@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ShopBanner from "./ShopBanner.astro";
 import ShopBenefits from "./ShopBenefits.astro";
 import ProductCard from "./ProductCard.astro";
+import CatalogReact from "./catalog/CatalogReact";
 import StockRefresher from "./StockRefresher.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
@@ -25,7 +26,7 @@ const shop = data?.shop;
 const lowStock = shop?.lowStockThreshold ?? 5;
 
 const [products, categories, brands, tags] = await Promise.all([getAllProducts(), getAllCategories(), getAllBrands(), getAllTags()]);
-const { items } = buildCatalog(products, {
+const { items, facets } = buildCatalog(products, {
   categories,
   brands,
   tags,
@@ -44,13 +45,13 @@ const title = category ? `${category.name} — ERES Skin Studio` : shop?.seo?.ti
 const description = category ? `Productos de la categoría ${category.name}.` : shop?.seo?.description;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} viewTransitions={false}>
   <ShopBanner query={query} variables={variables} data={data} categoryName={category?.name} />
 
   <section class="bg-surface pb-[clamp(64px,8vw,112px)] pt-[clamp(20px,5vw,64px)]">
     <div class="container-xl">
       {items.length > 0 ? (
-        <div class="grid grid-cols-2 gap-x-3 gap-y-7 md:gap-x-6 md:gap-y-12 lg:grid-cols-3">
+        <CatalogReact items={items} facets={facets} implicitCategory={category?.slug} client:load>
           {orderedItems.map((item, index) => {
             const product = productsById.get(item.id)!;
             return (
@@ -59,7 +60,7 @@ const description = category ? `Productos de la categoría ${category.name}.` : 
               </div>
             );
           })}
-        </div>
+        </CatalogReact>
       ) : (
         <div class="border border-dashed border-line px-6 py-20 text-center">
           <p class="text-body-lg text-content-muted">
