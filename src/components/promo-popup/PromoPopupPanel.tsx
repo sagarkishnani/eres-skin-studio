@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import { tinaField } from "tinacms/dist/react";
 import { PiXLight } from "react-icons/pi";
 import type { PromoPopupQuery } from "../../../tina/__generated__/types";
 import { mediaUrl } from "../../utils/mediaUrl";
 import { hoverUnderline } from "../blog/underline";
 import PromoPopupSocials, { type PopupSocial } from "./PromoPopupSocials";
+import { useCopyCoupon } from "./useCopyCoupon";
 
 type PromoPopupData = PromoPopupQuery["promoPopup"];
 export type PromoCampaign = NonNullable<NonNullable<PromoPopupData["campaigns"]>[number]>;
@@ -14,29 +16,32 @@ interface Props {
   popup: PromoPopupData;
   campaign: PromoCampaign;
   socials: PopupSocial[];
-  copied: boolean;
   onClose: () => void;
   onCopy: () => void;
   onCtaClick: () => void;
 }
 
-function CouponBlock({ campaign, copied, onCopy }: Pick<Props, "campaign" | "copied" | "onCopy">) {
+function CouponBlock({ campaign, onCopy }: Pick<Props, "campaign" | "onCopy">) {
+  const codeRef = useRef<HTMLParagraphElement>(null);
+  const { copied, copy } = useCopyCoupon(campaign.couponCode || "", codeRef, onCopy);
+
   return (
     <div className="mt-7 flex flex-col gap-3">
       <p
+        ref={codeRef}
         className="grid h-14 select-all place-items-center border border-dashed border-line-strong bg-surface text-body-lg font-medium uppercase tracking-[.12em] text-content"
         data-tina-field={tinaField(campaign, "couponCode")}
       >
         {campaign.couponCode}
       </p>
-      <button type="button" onClick={onCopy} className="btn-primary w-full" aria-live="polite">
+      <button type="button" onClick={copy} className="btn-primary w-full" aria-live="polite">
         {copied ? campaign.copiedLabel || "¡Código copiado!" : campaign.copyLabel || "Copiar código"}
       </button>
     </div>
   );
 }
 
-export default function PromoPopupPanel({ popup, campaign, socials, copied, onClose, onCopy, onCtaClick }: Props) {
+export default function PromoPopupPanel({ popup, campaign, socials, onClose, onCopy, onCtaClick }: Props) {
   const image = mediaUrl(campaign.image);
   const hasCoupon = Boolean(campaign.couponCode);
   const hasCta = Boolean(campaign.ctaLabel && campaign.ctaUrl);
@@ -80,7 +85,7 @@ export default function PromoPopupPanel({ popup, campaign, socials, copied, onCl
             </p>
           )}
 
-          {hasCoupon && <CouponBlock campaign={campaign} copied={copied} onCopy={onCopy} />}
+          {hasCoupon && <CouponBlock campaign={campaign} onCopy={onCopy} />}
 
           {hasCta && (
             <a

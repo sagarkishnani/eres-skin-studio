@@ -72,7 +72,6 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
         popup={popup}
         campaign={campaign}
         socials={socials}
-        copied={false}
         onClose={close}
         onCopy={convert}
         onCtaClick={convert}
