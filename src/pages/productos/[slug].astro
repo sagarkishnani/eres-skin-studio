@@ -5,6 +5,7 @@ import StockRefresher from "../../components/shop/StockRefresher.astro";
 import ProductPurchaseReact from "../../components/shop/product/ProductPurchaseReact";
 import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
 import ProductDetailsReact from "../../components/shop/product/ProductDetailsReact";
+import ProductActionsReact from "../../components/shop/product/ProductActionsReact";
 import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
@@ -34,6 +35,16 @@ const shopResult = await client.queries.shop({ relativePath: "index.json" });
 const shop = shopResult.data?.shop;
 const lowStock = shop?.lowStockThreshold ?? 5;
 const texts = shop?.productPage;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const contactPhone = globalResult.data?.global?.contact?.phone;
+
+function buildAskUrl(phone: string | null | undefined, template: string | null | undefined): string | null {
+  const digits = (phone || "").replace(/\D/g, "");
+  if (!digits || !template) return null;
+  const message = template.replaceAll("{producto}", product.name);
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
 ---
 
 <BaseLayout
@@ -104,6 +115,12 @@ const texts = shop?.productPage;
           )}
 
           <ProductDetailsReact details={page.details} client:visible />
+
+          <ProductActionsReact
+            productName={product.name}
+            askUrl={buildAskUrl(contactPhone, texts?.askMessage)}
+            client:visible
+          />
         </div>
       </div>
     </div>
