@@ -76,6 +76,15 @@ function OpeningHours({ labels, rows }: { labels: any; rows: OpeningHoursRow[] }
   );
 }
 
+function CopyIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <rect x="8" y="8" width="12" height="12" />
+      <path d="M16 8V4H4v12h4" />
+    </svg>
+  );
+}
+
 function ContactItem({ label, labelField, href, children }: { label?: string; labelField?: string; href: string; children: ReactNode }) {
   const external = href.startsWith("https://");
   return (
@@ -144,6 +153,19 @@ export default function ContactDetailsReact({ query, variables, data: initialDat
             {studioContact.address && (
               <DetailBlock eyebrow={studio?.eyebrow} eyebrowField={studio && tinaField(studio, "eyebrow")} delay={80}>
                 <address className="text-subtitle-md not-italic leading-[1.5]">{studioContact.address}</address>
+                {studio?.copyLabel && (
+                  <button
+                    type="button"
+                    data-copy-address={studioContact.address}
+                    data-copied-label={studio.copiedLabel || ""}
+                    className="hidden items-center gap-2.5 self-start py-1 text-body-xs text-content data-[ready]:flex"
+                  >
+                    <CopyIcon />
+                    <span data-copy-label aria-live="polite" className={hoverUnderline} data-tina-field={tinaField(studio, "copyLabel")}>
+                      {studio.copyLabel}
+                    </span>
+                  </button>
+                )}
               </DetailBlock>
             )}
 

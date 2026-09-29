@@ -17,7 +17,13 @@ const visible = data?.contact?.details && data.contact.details.enabled !== false
 
 <script>
   import { startOpeningHours } from "../../scripts/openingHours";
+  import { startCopyAddress } from "../../scripts/copyAddress";
 
-  startOpeningHours();
-  document.addEventListener("astro:after-swap", startOpeningHours);
+  function startContactDetails() {
+    startOpeningHours();
+    startCopyAddress();
+  }
+
+  startContactDetails();
+  document.addEventListener("astro:after-swap", startContactDetails);
 </script>
