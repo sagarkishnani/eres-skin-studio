@@ -40,6 +40,20 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
+function usePageLoaded(): boolean {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (document.readyState === "complete") {
+      setLoaded(true);
+      return;
+    }
+    const onLoad = () => setLoaded(true);
+    window.addEventListener("load", onLoad, { once: true });
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+  return loaded;
+}
+
 export default function HeroCarouselReact({ slides, autoplay }: Props) {
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
@@ -47,6 +61,7 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
   const [cycle, setCycle] = useState(0);
   const pointerStartX = useRef<number | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const pageLoaded = usePageLoaded();
 
   const total = slides.length;
   const autoplayOn = autoplay && total > 1 && !reducedMotion;
@@ -94,6 +109,7 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
       {slides.map((slide, index) => {
         const isActive = index === active;
         const Title = index === 0 ? "h1" : "p";
+        const showImage = Boolean(slide.image) && (index === 0 || isActive || pageLoaded);
         return (
           <div
             key={index}
@@ -105,12 +121,11 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
               isActive ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
           >
-            {slide.image && (
+            {showImage && (
               <img
                 src={slide.image}
                 alt={slide.imageAlt}
-                loading={index === 0 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : "auto"}
+                fetchPriority={index === 0 ? "high" : "low"}
                 decoding="async"
                 draggable={false}
                 data-tina-field={slide.fields.image}
