@@ -1,18 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import NotFound from "../components/system-pages/NotFound.astro";
+import client from "../../tina/__generated__/client";
 
-const base = import.meta.env.BASE_URL || "/";
+const result = await client.queries.systemPages({ relativePath: "index.json" });
+const notFound = result.data?.systemPages?.notFound;
 ---
 
-<BaseLayout title="Página no encontrada — ERES Skin Studio">
-  <section class="flex min-h-[70vh] items-center">
-    <div class="container-xl text-center">
-      <p class="text-body-sm uppercase tracking-[0.2em] text-accent">404</p>
-      <h1 class="mt-4 text-heading-lg">Esta página no existe</h1>
-      <p class="mx-auto mt-4 max-w-md text-body-lg text-content-muted">
-        Puede que el enlace esté roto o que la página se haya movido.
-      </p>
-      <a class="btn-primary mt-8" href={base}>Volver al inicio</a>
-    </div>
-  </section>
+<BaseLayout
+  title={notFound?.seo?.title || "Página no encontrada — ERES Skin Studio"}
+  description={notFound?.seo?.description || notFound?.intro || undefined}
+>
+  <NotFound query={result.query} variables={result.variables} data={result.data} />
 </BaseLayout>
