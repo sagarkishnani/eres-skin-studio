@@ -9,6 +9,7 @@ import {
   type ListFilterKey,
 } from "../../../utils/catalog/types";
 import { FilterGroup, FilterOption } from "./FilterGroup";
+import PriceRange from "./PriceRange";
 
 interface Props {
   items: CatalogItem[];
@@ -17,6 +18,7 @@ interface Props {
   openGroups: Set<FilterKey>;
   onToggleGroup: (key: FilterKey) => void;
   onToggleValue: (key: ListFilterKey, slug: string) => void;
+  onPriceChange: (range: [number, number] | null) => void;
 }
 
 interface ListGroup {
@@ -34,26 +36,34 @@ export function listGroups(facets: CatalogFacets): ListGroup[] {
   ].filter((group) => group.options.length > 0);
 }
 
-export default function FilterPanel({ items, facets, state, openGroups, onToggleGroup, onToggleValue }: Props) {
+export default function FilterPanel({ items, facets, state, openGroups, onToggleGroup, onToggleValue, onPriceChange }: Props) {
+  const [availability, ...otherGroups] = listGroups(facets);
+
+  const renderListGroup = (group: ListGroup) => {
+    const counts = countOptions(items, state, group.key, group.options.map((option) => option.slug));
+    const selected: string[] = state[group.key];
+    return (
+      <FilterGroup key={group.key} title={group.title} open={openGroups.has(group.key)} onToggle={() => onToggleGroup(group.key)}>
+        {group.options.map((option) => (
+          <FilterOption
+            key={option.slug}
+            label={option.name}
+            count={counts.get(option.slug) ?? 0}
+            checked={selected.includes(option.slug)}
+            onChange={() => onToggleValue(group.key, option.slug)}
+          />
+        ))}
+      </FilterGroup>
+    );
+  };
+
   return (
     <>
-      {listGroups(facets).map((group) => {
-        const counts = countOptions(items, state, group.key, group.options.map((option) => option.slug));
-        const selected: string[] = state[group.key];
-        return (
-          <FilterGroup key={group.key} title={group.title} open={openGroups.has(group.key)} onToggle={() => onToggleGroup(group.key)}>
-            {group.options.map((option) => (
-              <FilterOption
-                key={option.slug}
-                label={option.name}
-                count={counts.get(option.slug) ?? 0}
-                checked={selected.includes(option.slug)}
-                onChange={() => onToggleValue(group.key, option.slug)}
-              />
-            ))}
-          </FilterGroup>
-        );
-      })}
+      {renderListGroup(availability)}
+      <FilterGroup title="Precio" open={openGroups.has("precio")} onToggle={() => onToggleGroup("precio")}>
+        <PriceRange priceMax={facets.priceMax} value={state.precio} onCommit={onPriceChange} />
+      </FilterGroup>
+      {otherGroups.map(renderListGroup)}
     </>
   );
 }

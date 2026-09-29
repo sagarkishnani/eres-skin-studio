@@ -94,6 +94,7 @@ export default function CatalogReact({ items, facets, implicitCategory, children
       openGroups={openGroups}
       onToggleGroup={toggleGroup}
       onToggleValue={toggleValue}
+      onPriceChange={(precio) => updateFilters({ precio })}
     />
   );
 
