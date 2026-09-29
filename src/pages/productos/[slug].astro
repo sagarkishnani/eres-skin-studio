@@ -1,12 +1,14 @@
 ---
+import { PiCheckLight, PiPackageLight } from "react-icons/pi";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StockRefresher from "../../components/shop/StockRefresher.astro";
 import AddToCartReact from "../../components/shop/AddToCartReact";
+import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
-import { formatPrice, discountPercent, stockLabel, stripHtml, isBuyable } from "../../lib/woo/format";
-import { getLocale, localizeHref } from "../../utils/i18n";
+import { stripHtml, isBuyable } from "../../lib/woo/format";
+import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooProduct } from "../../lib/woo/types";
 
@@ -22,123 +24,78 @@ interface Props {
   product: WooProduct;
   page: ProductPageData;
 }
-const { product } = Astro.props;
+
+const { product, page } = Astro.props;
 
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
-const shop = await client.queries.shop({ relativePath: "index.json" });
-const lowStock = shop.data?.shop?.lowStockThreshold ?? 5;
+const shopResult = await client.queries.shop({ relativePath: "index.json" });
+const shop = shopResult.data?.shop;
+const lowStock = shop?.lowStockThreshold ?? 5;
+const texts = shop?.productPage;
 
-const discount = discountPercent(product);
-const stock = stockLabel(product, lowStock);
-const buyable = isBuyable(product);
-const gallery = product.images;
-
-const TONE = { ok: "text-emerald-400", low: "text-amber-400", out: "text-content-subtle" };
+const [primaryImage] = product.images;
 ---
 
 <BaseLayout
   title={`${product.name} — ERES Skin Studio`}
   description={stripHtml(product.short_description || product.description, 155)}
 >
-  <section class="section pt-[128px]" data-woo-id={product.id}>
+  <section class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-4 md:pt-8">
     <div class="container-xl">
-      <nav class="mb-8 text-sm text-content-subtle" aria-label="Miga de pan">
-        <a href={localizeHref("/productos", locale, false)} class="hover:text-content">Productos</a>
-        {product.categories[0] && (
-          <>
-            <span class="mx-2">/</span>
-            <a
-              href={localizeHref(`/productos/categoria/${product.categories[0].slug}`, locale, false)}
-              class="hover:text-content"
-            >
-              {product.categories[0].name}
-            </a>
-          </>
-        )}
-      </nav>
+      <ProductBreadcrumb productName={product.name} locale={locale} />
 
-      <div class="grid gap-10 lg:grid-cols-2">
-        <div class="flex flex-col gap-4">
-          {gallery[0] ? (
+      <div class="grid items-start gap-7 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-[clamp(40px,6vw,96px)]">
+        <div class="relative aspect-square overflow-hidden bg-stone-100">
+          {primaryImage ? (
             <img
-              src={gallery[0].src}
-              alt={gallery[0].alt || product.name}
+              src={primaryImage.src}
+              alt={primaryImage.alt || product.name}
               width="900"
               height="900"
-              class="aspect-square w-full object-cover"
+              class="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <div class="flex aspect-square w-full items-center justify-center bg-surface-raised text-content-subtle">
-              Sin imagen
-            </div>
-          )}
-
-          {gallery.length > 1 && (
-            <div class="grid grid-cols-4 gap-3">
-              {gallery.slice(1, 5).map((img) => (
-                <img
-                  src={img.src}
-                  alt={img.alt || ""}
-                  width="200"
-                  height="200"
-                  loading="lazy"
-                  class="aspect-square w-full object-cover"
-                />
-              ))}
-            </div>
+            <div class="grid h-full place-items-center text-caption-sm text-content-subtle">Sin imagen</div>
           )}
         </div>
 
-        <div>
-          {product.sku && <p class="text-sm text-content-subtle">SKU {product.sku}</p>}
-          <h1 class="mt-1 text-heading-xl">{product.name}</h1>
+        <div class="flex min-w-0 flex-col">
+          {page.eyebrow && (
+            <span class="text-caption-sm font-medium uppercase tracking-[.18em] text-sage-700">{page.eyebrow}</span>
+          )}
+          <h1 class="mb-4 mt-3 text-[clamp(32px,3.4vw,50px)] font-normal leading-[1.06] tracking-[-.03em] [text-wrap:balance]">
+            {product.name}
+          </h1>
 
-          <div class="mt-5 flex items-baseline gap-3" data-woo-price>
-            <span class="text-heading-md font-semibold">{formatPrice(product.price)}</span>
-            {discount !== null && (
-              <>
-                <span class="text-body-lg text-content-subtle line-through">
-                  {formatPrice(product.regular_price)}
-                </span>
-                <span class="rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
-                  -{discount}%
-                </span>
-              </>
-            )}
+          <div class="mt-6">
+            <AddToCartReact productId={product.id} disabled={!isBuyable(product)} client:visible />
           </div>
-
-          <p class={`mt-2 text-sm ${TONE[stock.tone]}`} data-woo-stock>{stock.text}</p>
 
           {product.short_description && (
             <div
-              class="prose mt-6 max-w-none text-content-muted"
+              class="mt-6 text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] [&_p+p]:mt-3"
               set:html={product.short_description}
             />
           )}
 
-          <div class="mt-8">
-            <AddToCartReact productId={product.id} disabled={!buyable} client:visible />
-          </div>
+          {texts?.deliveryText && (
+            <p class="mt-7 flex items-center gap-2.5 text-body-xs text-content">
+              <PiPackageLight size={20} aria-hidden="true" class="shrink-0" />
+              {texts.deliveryText}
+            </p>
+          )}
 
-          {product.attributes.length > 0 && (
-            <dl class="mt-10 divide-y divide-line border-t border-line">
-              {product.attributes.map((attr) => (
-                <div class="flex gap-4 py-3 text-sm">
-                  <dt class="w-40 shrink-0 text-content-subtle">{attr.name}</dt>
-                  <dd>{attr.options.join(", ")}</dd>
-                </div>
-              ))}
-            </dl>
+          {texts?.pickupTitle && (
+            <div class="mt-[22px] flex gap-3">
+              <PiCheckLight size={20} aria-hidden="true" class="mt-px shrink-0" />
+              <div class="flex flex-col gap-1">
+                <span class="text-body-sm font-medium">{texts.pickupTitle}</span>
+                {texts.pickupText && <span class="text-caption-md text-content-subtle">{texts.pickupText}</span>}
+              </div>
+            </div>
           )}
         </div>
       </div>
-
-      {product.description && (
-        <div class="mt-16 max-w-3xl">
-          <h2 class="text-heading-sm">Descripción</h2>
-          <div class="prose mt-4 max-w-none text-content-muted" set:html={product.description} />
-        </div>
-      )}
     </div>
   </section>
 

@@ -1,0 +1,29 @@
+---
+import { PiCaretRight } from "react-icons/pi";
+import { localizeHref } from "../../../utils/i18n";
+import type { Locale } from "../../../i18n/config";
+
+interface Props {
+  productName: string;
+  locale: Locale;
+}
+
+const { productName, locale } = Astro.props;
+
+const linkClass =
+  "bg-[length:0%_1px] bg-right-bottom bg-no-repeat transition-[background-size] duration-500 ease-out-expo [background-image:linear-gradient(currentColor,currentColor)] hover:bg-[length:100%_1px] hover:bg-left-bottom focus-visible:bg-[length:100%_1px] focus-visible:bg-left-bottom";
+---
+
+<nav aria-label="Migas de pan" class="mb-[clamp(20px,3vw,40px)] text-caption-md text-content-muted">
+  <ol class="flex flex-wrap items-center gap-2.5">
+    <li class="flex items-center gap-2.5">
+      <a href={localizeHref("/", locale, false)} class={linkClass}>Home</a>
+      <PiCaretRight size={12} aria-hidden="true" />
+    </li>
+    <li class="flex items-center gap-2.5">
+      <a href={localizeHref("/productos", locale, false)} class={linkClass}>Productos</a>
+      <PiCaretRight size={12} aria-hidden="true" />
+    </li>
+    <li aria-current="page" class="text-content">{productName}</li>
+  </ol>
+</nav>
