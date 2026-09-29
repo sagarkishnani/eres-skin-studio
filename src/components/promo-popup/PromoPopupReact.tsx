@@ -9,7 +9,8 @@ import {
   recordConvert,
   recordDismiss,
 } from "../../utils/promoPopup";
-import PromoPopupPanel, { PROMO_POPUP_TITLE_ID, type PromoCampaign } from "./PromoPopupPanel";
+import PromoPopupDialog from "./PromoPopupDialog";
+import PromoPopupPanel, { type PromoCampaign } from "./PromoPopupPanel";
 import type { PopupSocial } from "./PromoPopupSocials";
 import { useConsentAnswered } from "./useConsentAnswered";
 import { usePageVisit } from "./usePageVisit";
@@ -50,7 +51,7 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
   const campaign = popup.campaigns?.find((item) => item?.id === openCampaignId);
   if (!campaign) return null;
 
-  const close = () => {
+  const closed = () => {
     if (!convertedRef.current) recordDismiss(campaign.id);
     setOpenCampaignId(null);
   };
@@ -62,20 +63,21 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={PROMO_POPUP_TITLE_ID}
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/50 px-gutter"
-    >
-      <PromoPopupPanel
-        popup={popup}
-        campaign={campaign}
-        socials={socials}
-        onClose={close}
-        onCopy={convert}
-        onCtaClick={convert}
-      />
-    </div>
+    <PromoPopupDialog key={campaign.id} onClosed={closed}>
+      {({ requestClose, closeButtonRef }) => (
+        <PromoPopupPanel
+          popup={popup}
+          campaign={campaign}
+          socials={socials}
+          closeButtonRef={closeButtonRef}
+          onClose={requestClose}
+          onCopy={convert}
+          onCtaClick={() => {
+            convert();
+            requestClose();
+          }}
+        />
+      )}
+    </PromoPopupDialog>
   );
 }

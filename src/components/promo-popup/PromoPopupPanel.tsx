@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import { tinaField } from "tinacms/dist/react";
 import { PiXLight } from "react-icons/pi";
 import type { PromoPopupQuery } from "../../../tina/__generated__/types";
@@ -16,6 +16,7 @@ interface Props {
   popup: PromoPopupData;
   campaign: PromoCampaign;
   socials: PopupSocial[];
+  closeButtonRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
   onCopy: () => void;
   onCtaClick: () => void;
@@ -41,14 +42,14 @@ function CouponBlock({ campaign, onCopy }: Pick<Props, "campaign" | "onCopy">) {
   );
 }
 
-export default function PromoPopupPanel({ popup, campaign, socials, onClose, onCopy, onCtaClick }: Props) {
+export default function PromoPopupPanel({ popup, campaign, socials, closeButtonRef, onClose, onCopy, onCtaClick }: Props) {
   const image = mediaUrl(campaign.image);
   const hasCoupon = Boolean(campaign.couponCode);
   const hasCta = Boolean(campaign.ctaLabel && campaign.ctaUrl);
 
   return (
     <div
-      className={`relative grid max-h-[90dvh] w-full overflow-y-auto overscroll-contain bg-surface-raised shadow-xl ${
+      className={`pointer-events-auto relative grid max-h-[90dvh] w-full overflow-y-auto overscroll-contain bg-surface-raised shadow-xl ${
         image ? "max-w-[1040px] md:grid-cols-2" : "max-w-[560px]"
       }`}
       data-lenis-prevent
@@ -121,6 +122,7 @@ export default function PromoPopupPanel({ popup, campaign, socials, onClose, onC
       </div>
 
       <button
+        ref={closeButtonRef}
         type="button"
         onClick={onClose}
         aria-label="Cerrar"
