@@ -85,7 +85,7 @@ export default function FooterReact({ query, variables, data: initialData, local
   });
 
   return (
-    <footer className="bg-ink pb-7 pt-[clamp(56px,7vw,88px)] text-content-inverse">
+    <footer className="bg-ink pb-7 pt-[clamp(56px,7vw,88px)] text-content-inverse [html[data-buy-bar]_&]:pb-[calc(97px+env(safe-area-inset-bottom))] md:[html[data-buy-bar]_&]:pb-[calc(101px+env(safe-area-inset-bottom))]">
       <div className="container-xl">
         <div className="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2 md:gap-12 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
           <div className="flex flex-col gap-6 pb-9 md:pb-0">
