@@ -11,7 +11,8 @@ const multilineTitle = {
   ui: textarea,
 } as const;
 
-function findDuplicateSlug(items: { slug?: string }[] = []) {
+function findDuplicateSlug(items: unknown) {
+  if (!Array.isArray(items)) return undefined;
   const slugs = items.map((item) => item?.slug).filter(Boolean);
   return slugs.find((slug, index) => slugs.indexOf(slug) !== index);
 }
@@ -50,7 +51,7 @@ export const servicesCollection: Collection = {
           list: true,
           ui: {
             itemProps: (item) => ({ label: item?.name || "Servicio" }),
-            validate: (items: { slug?: string }[]) => {
+            validate: (items) => {
               const duplicate = findDuplicateSlug(items);
               if (duplicate) return `El identificador "${duplicate}" está repetido.`;
             },
