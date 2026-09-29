@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from "react";
-import { useTina } from "tinacms/dist/react";
+import { useEditState, useTina } from "tinacms/dist/react";
 import type { PromoPopupQuery, PromoPopupQueryVariables } from "../../../tina/__generated__/types";
 import {
   isCampaignSnoozed,
   isPathExcluded,
   pickActiveCampaign,
+  pickPreviewCampaign,
   readHistory,
   recordConvert,
   recordDismiss,
@@ -26,6 +27,7 @@ interface Props {
 export default function PromoPopupReact({ query, variables, data: initialData, socials }: Props) {
   const { data } = useTina<PromoPopupQuery>({ query, variables, data: initialData });
   const popup = data.promoPopup;
+  const { edit: editing } = useEditState();
   const visit = usePageVisit();
   const consentAnswered = useConsentAnswered();
   const [openCampaignId, setOpenCampaignId] = useState<string | null>(null);
@@ -40,6 +42,7 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
   }, [visit, popup.excludedPaths, popup.campaigns, popup.frequency]);
 
   const armed =
+    !editing &&
     consentAnswered && Boolean(eligibleCampaign) && openCampaignId === null && shownOnVisit !== visit.count;
 
   usePromoTrigger(popup.triggers, armed, visit.count, () => {
@@ -47,6 +50,26 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
     setOpenCampaignId(eligibleCampaign?.id ?? null);
     setShownOnVisit(visit.count);
   });
+
+  if (editing) {
+    const previewCampaign = pickPreviewCampaign(popup.campaigns);
+    if (!previewCampaign) return null;
+    return (
+      <PromoPopupDialog persistent onClosed={() => {}}>
+        {({ requestClose, closeButtonRef }) => (
+          <PromoPopupPanel
+            popup={popup}
+            campaign={previewCampaign}
+            socials={socials}
+            closeButtonRef={closeButtonRef}
+            onClose={requestClose}
+            onCopy={() => {}}
+            onCtaClick={() => {}}
+          />
+        )}
+      </PromoPopupDialog>
+    );
+  }
 
   const campaign = popup.campaigns?.find((item) => item?.id === openCampaignId);
   if (!campaign) return null;
