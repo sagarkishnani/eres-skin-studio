@@ -2,13 +2,13 @@
 import { PiCheckLight, PiPackageLight } from "react-icons/pi";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StockRefresher from "../../components/shop/StockRefresher.astro";
-import AddToCartReact from "../../components/shop/AddToCartReact";
+import ProductPurchaseReact from "../../components/shop/product/ProductPurchaseReact";
 import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
 import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
-import { stripHtml, isBuyable, discountPercent } from "../../lib/woo/format";
+import { stripHtml, discountPercent } from "../../lib/woo/format";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooProduct } from "../../lib/woo/types";
@@ -59,16 +59,31 @@ const texts = shop?.productPage;
             {product.name}
           </h1>
 
-          <div class="mt-6">
-            <AddToCartReact productId={product.id} disabled={!isBuyable(product)} client:visible />
-          </div>
-
-          {product.short_description && (
-            <div
-              class="mt-6 text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] [&_p+p]:mt-3"
-              set:html={product.short_description}
-            />
-          )}
+          <ProductPurchaseReact
+            id={product.id}
+            name={product.name}
+            type={product.type}
+            permalink={product.permalink}
+            thumb={product.images[0]?.src ?? null}
+            price={product.price}
+            regularPrice={product.regular_price}
+            salePrice={product.sale_price}
+            onSale={product.on_sale}
+            purchasable={product.purchasable}
+            stockStatus={product.stock_status}
+            stockQuantity={product.stock_quantity}
+            lowStockThreshold={lowStock}
+            shippingNote={texts?.shippingNote ?? ""}
+            client:load
+          >
+            {product.short_description && (
+              <div
+                slot="description"
+                class="mt-6 text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] [&_p+p]:mt-3"
+                set:html={product.short_description}
+              />
+            )}
+          </ProductPurchaseReact>
 
           {texts?.deliveryText && (
             <p class="mt-7 flex items-center gap-2.5 text-body-xs text-content">
