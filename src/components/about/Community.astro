@@ -1,0 +1,14 @@
+---
+import CommunityReact from "./CommunityReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const visible = data?.about?.community && data.about.community.enabled !== false;
+---
+
+{visible && <CommunityReact query={query} variables={variables} data={data} client:tina />}
