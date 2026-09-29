@@ -80,6 +80,11 @@ function cartHeaders(): Record<string, string> {
 }
 
 export const CART_UPDATED = "eres-skin-studio:cart-updated";
+export const CART_OPEN_REQUEST = "eres-skin-studio:cart-open";
+
+export function requestCartOpen(): void {
+  window.dispatchEvent(new Event(CART_OPEN_REQUEST));
+}
 
 function announce(cart: WooCart | null) {
   if (cart) window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: cart }));
