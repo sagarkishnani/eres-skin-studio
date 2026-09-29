@@ -5,6 +5,12 @@ import type {
   CookieConsentQuery,
   CookieConsentQueryVariables,
 } from "../../../tina/__generated__/types";
+import {
+  CONSENT_CHANGE_EVENT,
+  CONSENT_STORAGE_KEY,
+  OPEN_CONSENT_EVENT,
+  readConsent,
+} from "../../utils/cookieConsent";
 
 interface Props {
   query: string;
@@ -19,21 +25,10 @@ interface Category {
   alwaysActive?: boolean | null;
 }
 
-const STORAGE_KEY = "eres-skin-studio-cookie-consent:v1";
-
-function readConsent(): Record<string, boolean> | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
 function writeConsent(prefs: Record<string, boolean>) {
   try {
     localStorage.setItem(
-      STORAGE_KEY,
+      CONSENT_STORAGE_KEY,
       JSON.stringify({ ...prefs, ts: Date.now() })
     );
   } catch {
@@ -129,10 +124,10 @@ export default function CookieConsentReact({
         reopen();
       }
     };
-    window.addEventListener("open-cookie-consent", reopen);
+    window.addEventListener(OPEN_CONSENT_EVENT, reopen);
     document.addEventListener("click", onClick);
     return () => {
-      window.removeEventListener("open-cookie-consent", reopen);
+      window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
       document.removeEventListener("click", onClick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,6 +135,7 @@ export default function CookieConsentReact({
 
   const persistAndClose = (next: Record<string, boolean>) => {
     writeConsent(next);
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: next }));
     setOpen(false);
   };
 
