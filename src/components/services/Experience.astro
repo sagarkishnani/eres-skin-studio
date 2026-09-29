@@ -1,0 +1,15 @@
+---
+import ExperienceReact from "./ExperienceReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const experience = data?.services?.experience;
+const visible = experience && experience.enabled !== false && (experience.steps || []).some(Boolean);
+---
+
+{visible && <ExperienceReact query={query} variables={variables} data={data} client:tina />}

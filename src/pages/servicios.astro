@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ServicesHeader from "../components/services/ServicesHeader.astro";
 import ServiceBlocks from "../components/services/ServiceBlocks.astro";
+import Experience from "../components/services/Experience.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.services({ relativePath: "index.json" });
@@ -15,4 +16,5 @@ const socialUrl = (network: string) => socials.find((social) => social?.network 
 <BaseLayout title={seo?.title} description={seo?.description}>
   <ServicesHeader query={query} variables={variables} data={data} />
   <ServiceBlocks query={query} variables={variables} data={data} whatsappUrl={socialUrl("whatsapp")} />
+  <Experience query={query} variables={variables} data={data} />
 </BaseLayout>
