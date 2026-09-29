@@ -115,6 +115,8 @@ Colecciones:
   campañas (cupón y/o CTA, con vigencia).
 - `shop` — cabecera, umbral de "quedan pocas" y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
+- `systemPages` — textos y SEO del 404 (`notFound`, con enlaces rápidos) y de
+  `/gracias` (`thankYou`).
 
 ### Formularios (definidos en el CMS)
 
@@ -186,6 +188,12 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
   (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
   copia ese carrito a la sesión del navegador.
+- **Gracias** — tras el pago, `wordpress/mu-plugins/eres-thank-you-redirect.php`
+  manda la página "pedido recibido" a `ERES_THANK_YOU_URL` (`wp-config.php`;
+  vacía ⇒ sin redirección) con `?pedido=<número>`. `/gracias` (con `noindex`)
+  muestra el número si cumple `^[A-Za-z0-9-]{1,32}$` y entonces llama a
+  `forgetCart()`, que borra el `Cart-Token` y emite `CART_UPDATED` con `null`.
+  Sin `?pedido=` el carrito no se toca. Spec: `specs/13-paginas-404-y-gracias.md`.
 - **Rebuild** — los webhooks de producto de Woo llaman a
   `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
   (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow

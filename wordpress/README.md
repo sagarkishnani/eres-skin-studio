@@ -59,6 +59,24 @@ El acordeón de la ficha (`specs/10-ficha-de-producto.md`) lee tres campos por p
 4. Texto plano: los saltos de línea se respetan. Un campo vacío no se muestra en la ficha. Si los tres están vacíos, la ficha muestra la descripción larga del producto como panel "Descripción".
 5. Comprobación: completa "Beneficios" en un producto, guarda y verifica que `https://<wordpress>/wp-json/wc/v3/products/<id>` trae `eres_beneficios` en `meta_data`. Guardar dispara el webhook y el rebuild.
 
+### mu-plugin de la página de gracias
+
+Después del pago, lleva a la clienta de la página "pedido recibido" de WooCommerce a `/gracias?pedido=<número>` del sitio Astro (`specs/13-paginas-404-y-gracias.md`). `/gracias` muestra el número y vacía el carrito del navegador.
+
+1. Copia `wordpress/mu-plugins/eres-thank-you-redirect.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Página de gracias".
+3. El destino se define en `wp-config.php`:
+
+   ```php
+   define('ERES_THANK_YOU_URL', 'https://eresskinstudio.com/gracias/');
+   ```
+
+   Sin la constante se usa esa misma URL. Con la constante vacía (`''`) no hay redirección y WooCommerce muestra su página como siempre.
+4. **Mientras WordPress siga en `eresskinstudio.com`**, `/gracias/` todavía no es el sitio Astro: instala el plugin con `ERES_THANK_YOU_URL` vacía y complétala en la migración (paso 10).
+5. No redirige pedidos fallidos ni URLs con una `key` inválida: ahí se queda la página de WooCommerce.
+6. Si la tienda ofrece transferencia bancaria, los datos de la cuenta ya no se ven tras el pago: solo llegan en el correo de "pedido en espera".
+7. Comprobación: haz un pedido de prueba con "Pago contra entrega". Debe terminar en `https://eresskinstudio.com/gracias/?pedido=<número>` con el carrito vacío.
+
 ## 4. Token de GitHub para el rebuild
 
 1. GitHub → Settings (de tu usuario) → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token.
@@ -141,7 +159,7 @@ La migración no la ejecuta la SPEC 02. Esta es la checklist para cuando toque:
 1. Crear el subdominio `checkout.eresskinstudio.com` en Hostinger con SSL activo.
 2. Migrar WordPress (plugin de migración o copia de archivos + base de datos) y cambiar `siteurl` y `home` al subdominio.
 3. Revisar en la pasarela de pago las URLs de retorno y de notificación (IPN/webhooks de la pasarela). Todas deben apuntar al subdominio.
-4. Instalar el mu-plugin (paso 3) en el WordPress migrado.
+4. Instalar los mu-plugins (paso 3) en el WordPress migrado y definir `ERES_THANK_YOU_URL` como `https://eresskinstudio.com/gracias/`.
 5. Actualizar las URLs:
    - `.env` y secret `WOO_STORE_URL` → `https://checkout.eresskinstudio.com`
    - Variable `PUBLIC_WOO_CHECKOUT_URL` → `https://checkout.eresskinstudio.com/checkout/`
