@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AboutHeader from "../components/about/AboutHeader.astro";
+import Purpose from "../components/about/Purpose.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.about({ relativePath: "index.json" });
@@ -9,4 +10,5 @@ const seo = data?.about?.seo;
 
 <BaseLayout title={seo?.title} description={seo?.description}>
   <AboutHeader query={query} variables={variables} data={data} />
+  <Purpose query={query} variables={variables} data={data} />
 </BaseLayout>

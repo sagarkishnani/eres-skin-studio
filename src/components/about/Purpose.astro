@@ -1,0 +1,14 @@
+---
+import PurposeReact from "./PurposeReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const visible = data?.about?.purpose && data.about.purpose.enabled !== false;
+---
+
+{visible && <PurposeReact query={query} variables={variables} data={data} client:tina />}
