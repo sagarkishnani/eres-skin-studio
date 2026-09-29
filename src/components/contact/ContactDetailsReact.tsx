@@ -42,7 +42,7 @@ function OpeningHours({ labels, rows }: { labels: any; rows: OpeningHoursRow[] }
       >
         <span
           aria-hidden="true"
-          className="h-2 w-2 rounded-full bg-stone-400 ring-4 ring-stone-400/20 group-data-[open]/status:bg-sage-500 group-data-[open]/status:ring-sage-500/20"
+          className="ml-1 h-2 w-2 rounded-full bg-stone-400 ring-4 ring-stone-400/20 group-data-[open]/status:bg-sage-500 group-data-[open]/status:ring-sage-500/20"
         />
         <span data-opening-label />
       </span>
@@ -53,7 +53,7 @@ function OpeningHours({ labels, rows }: { labels: any; rows: OpeningHoursRow[] }
             <div
               key={index}
               data-hours-row
-              className="group/row flex justify-between gap-4 border-b border-stone-150 py-3 text-body-md"
+              className="group/row flex justify-between gap-4 border-b border-stone-150 py-3 text-body-md last:border-b-0"
             >
               <span className="flex items-center gap-2.5 text-content-subtle group-data-[today]/row:font-medium group-data-[today]/row:text-content">
                 {row.label}
