@@ -2,12 +2,15 @@ import type { ReactNode } from "react";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { mediaUrl } from "../../utils/mediaUrl";
 import { phoneHref, type Contact } from "../shared/contactLinks";
+import { formatShift, presentRows, rowShifts, type OpeningHoursRow } from "../../utils/openingHours";
+
+export type StudioContact = Contact & { hours?: (OpeningHoursRow | null)[] | null };
 
 interface Props {
   query: string;
   variables: object;
   data: any;
-  studioContact: Contact;
+  studioContact: StudioContact;
 }
 
 const hoverUnderline =
@@ -23,6 +26,53 @@ function DetailBlock({ eyebrow, eyebrowField, delay, children }: { eyebrow?: str
       )}
       {children}
     </div>
+  );
+}
+
+function OpeningHours({ labels, rows }: { labels: any; rows: OpeningHoursRow[] }) {
+  const schedule = rows.map((row) => ({ days: row.days || [], shifts: rowShifts(row) }));
+
+  return (
+    <>
+      <span
+        data-opening-status
+        data-open-label={labels?.openNowLabel || ""}
+        data-closed-label={labels?.closedNowLabel || ""}
+        className="group/status hidden items-center data-[ready]:inline-flex gap-2.5 text-body-xs text-content"
+      >
+        <span
+          aria-hidden="true"
+          className="h-2 w-2 rounded-full bg-stone-400 ring-4 ring-stone-400/20 group-data-[open]/status:bg-sage-500 group-data-[open]/status:ring-sage-500/20"
+        />
+        <span data-opening-label />
+      </span>
+      <div data-opening-hours={JSON.stringify(schedule)} className="flex flex-col">
+        {rows.map((row, index) => {
+          const shifts = rowShifts(row);
+          return (
+            <div
+              key={index}
+              data-hours-row
+              className="group/row flex justify-between gap-4 border-b border-stone-150 py-3 text-body-md"
+            >
+              <span className="flex items-center gap-2.5 text-content-subtle group-data-[today]/row:font-medium group-data-[today]/row:text-content">
+                {row.label}
+                {labels?.todayLabel && (
+                  <span className="hidden bg-sage-100 px-[7px] py-1 text-[10px] font-semibold uppercase leading-none tracking-[.14em] text-sage-900 group-data-[today]/row:inline">
+                    {labels.todayLabel}
+                  </span>
+                )}
+              </span>
+              <span className="flex flex-col items-end text-right tabular-nums text-content">
+                {shifts.length > 0
+                  ? shifts.map((shift) => <span key={formatShift(shift)}>{formatShift(shift)}</span>)
+                  : labels?.closedLabel}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
@@ -48,7 +98,8 @@ export default function ContactDetailsReact({ query, variables, data: initialDat
   const { data } = useTina({ query, variables, data: initialData });
   const details = data?.contact?.details;
   if (!details) return <div hidden />;
-  const { support, studio } = details;
+  const { support, studio, hours: hoursLabels } = details;
+  const hoursRows = presentRows(studioContact.hours);
 
   return (
     <section className="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-[clamp(24px,5vw,72px)]">
@@ -93,6 +144,12 @@ export default function ContactDetailsReact({ query, variables, data: initialDat
             {studioContact.address && (
               <DetailBlock eyebrow={studio?.eyebrow} eyebrowField={studio && tinaField(studio, "eyebrow")} delay={80}>
                 <address className="text-subtitle-md not-italic leading-[1.5]">{studioContact.address}</address>
+              </DetailBlock>
+            )}
+
+            {hoursRows.length > 0 && (
+              <DetailBlock eyebrow={hoursLabels?.eyebrow} eyebrowField={hoursLabels && tinaField(hoursLabels, "eyebrow")} delay={160}>
+                <OpeningHours labels={hoursLabels} rows={hoursRows} />
               </DetailBlock>
             )}
           </div>

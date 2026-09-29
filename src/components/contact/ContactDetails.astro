@@ -1,12 +1,12 @@
 ---
 import ContactDetailsReact from "./ContactDetailsReact";
-import type { Contact } from "../shared/contactLinks";
+import type { StudioContact } from "./ContactDetailsReact";
 
 interface Props {
   query: string;
   variables: object;
   data: any;
-  studioContact: Contact;
+  studioContact: StudioContact;
 }
 
 const { query, variables, data, studioContact } = Astro.props;
@@ -14,3 +14,10 @@ const visible = data?.contact?.details && data.contact.details.enabled !== false
 ---
 
 {visible && <ContactDetailsReact query={query} variables={variables} data={data} studioContact={studioContact} client:tina />}
+
+<script>
+  import { startOpeningHours } from "../../scripts/openingHours";
+
+  startOpeningHours();
+  document.addEventListener("astro:after-swap", startOpeningHours);
+</script>
