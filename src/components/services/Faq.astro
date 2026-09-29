@@ -1,0 +1,32 @@
+---
+import FaqReact from "./FaqReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  whatsappUrl: string;
+}
+
+const { query, variables, data, whatsappUrl } = Astro.props;
+const faq = data?.services?.faq;
+const questions = (faq?.items || []).filter((item: any) => item?.question && item?.answer);
+const visible = faq && faq.enabled !== false && questions.length > 0;
+
+const faqPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: questions.map((item: any) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+---
+
+{visible && (
+  <>
+    <FaqReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:tina />
+    <script type="application/ld+json" set:html={JSON.stringify(faqPageJsonLd)} />
+  </>
+)}

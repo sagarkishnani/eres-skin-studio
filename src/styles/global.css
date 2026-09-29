@@ -93,6 +93,20 @@
       gap 450ms theme('transitionTimingFunction.out-expo');
   }
 
+  .faq-item {
+    interpolate-size: allow-keywords;
+  }
+  .faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 550ms theme('transitionTimingFunction.out-expo'),
+      content-visibility 550ms allow-discrete;
+  }
+  .faq-item[open]::details-content {
+    block-size: auto;
+  }
+
   .card {
     @apply border border-line bg-surface-raised p-6
            transition-colors hover:border-line-strong;
