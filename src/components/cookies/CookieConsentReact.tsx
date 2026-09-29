@@ -25,6 +25,8 @@ interface Category {
   alwaysActive?: boolean | null;
 }
 
+type ConsentView = "hidden" | "banner" | "modal";
+
 function writeConsent(prefs: Record<string, boolean>) {
   try {
     localStorage.setItem(
@@ -89,8 +91,12 @@ export default function CookieConsentReact({
   const btnSave = cc?.btnSave || "Guardar mis preferencias";
   const btnAccept = cc?.btnAccept || "Aceptar todo";
   const alwaysActiveLabel = cc?.alwaysActiveLabel || "Siempre activa";
+  const bannerText =
+    cc?.bannerText ||
+    "Usamos cookies para que la web funcione y, con tu permiso, para entender cómo la usas.";
+  const btnConfigure = cc?.btnConfigure || "Configurar";
 
-  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<ConsentView>("hidden");
   const [prefs, setPrefs] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -109,11 +115,11 @@ export default function CookieConsentReact({
   useEffect(() => {
     const saved = readConsent();
     setPrefs(buildPrefs(saved));
-    if (!saved) setOpen(true);
+    if (!saved) setView("banner");
 
     const reopen = () => {
       setPrefs(buildPrefs(readConsent()));
-      setOpen(true);
+      setView("modal");
     };
     const onClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest?.(
@@ -133,11 +139,22 @@ export default function CookieConsentReact({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (view === "banner") root.dataset.cookieBanner = "";
+    else delete root.dataset.cookieBanner;
+    return () => {
+      delete root.dataset.cookieBanner;
+    };
+  }, [view]);
+
   const persistAndClose = (next: Record<string, boolean>) => {
     writeConsent(next);
     window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: next }));
-    setOpen(false);
+    setView("hidden");
   };
+
+  const closeModal = () => setView(readConsent() ? "hidden" : "banner");
 
   const acceptAll = () => {
     const next: Record<string, boolean> = {};
@@ -156,7 +173,41 @@ export default function CookieConsentReact({
   };
 
   // Never return null from an island: Astro logs a bogus "Invalid hook call".
-  if (!open) return <div hidden aria-hidden="true" />;
+  if (view === "hidden") return <div hidden aria-hidden="true" />;
+
+  if (view === "banner") {
+    return (
+      <section
+        aria-label="Aviso de cookies"
+        className="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[60] border border-line bg-surface-raised p-4 shadow-lg md:inset-x-auto md:bottom-5 md:left-5 md:max-w-[400px] md:p-5"
+      >
+        <p className="text-body-xs leading-[1.5] text-content-muted">{bannerText}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setView("modal")}
+            className="mr-auto text-caption-md font-medium text-content underline underline-offset-4 hover:text-accent"
+          >
+            {btnConfigure}
+          </button>
+          <button
+            type="button"
+            onClick={rejectAll}
+            className="border border-accent px-3.5 py-2 text-caption-md font-semibold text-accent transition-colors hover:bg-accent/[0.04]"
+          >
+            {btnReject}
+          </button>
+          <button
+            type="button"
+            onClick={acceptAll}
+            className="bg-accent px-3.5 py-2 text-caption-md font-semibold text-content-inverse transition-colors hover:bg-sage-700"
+          >
+            {btnAccept}
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div
@@ -173,7 +224,7 @@ export default function CookieConsentReact({
             </h2>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={closeModal}
               aria-label="Cerrar"
               className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[#717274] hover:bg-[#f2f3f5] transition-colors"
             >
