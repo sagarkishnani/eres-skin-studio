@@ -1,19 +1,20 @@
 import { useMemo, useRef, useState } from "react";
-import { useEditState, useTina } from "tinacms/dist/react";
+import { useTina } from "tinacms/dist/react";
 import type { PromoPopupQuery, PromoPopupQueryVariables } from "../../../tina/__generated__/types";
 import {
   isCampaignSnoozed,
   isPathExcluded,
   pickActiveCampaign,
-  pickPreviewCampaign,
   readHistory,
   recordConvert,
   recordDismiss,
 } from "../../utils/promoPopup";
 import PromoPopupDialog from "./PromoPopupDialog";
 import PromoPopupPanel, { type PromoCampaign } from "./PromoPopupPanel";
+import PromoPopupPreview from "./PromoPopupPreview";
 import type { PopupSocial } from "./PromoPopupSocials";
 import { useConsentAnswered } from "./useConsentAnswered";
+import { useInsideTinaEditor } from "./useInsideTinaEditor";
 import { usePageVisit } from "./usePageVisit";
 import { usePromoTrigger } from "./usePromoTrigger";
 
@@ -27,7 +28,7 @@ interface Props {
 export default function PromoPopupReact({ query, variables, data: initialData, socials }: Props) {
   const { data } = useTina<PromoPopupQuery>({ query, variables, data: initialData });
   const popup = data.promoPopup;
-  const { edit: editing } = useEditState();
+  const editing = useInsideTinaEditor();
   const visit = usePageVisit();
   const consentAnswered = useConsentAnswered();
   const [openCampaignId, setOpenCampaignId] = useState<string | null>(null);
@@ -42,8 +43,12 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
   }, [visit, popup.excludedPaths, popup.campaigns, popup.frequency]);
 
   const armed =
+    Boolean(popup.enabled) &&
     !editing &&
-    consentAnswered && Boolean(eligibleCampaign) && openCampaignId === null && shownOnVisit !== visit.count;
+    consentAnswered &&
+    Boolean(eligibleCampaign) &&
+    openCampaignId === null &&
+    shownOnVisit !== visit.count;
 
   usePromoTrigger(popup.triggers, armed, visit.count, () => {
     convertedRef.current = false;
@@ -51,28 +56,11 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
     setShownOnVisit(visit.count);
   });
 
-  if (editing) {
-    const previewCampaign = pickPreviewCampaign(popup.campaigns);
-    if (!previewCampaign) return null;
-    return (
-      <PromoPopupDialog persistent onClosed={() => {}}>
-        {({ requestClose, closeButtonRef }) => (
-          <PromoPopupPanel
-            popup={popup}
-            campaign={previewCampaign}
-            socials={socials}
-            closeButtonRef={closeButtonRef}
-            onClose={requestClose}
-            onCopy={() => {}}
-            onCtaClick={() => {}}
-          />
-        )}
-      </PromoPopupDialog>
-    );
-  }
+  if (editing) return <PromoPopupPreview popup={popup} socials={socials} />;
 
   const campaign = popup.campaigns?.find((item) => item?.id === openCampaignId);
-  if (!campaign) return null;
+  // A null render fails Astro's React renderer check, which then falls back to the MDX renderer and calls hooks outside React.
+  if (!campaign) return <></>;
 
   const closed = () => {
     if (!convertedRef.current) recordDismiss(campaign.id);

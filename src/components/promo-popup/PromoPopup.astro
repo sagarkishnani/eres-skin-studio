@@ -16,14 +16,23 @@ const socials = presentSocials(globalResult.data?.global?.footer?.social).map((s
 ---
 
 {
-  promoResult?.data?.promoPopup?.enabled && (
-    <PromoPopupReact
-      client:idle
-      transition:persist="promo-popup"
-      query={promoResult.query}
-      variables={promoResult.variables}
-      data={promoResult.data}
-      socials={socials}
-    />
-  )
+  promoResult &&
+    (promoResult.data.promoPopup.enabled ? (
+      <PromoPopupReact
+        client:idle
+        transition:persist="promo-popup"
+        query={promoResult.query}
+        variables={promoResult.variables}
+        data={promoResult.data}
+        socials={socials}
+      />
+    ) : (
+      <PromoPopupReact
+        client:tina
+        query={promoResult.query}
+        variables={promoResult.variables}
+        data={promoResult.data}
+        socials={socials}
+      />
+    ))
 }

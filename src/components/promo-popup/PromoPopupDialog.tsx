@@ -11,12 +11,11 @@ interface DialogControls {
 }
 
 interface Props {
-  persistent?: boolean;
   onClosed: () => void;
   children: (controls: DialogControls) => ReactNode;
 }
 
-export default function PromoPopupDialog({ persistent = false, onClosed, children }: Props) {
+export default function PromoPopupDialog({ onClosed, children }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const leavingRef = useRef(false);
@@ -35,7 +34,7 @@ export default function PromoPopupDialog({ persistent = false, onClosed, childre
   }, []);
 
   const requestClose = () => {
-    if (persistent || leavingRef.current) return;
+    if (leavingRef.current) return;
     leavingRef.current = true;
     setVisible(false);
     window.setTimeout(onClosed, LEAVE_MS);

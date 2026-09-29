@@ -219,7 +219,9 @@ circular; la sección Journal de la home usa las mismas funciones.
 ### Popup promocional
 
 Spec: `specs/12-popup-promocional.md`. `PromoPopup.astro` monta la isla
-`PromoPopupReact` en `BaseLayout` (`client:idle`) solo si `promoPopup.enabled`.
+`PromoPopupReact` en `BaseLayout`: con `client:idle` si `promoPopup.enabled` y
+con `client:tina` si no. Así el formulario existe en el editor aunque el popup
+esté apagado; sin la isla, Tina no tiene qué editar.
 
 - **Campaña** — se muestra una sola: la primera con `enabled` cuya vigencia
   (`startsAt`/`endsAt`) se cumple **en el navegador**, así vence a su hora sin
@@ -233,7 +235,9 @@ Spec: `specs/12-popup-promocional.md`. `PromoPopup.astro` monta la isla
   de campaña: `daysAfterDismiss` tras cerrar y `daysAfterConvert` tras copiar
   el cupón o usar el CTA. Cambiar el `id` reinicia la campaña para todos.
 - **Editor** — dentro de Tina aparece al instante con la primera campaña
-  habilitada, sin mirar fechas ni frecuencia y sin escribir en `localStorage`.
+  habilitada (o la primera de la lista), sin mirar `enabled`, fechas ni
+  frecuencia y sin escribir en `localStorage`. Se puede cerrar y reaparece al
+  editar un campo del popup.
 - Las redes son las de `global.footer.social`, con iconos Phosphor Light.
 
 ### Modo mantenimiento

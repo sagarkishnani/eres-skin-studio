@@ -47,7 +47,8 @@ export function pickActiveCampaign<T extends PromoCampaignWindow>(
 export function pickPreviewCampaign<T extends PromoCampaignWindow>(
   campaigns: (T | null)[] | null | undefined
 ): T | null {
-  return (campaigns || []).find((campaign): campaign is T => Boolean(campaign?.enabled)) || null;
+  const present = (campaigns || []).filter((campaign): campaign is T => Boolean(campaign));
+  return present.find((campaign) => campaign.enabled) || present[0] || null;
 }
 
 function withoutTrailingSlash(path: string): string {

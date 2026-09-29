@@ -146,7 +146,7 @@ Va en columna, centrado, con padding `clamp(32px,5vw,56px)` y el contenido `max-
 
 | Campo | Tipo Tina | Notas |
 |---|---|---|
-| `enabled` | boolean | Interruptor general. En `false` la isla no se monta. |
+| `enabled` | boolean | Interruptor general. En `false` la isla se hidrata solo dentro del editor (`client:tina`). |
 | `triggers.delaySeconds` | number | `0` = apagado. |
 | `triggers.scrollPercent` | number | 1–100 sobre la altura scrolleable; `0` = apagado. |
 | `triggers.exitIntent` | boolean | Solo con `(pointer: fine)`. |
@@ -213,7 +213,7 @@ type PromoPopupHistory = Record<string, {
 ## Criterios de aceptación
 
 - [ ] `npm run build` termina sin errores con `promoPopup.enabled` en `true` y en `false`.
-- [ ] Con `enabled: false` no hay ningún nodo del popup en el HTML ni en el DOM.
+- [ ] Con `enabled: false` el popup no aparece ni carga JS fuera del editor (la isla usa `client:tina`), pero se puede editar y previsualizar en Tina.
 - [ ] Con `enabled: true` y sin campañas vigentes, el popup no aparece.
 - [ ] Con dos campañas vigentes, se muestra la que está más arriba en la lista.
 - [ ] Una campaña con `endsAt` en el pasado no aparece, sin necesidad de rebuild.
@@ -258,6 +258,8 @@ type PromoPopupHistory = Record<string, {
 - **No:** validar el cupón contra WooCommerce. Exigiría una ruta nueva en el proxy y el cupón es solo texto informativo.
 - **Sí:** `client:idle`. El popup nunca se muestra en el primer render, así que no compite con la carga inicial.
 - **Sí:** vista previa inmediata dentro del editor de Tina. Sin ella, editar el popup obligaría a esperar un disparador y a limpiar `localStorage` en cada prueba.
+- **Sí:** con `enabled: false` la isla se monta igual, con `client:tina`. Si no se monta, el `router` de la colección lleva a la home sin formulario y no hay forma de activar el popup desde el editor.
+- **Sí:** en el editor la vista previa se muestra aunque el popup o la campaña estén desactivados y se puede cerrar. Vuelve a abrirse al editar un campo del popup, para no tapar la edición del resto de la página.
 
 ## Riesgos
 

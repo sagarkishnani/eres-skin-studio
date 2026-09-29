@@ -7,7 +7,7 @@ const SAFETY_VIEWPORT_FACTOR = 1.2;
 let observer: IntersectionObserver | null = null;
 let safetyTimer: ReturnType<typeof setTimeout> | undefined;
 
-function insideTinaEditor(): boolean {
+export function insideTinaEditor(): boolean {
   try {
     return window.frameElement?.id === "tina-iframe";
   } catch {
