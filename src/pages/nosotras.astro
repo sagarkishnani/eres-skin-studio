@@ -5,6 +5,7 @@ import Purpose from "../components/about/Purpose.astro";
 import Pillars from "../components/home/Pillars.astro";
 import Differentiators from "../components/about/Differentiators.astro";
 import Community from "../components/about/Community.astro";
+import InstagramGrid from "../components/about/InstagramGrid.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.about({ relativePath: "index.json" });
@@ -12,6 +13,10 @@ const seo = data?.about?.seo;
 const showPillars = data?.about?.pillars?.enabled !== false;
 
 const home = await client.queries.home({ relativePath: "index.json" });
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const socials = globalResult.data?.global?.footer?.social || [];
+const socialUrl = (network: string) => socials.find((social) => social?.network === network)?.url || "";
 ---
 
 <BaseLayout title={seo?.title} description={seo?.description}>
@@ -20,4 +25,5 @@ const home = await client.queries.home({ relativePath: "index.json" });
   {showPillars && <Pillars query={home.query} variables={home.variables} data={home.data} standalone />}
   <Differentiators query={query} variables={variables} data={data} />
   <Community query={query} variables={variables} data={data} />
+  <InstagramGrid query={query} variables={variables} data={data} instagramUrl={socialUrl("instagram")} />
 </BaseLayout>
