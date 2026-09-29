@@ -3,11 +3,12 @@ import { PiCheckLight, PiPackageLight } from "react-icons/pi";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StockRefresher from "../../components/shop/StockRefresher.astro";
 import AddToCartReact from "../../components/shop/AddToCartReact";
+import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
 import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
-import { stripHtml, isBuyable } from "../../lib/woo/format";
+import { stripHtml, isBuyable, discountPercent } from "../../lib/woo/format";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooProduct } from "../../lib/woo/types";
@@ -32,8 +33,6 @@ const shopResult = await client.queries.shop({ relativePath: "index.json" });
 const shop = shopResult.data?.shop;
 const lowStock = shop?.lowStockThreshold ?? 5;
 const texts = shop?.productPage;
-
-const [primaryImage] = product.images;
 ---
 
 <BaseLayout
@@ -45,19 +44,12 @@ const [primaryImage] = product.images;
       <ProductBreadcrumb productName={product.name} locale={locale} />
 
       <div class="grid items-start gap-7 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-[clamp(40px,6vw,96px)]">
-        <div class="relative aspect-square overflow-hidden bg-stone-100">
-          {primaryImage ? (
-            <img
-              src={primaryImage.src}
-              alt={primaryImage.alt || product.name}
-              width="900"
-              height="900"
-              class="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div class="grid h-full place-items-center text-caption-sm text-content-subtle">Sin imagen</div>
-          )}
-        </div>
+        <ProductGalleryReact
+          images={product.images}
+          productName={product.name}
+          discount={discountPercent(product)}
+          client:load
+        />
 
         <div class="flex min-w-0 flex-col">
           {page.eyebrow && (
