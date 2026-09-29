@@ -317,7 +317,7 @@ Contenido sembrado en `src/content/shop/index.json`:
 | `askMessage` | "Hola, tengo una pregunta sobre {producto}" |
 
 - `{producto}` se reemplaza por el nombre del producto.
-- "Hacer una pregunta" usa la URL de WhatsApp de `global.footer.social` (la misma que `WhatsAppButton`), con `text` agregado vía `URL.searchParams`. Sin URL de WhatsApp, el enlace no se renderiza.
+- "Hacer una pregunta" arma `https://wa.me/<dígitos>?text=…` con `global.contact.phone`, con el mensaje en `encodeURIComponent` (WhatsApp muestra los `+` de `URLSearchParams` tal cual). Sin teléfono, el enlace no se renderiza.
 
 ### Compartir
 
@@ -453,6 +453,8 @@ Contenido sembrado en `src/content/shop/index.json`:
 - **Sí: "Ver opciones" para productos no simples.** Degrada con seguridad si aparece uno antes de esa spec.
 - **Sí: JSON-LD `Product`.** Costo bajo y habilita rich results de precio y disponibilidad.
 - **Sí: `navigator.share` en móvil con fallback al portapapeles.** La referencia solo copia, pero en móvil la hoja nativa es lo esperado.
+- **Sí: el número de "Hacer una pregunta" sale de `global.contact.phone`.** La URL de WhatsApp de `global.footer.social` es un acortador (`wa.link`) que descarta el `?text=`, así que no admite mensaje prellenado.
+- **No: agregar un campo de WhatsApp solo para esto.** El teléfono de contacto ya es el de WhatsApp.
 - **Sí: miga sin categoría.** Así lo define la referencia. La categoría ya está en el eyebrow.
 
 ## Riesgos
