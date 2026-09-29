@@ -168,6 +168,17 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `precio-asc`, `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
   puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
   usan `ClientRouter` para que su `pushState` no choque con el del router.
+- **Ficha** — `/productos/<slug>` (spec `specs/10-ficha-de-producto.md`). El
+  acordeón lee los meta `eres_beneficios`, `eres_ingredientes` y
+  `eres_modo_uso`, que se editan con `wordpress/mu-plugins/eres-product-fields.php`;
+  sin ninguno, muestra la descripción larga. `src/lib/woo/productPage.ts` los
+  resuelve en build junto con los relacionados (cross-sells → categoría →
+  destacados). `ProductPurchaseReact` refresca precio y stock por su cuenta
+  (la columna no lleva `data-woo-id`) y su barra fija escribe
+  `<html data-buy-bar>`, que sube el botón de WhatsApp. Cualquier isla abre el
+  carrito con `requestCartOpen()` (evento `eres-skin-studio:cart-open`). Los
+  textos fijos viven en `shop.productPage`; "Hacer una pregunta" usa
+  `global.contact.phone` porque el enlace `wa.link` descarta el `?text=`.
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
   (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
   copia ese carrito a la sesión del navegador.

@@ -33,7 +33,7 @@ const HEADER_CLEARANCE_PX = 72;
 const CHECKOUT_AVAILABLE = Boolean(import.meta.env.PUBLIC_WOO_CHECKOUT_URL);
 
 const addButtonClass =
-  "btn-secondary h-[54px] w-full gap-2.5 px-4 duration-[550ms] disabled:pointer-events-none disabled:opacity-40";
+  "btn-secondary h-[54px] w-full gap-2.5 whitespace-nowrap px-4 duration-[550ms] disabled:pointer-events-none disabled:opacity-40 max-[400px]:px-3 max-[400px]:tracking-[.08em] max-[400px]:[&>svg]:hidden";
 const buyButtonClass =
   "btn-primary col-span-full h-[54px] w-full duration-[550ms] [transition-property:background-size,color,letter-spacing] hover:tracking-[.18em] disabled:pointer-events-none disabled:opacity-40";
 
