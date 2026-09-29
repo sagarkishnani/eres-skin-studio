@@ -11,6 +11,7 @@ import { shopCollection } from "./collections/shop";
 import { journalCollection } from "./collections/journal";
 import { maintenanceCollection } from "./collections/maintenance";
 import { cookieConsentCollection } from "./collections/cookieConsent";
+import { promoPopupCollection } from "./collections/promoPopup";
 
 export default defineConfig({
   // Baked into the generated client at build time; NOT read at runtime.
@@ -44,6 +45,7 @@ export default defineConfig({
       journalCollection,
       maintenanceCollection,
       cookieConsentCollection,
+      promoPopupCollection,
     ],
   },
 });
