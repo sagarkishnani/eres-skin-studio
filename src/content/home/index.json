@@ -60,19 +60,19 @@
         "image": "/uploads/home/svc-limpieza.webp",
         "title": "Limpiezas faciales",
         "text": "Limpiezas, hidratación profunda y protocolos diseñados según el análisis de tu piel.",
-        "url": "/servicios/limpiezas-faciales"
+        "url": "/servicios#limpiezas-faciales"
       },
       {
         "image": "/uploads/home/svc-tratamiento.webp",
         "title": "Tratamientos faciales",
         "text": "Hidrointensiva, radiofrecuencia y tecnología de última generación para resultados visibles.",
-        "url": "/servicios/tratamientos-faciales"
+        "url": "/servicios#tratamientos-faciales"
       },
       {
         "image": "/uploads/home/svc-depilacion.webp",
         "title": "Depilación láser",
         "text": "Tecnología segura, indolora y efectiva para una piel suave y sin vello.",
-        "url": "/servicios/depilacion-laser"
+        "url": "/servicios#depilacion-laser"
       }
     ]
   },

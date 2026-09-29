@@ -88,20 +88,20 @@
       },
       {
         "label": "Servicios",
-        "url": "/contacto",
+        "url": "/servicios",
         "menu": {
           "featured": [
             {
               "label": "Limpiezas faciales",
-              "url": "/contacto"
+              "url": "/servicios#limpiezas-faciales"
             },
             {
               "label": "Tratamientos faciales",
-              "url": "/contacto"
+              "url": "/servicios#tratamientos-faciales"
             },
             {
               "label": "Depilación láser",
-              "url": "/contacto"
+              "url": "/servicios#depilacion-laser"
             }
           ],
           "columns": [
@@ -196,7 +196,7 @@
           },
           {
             "label": "Servicios",
-            "url": "/contacto"
+            "url": "/servicios"
           },
           {
             "label": "Productos",
