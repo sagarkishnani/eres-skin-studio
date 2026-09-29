@@ -1,0 +1,43 @@
+---
+import { formatShortDate } from "../../utils/formatDate";
+import { mediaUrl } from "../../utils/mediaUrl";
+import { journalPostHref, type JournalPostNode } from "../../utils/journal";
+
+interface Props {
+  post: JournalPostNode;
+}
+
+const { post } = Astro.props;
+const image = mediaUrl(post.coverImage);
+const meta = [formatShortDate(post.date), post.category].filter(Boolean).join(" · ");
+---
+
+<div class="container-xl mt-[clamp(32px,5vw,64px)]">
+  <a
+    href={journalPostHref(post)}
+    data-reveal="120"
+    class="group relative block h-[460px] overflow-hidden bg-accent text-content-inverse md:h-[min(72vh,640px)]"
+  >
+    {image && (
+      <img
+        src={image}
+        alt=""
+        decoding="async"
+        fetchpriority="high"
+        class="absolute inset-0 h-full w-full object-cover transition-transform duration-[1600ms] ease-out-expo motion-reduce:transition-none lg:group-hover:scale-[1.04]"
+      />
+    )}
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(29,29,27,.05)_30%,rgba(29,29,27,.62)_100%)]"></div>
+    <div class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-4 px-6 py-[clamp(28px,5vw,64px)] text-center">
+      {meta && <span class="text-body-xs">{meta}</span>}
+      <span class="max-w-[860px] text-[length:clamp(28px,4vw,56px)] leading-[1.06] tracking-[-.035em] [text-wrap:balance]">
+        {post.title}
+      </span>
+      <span
+        class="mt-2 inline-flex h-[52px] items-center gap-3 bg-surface-raised bg-[length:100%_0%] bg-bottom bg-no-repeat px-[30px] text-caption-md font-medium uppercase tracking-[.14em] text-content [background-image:linear-gradient(theme(colors.ink),theme(colors.ink))] [transition:background-size_550ms_cubic-bezier(.16,1,.3,1),color_400ms_ease,gap_450ms_cubic-bezier(.16,1,.3,1)] group-hover:gap-[18px] group-hover:bg-[length:100%_100%] group-hover:text-content-inverse group-focus-visible:gap-[18px] group-focus-visible:bg-[length:100%_100%] group-focus-visible:text-content-inverse"
+      >
+        Leer artículo <span aria-hidden="true">→</span>
+      </span>
+    </div>
+  </a>
+</div>
