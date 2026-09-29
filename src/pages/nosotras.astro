@@ -6,6 +6,7 @@ import Pillars from "../components/home/Pillars.astro";
 import Differentiators from "../components/about/Differentiators.astro";
 import Community from "../components/about/Community.astro";
 import InstagramGrid from "../components/about/InstagramGrid.astro";
+import FirstVisit from "../components/about/FirstVisit.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.about({ relativePath: "index.json" });
@@ -26,4 +27,5 @@ const socialUrl = (network: string) => socials.find((social) => social?.network 
   <Differentiators query={query} variables={variables} data={data} />
   <Community query={query} variables={variables} data={data} />
   <InstagramGrid query={query} variables={variables} data={data} instagramUrl={socialUrl("instagram")} />
+  <FirstVisit query={query} variables={variables} data={data} whatsappUrl={socialUrl("whatsapp")} />
 </BaseLayout>
