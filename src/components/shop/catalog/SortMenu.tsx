@@ -54,7 +54,7 @@ export default function SortMenu({ value, onChange }: Props) {
         <PiCaretDownLight
           size={14}
           aria-hidden
-          className={`transition-transform duration-[400ms] ease-out-expo ${open ? "rotate-180" : ""}`}
+          className={`transition-transform duration-[400ms] ease-out-expo motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
         />
       </button>
       <ul
@@ -62,7 +62,7 @@ export default function SortMenu({ value, onChange }: Props) {
         role="listbox"
         aria-label="Ordenar por"
         inert={!open}
-        className={`absolute right-0 top-full z-[25] min-w-[250px] border border-stone-150 bg-surface-raised py-2 shadow-lg transition-[opacity,transform] duration-[350ms,450ms] ease-out-expo ${
+        className={`absolute right-0 top-full z-[25] min-w-[250px] border border-stone-150 bg-surface-raised py-2 shadow-lg transition-[opacity,transform] duration-[350ms,450ms] ease-out-expo motion-reduce:transition-none ${
           open ? "translate-y-1 opacity-100" : "pointer-events-none -translate-y-1.5 opacity-0"
         }`}
       >

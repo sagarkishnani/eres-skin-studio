@@ -23,7 +23,7 @@ export function FilterGroup({ title, open, onToggle, children }: FilterGroupProp
         <span aria-hidden="true" className="relative block h-3.5 w-3.5 shrink-0">
           <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 bg-ink" />
           <span
-            className={`absolute inset-y-0 left-1/2 w-[1.5px] -translate-x-1/2 bg-ink transition-transform duration-[450ms] ease-out-expo ${
+            className={`absolute inset-y-0 left-1/2 w-[1.5px] -translate-x-1/2 bg-ink transition-transform duration-[450ms] ease-out-expo motion-reduce:transition-none ${
               open ? "scale-y-0" : "scale-y-100"
             }`}
           />
@@ -32,7 +32,7 @@ export function FilterGroup({ title, open, onToggle, children }: FilterGroupProp
       <div
         id={panelId}
         inert={!open}
-        className={`grid transition-[grid-template-rows] duration-[550ms] ease-out-expo ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`grid transition-[grid-template-rows] duration-[550ms] ease-out-expo motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
           <div className="flex flex-col gap-3.5 pb-[22px] pt-0.5">{children}</div>

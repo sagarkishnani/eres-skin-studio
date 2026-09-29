@@ -158,6 +158,16 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   un proxy con allowlist de rutas que proyecta campo a campo. `StockRefresher`
   refresca precio y stock; el carrito usa la Store API y guarda el `Cart-Token`
   en `localStorage`. Un recurso nuevo se agrega primero a `$ROUTES` del proxy.
+- **Catálogo** — `/productos` y `/productos/categoria/<slug>` comparten
+  `CatalogPage.astro`: renderiza todas las tarjetas y la isla `CatalogReact`
+  las filtra, ordena y pagina en el navegador (spec
+  `specs/09-catalogo-con-filtros.md`). El estado vive en la query:
+  `categoria`, `marca`, `piel` (tags de Woo; `todo-tipo-de-piel` pasa
+  cualquier filtro de piel), `disponibilidad` (`en-stock`, `agotado`),
+  `precio=min-max`, `orden` (`destacados`, `mas-vendidos`, `novedades`,
+  `precio-asc`, `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
+  puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
+  usan `ClientRouter` para que su `pushState` no choque con el del router.
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
   (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
   copia ese carrito a la sesión del navegador.

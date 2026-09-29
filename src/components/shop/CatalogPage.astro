@@ -9,7 +9,7 @@ import client from "../../../tina/__generated__/client";
 import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
 import { buildCatalog, DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
 import { sortItems } from "../../utils/catalog/applyFilters";
-import { CATALOG_PAGE_SIZE, DEFAULT_SORT } from "../../utils/catalog/types";
+import { CATALOG_PAGE_SIZE, CATALOG_PARAM_KEYS, DEFAULT_SORT } from "../../utils/catalog/types";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooCategory } from "../../lib/woo/types";
@@ -47,6 +47,15 @@ const description = category ? `Productos de la categoría ${category.name}.` : 
 
 <BaseLayout title={title} description={description} viewTransitions={false}>
   <ShopBanner query={query} variables={variables} data={data} categoryName={category?.name} />
+
+  <script is:inline define:vars={{ catalogParamKeys: CATALOG_PARAM_KEYS }}>
+    // Oculta la grilla antes del primer pintado si la URL trae filtros: el HTML estático muestra la vista por defecto.
+    var params = new URLSearchParams(window.location.search);
+    if (catalogParamKeys.some(function (key) { return params.has(key); })) {
+      document.documentElement.dataset.catalogPending = "";
+      setTimeout(function () { delete document.documentElement.dataset.catalogPending; }, 1500);
+    }
+  </script>
 
   <section class="bg-surface pb-[clamp(64px,8vw,112px)] pt-[clamp(20px,5vw,64px)]">
     <div class="container-xl">

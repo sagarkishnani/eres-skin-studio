@@ -58,7 +58,9 @@ export default function CatalogReact({ items, facets, implicitCategory, children
   const countLabel = productCountLabel(view.results.length);
 
   useLayoutEffect(() => {
-    if (ready && gridRef.current) applyViewToGrid(gridRef.current, view.pageItems.map((item) => item.id));
+    if (!ready || !gridRef.current) return;
+    applyViewToGrid(gridRef.current, view.pageItems.map((item) => item.id));
+    delete document.documentElement.dataset.catalogPending;
   }, [ready, view]);
 
   useEffect(() => {
@@ -110,7 +112,7 @@ export default function CatalogReact({ items, facets, implicitCategory, children
         <aside
           aria-label="Filtros"
           data-lenis-prevent
-          className="sticky top-[120px] hidden max-h-[calc(100vh-144px)] overflow-y-auto overscroll-contain border-t border-line transition-[top] duration-[600ms] ease-out-expo lg:block [html[data-header=compact]_&]:top-[104px] [html[data-header=hidden]_&]:top-6"
+          className="sticky top-[120px] hidden max-h-[calc(100vh-144px)] overflow-y-auto overscroll-contain border-t border-line transition-[top] duration-[600ms] ease-out-expo motion-reduce:transition-none lg:block [html[data-header=compact]_&]:top-[104px] [html[data-header=hidden]_&]:top-6"
         >
           {panel}
           {chips.length > 0 && (
@@ -125,7 +127,7 @@ export default function CatalogReact({ items, facets, implicitCategory, children
         </aside>
 
         <div className="min-w-0">
-          <div className="sticky top-16 z-30 -mx-gutter mb-5 flex items-center gap-3 border-b border-stone-150 bg-surface px-gutter py-3 transition-[top] duration-[600ms] ease-out-expo lg:hidden [html[data-header=hidden]_&]:top-0">
+          <div className="sticky top-16 z-30 -mx-gutter mb-5 flex items-center gap-3 border-b border-stone-150 bg-surface px-gutter py-3 transition-[top] duration-[600ms] ease-out-expo motion-reduce:transition-none lg:hidden [html[data-header=hidden]_&]:top-0">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -151,7 +153,14 @@ export default function CatalogReact({ items, facets, implicitCategory, children
 
           <ActiveFilterChips chips={chips} onClearAll={clearAll} />
 
-          <div ref={gridRef} className="grid grid-cols-2 gap-x-3 gap-y-7 md:gap-x-6 md:gap-y-12 lg:grid-cols-3">
+          <p className="sr-only" aria-live="polite">
+            {ready ? countLabel : ""}
+          </p>
+
+          <div
+            ref={gridRef}
+            className="grid grid-cols-2 gap-x-3 gap-y-7 transition-opacity duration-300 md:gap-x-6 md:gap-y-12 lg:grid-cols-3 [html[data-catalog-pending]_&]:opacity-0"
+          >
             {children}
           </div>
 

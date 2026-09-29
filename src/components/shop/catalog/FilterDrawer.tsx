@@ -50,7 +50,7 @@ export default function FilterDrawer({ open, onClose, sort, onSortChange, onClea
         aria-modal="true"
         aria-label="Filtros"
         inert={!open}
-        className={`fixed inset-y-0 right-0 z-[70] flex w-[min(100vw,440px)] flex-col bg-surface transition-transform duration-700 ease-out-expo lg:hidden ${
+        className={`fixed inset-y-0 right-0 z-[70] flex w-[min(100vw,440px)] flex-col bg-surface transition-transform duration-700 ease-out-expo motion-reduce:transition-none lg:hidden ${
           open ? "translate-x-0" : "translate-x-[102%]"
         }`}
       >
