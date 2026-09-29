@@ -1,0 +1,83 @@
+{
+  "header": {
+    "enabled": true,
+    "breadcrumb": "Nosotras",
+    "title": "Donde tu piel\nse siente en casa.",
+    "text": "Eres Skin Studio nació para acompañar a cada persona en el proceso de entender su piel. Un espacio donde se cruzan tecnología, conocimiento y un cuidado profundamente personalizado."
+  },
+  "purpose": {
+    "enabled": true,
+    "image": "/uploads/nosotras/adriana-paradisi.webp",
+    "imageAlt": "Adriana Paradisi, fundadora de Eres Skin Studio",
+    "imagePosition": "74% 30%",
+    "eyebrow": "— Nuestro propósito",
+    "title": "Acompañarte\na entender tu piel.",
+    "paragraphs": [
+      {
+        "text": "Nuestra misión es ser la guía de confianza en el cuidado de la piel. No ofrecemos soluciones genéricas: diseñamos cada tratamiento desde un análisis real, con tecnología avanzada y dermocosmética de alto nivel."
+      },
+      {
+        "text": "Creemos que la belleza bien tratada es bienestar — y que cuidar la piel es también una forma de reconectar contigo misma."
+      }
+    ],
+    "quote": "«Cada piel tiene una historia. Nosotras la escuchamos antes de tratarla.»",
+    "quoteAuthor": "— Adriana Paradisi · Fundadora"
+  },
+  "pillars": {
+    "enabled": true
+  },
+  "differentiators": {
+    "enabled": true,
+    "eyebrow": "— Por qué Eres",
+    "title": "Lo que nos hace\ndiferentes.",
+    "text": "Cada piel tiene una historia distinta. Por eso cuidamos la tuya con criterio, honestidad y una experiencia pensada para ti.",
+    "items": [
+      {
+        "icon": "person",
+        "title": "Miramos tu piel, no solo el servicio",
+        "text": "Antes de recomendarte algo, entendemos tu piel, tu rutina y lo que quieres mejorar. En Eres, cada decisión parte de ti."
+      },
+      {
+        "icon": "check",
+        "title": "Tratamos con criterio, no con fórmulas",
+        "text": "No creemos en paquetes iguales para todas. Elegimos activos, aparatología y protocolos según lo que tu piel necesita en ese momento."
+      },
+      {
+        "icon": "drop",
+        "title": "Te guiamos con honestidad",
+        "text": "Te decimos qué sí, qué no y qué esperar de cada tratamiento. Sin promesas exageradas, sin presión y sin venderte más de lo necesario."
+      }
+    ]
+  },
+  "community": {
+    "enabled": false,
+    "eyebrow": "— Únete a la comunidad",
+    "title": "Recibe rituales, cuidados y guías en tu correo.",
+    "text": "Una vez al mes: rutinas por temporada, ingredientes explicados sin rodeos y novedades del estudio. Nada de spam."
+  },
+  "instagram": {
+    "enabled": true,
+    "eyebrow": "— Comunidad",
+    "title": "Momentos contigo.",
+    "ctaLabel": "Ver más en Instagram",
+    "handle": "@eres.skinstudio",
+    "images": [
+      { "src": "/uploads/home/svc-limpieza.webp", "position": "50% 40%" },
+      { "src": "/uploads/blog/blog-roller.jpg", "position": "62% 50%" },
+      { "src": "/uploads/home/svc-tratamiento.webp", "position": "50% 40%" },
+      { "src": "/uploads/blog/blog-oil.jpg", "position": "50% 50%" },
+      { "src": "/uploads/home/svc-depilacion.webp", "position": "50% 35%" }
+    ]
+  },
+  "firstVisit": {
+    "enabled": true,
+    "eyebrow": "— Tu primera visita",
+    "title": "Conozcámonos\nen persona.",
+    "text": "Agenda una sesión de diagnóstico con nuestras skin coaches. Analizamos tu piel y diseñamos juntas un plan a tu medida — honesto, claro y a tu ritmo.",
+    "ctaLabel": "Agendar ahora"
+  },
+  "seo": {
+    "title": "Nosotras — ERES Skin Studio",
+    "description": "Conoce a Adriana Paradisi y al equipo de skin coaches de Eres Skin Studio: tecnología, criterio y un cuidado de la piel profundamente personalizado en Lima."
+  }
+}

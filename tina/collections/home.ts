@@ -1,29 +1,5 @@
-import type { Collection, TinaField } from "tinacms";
-
-const enabledField: TinaField = { name: "enabled", label: "Mostrar sección", type: "boolean" };
-const eyebrowField: TinaField = { name: "eyebrow", label: "Antetítulo", type: "string" };
-const textarea = { component: "textarea" } as const;
-
-function linkField(name: string, label: string): TinaField {
-  return {
-    type: "object",
-    name,
-    label,
-    fields: [
-      { name: "label", label: "Texto", type: "string" },
-      { name: "url", label: "URL", type: "string" },
-    ],
-  };
-}
-
-const paragraphsField: TinaField = {
-  type: "object",
-  name: "paragraphs",
-  label: "Párrafos",
-  list: true,
-  ui: { itemProps: (item) => ({ label: item?.text?.slice(0, 48) || "Párrafo" }) },
-  fields: [{ name: "text", label: "Texto", type: "string", ui: textarea }],
-};
+import type { Collection } from "tinacms";
+import { enabledField, eyebrowField, linkField, paragraphsField, seoField, textarea } from "./fields";
 
 export const homeCollection: Collection = {
   name: "home",
@@ -208,14 +184,6 @@ export const homeCollection: Collection = {
         { name: "ctaLabel", label: "Texto del botón", type: "string" },
       ],
     },
-    {
-      type: "object",
-      name: "seo",
-      label: "SEO de la home",
-      fields: [
-        { name: "title", label: "Título", type: "string" },
-        { name: "description", label: "Descripción", type: "string", ui: textarea },
-      ],
-    },
+    seoField("SEO de la home"),
   ],
 };
