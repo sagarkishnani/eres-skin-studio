@@ -48,12 +48,40 @@ function buildAskUrl(phone: string | null | undefined, template: string | null |
   const message = template.replaceAll("{producto}", product.name);
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
+
+const SCHEMA_AVAILABILITY = {
+  instock: "https://schema.org/InStock",
+  outofstock: "https://schema.org/OutOfStock",
+  onbackorder: "https://schema.org/BackOrder",
+} as const;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://eresskinstudio.com").href;
+const brandName = product.brands?.[0]?.name;
+
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  image: product.images.map((image) => image.src),
+  description: stripHtml(product.short_description || product.description, 300),
+  ...(product.sku ? { sku: product.sku } : {}),
+  ...(brandName ? { brand: { "@type": "Brand", name: brandName } } : {}),
+  offers: {
+    "@type": "Offer",
+    price: product.price,
+    priceCurrency: "PEN",
+    url: canonicalUrl,
+    availability: SCHEMA_AVAILABILITY[product.stock_status],
+  },
+};
 ---
 
 <BaseLayout
   title={`${product.name} — ERES Skin Studio`}
   description={stripHtml(product.short_description || product.description, 155)}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
   <section class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-4 md:pt-8">
     <div class="container-xl">
       <ProductBreadcrumb productName={product.name} locale={locale} />
