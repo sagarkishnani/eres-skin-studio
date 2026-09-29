@@ -202,9 +202,9 @@ function projectProduct($p) {
         'stock_quantity' => $p['stock_quantity'] ?? null,
         'average_rating' => $p['average_rating'] ?? '0',
         'rating_count'   => (int)($p['rating_count'] ?? 0),
-        'categories'     => array_map(fn($c) => [
-            'id' => (int)($c['id'] ?? 0), 'name' => $c['name'] ?? '', 'slug' => $c['slug'] ?? '',
-        ], $p['categories'] ?? []),
+        'categories'     => projectTermRefs($p['categories'] ?? []),
+        'brands'         => projectTermRefs($p['brands'] ?? []),
+        'tags'           => projectTermRefs($p['tags'] ?? []),
         'images'         => array_map(fn($i) => [
             'src' => $i['src'] ?? '', 'alt' => $i['alt'] ?? '',
         ], array_slice($p['images'] ?? [], 0, 8)),
@@ -212,6 +212,12 @@ function projectProduct($p) {
             'name' => $atx['name'] ?? '', 'options' => $atx['options'] ?? [],
         ], $p['attributes'] ?? []),
     ];
+}
+
+function projectTermRefs($terms) {
+    return array_map(fn($t) => [
+        'id' => (int)($t['id'] ?? 0), 'name' => $t['name'] ?? '', 'slug' => $t['slug'] ?? '',
+    ], $terms);
 }
 
 function projectCategory($c) {
