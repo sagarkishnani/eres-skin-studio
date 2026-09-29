@@ -3,6 +3,7 @@ import { globalCollection } from "./collections/global";
 import { homeCollection } from "./collections/home";
 import { aboutCollection } from "./collections/about";
 import { servicesCollection } from "./collections/services";
+import { contactCollection } from "./collections/contact";
 import { postCollection } from "./collections/post";
 import { formConfigCollection } from "./collections/formConfig";
 import { dynamicFormsCollection } from "./collections/dynamicForms";
@@ -34,6 +35,7 @@ export default defineConfig({
       homeCollection,
       aboutCollection,
       servicesCollection,
+      contactCollection,
       postCollection,
       formConfigCollection,
       dynamicFormsCollection,
