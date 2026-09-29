@@ -4,6 +4,7 @@ import type { PromoPopupQuery, PromoPopupQueryVariables } from "../../../tina/__
 import { isPathExcluded, pickActiveCampaign } from "../../utils/promoPopup";
 import PromoPopupPanel, { PROMO_POPUP_TITLE_ID, type PromoCampaign } from "./PromoPopupPanel";
 import type { PopupSocial } from "./PromoPopupSocials";
+import { useConsentAnswered } from "./useConsentAnswered";
 import { usePageVisit } from "./usePageVisit";
 import { usePromoTrigger } from "./usePromoTrigger";
 
@@ -18,6 +19,7 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
   const { data } = useTina<PromoPopupQuery>({ query, variables, data: initialData });
   const popup = data.promoPopup;
   const visit = usePageVisit();
+  const consentAnswered = useConsentAnswered();
   const [openCampaignId, setOpenCampaignId] = useState<string | null>(null);
   const [shownOnVisit, setShownOnVisit] = useState<number | null>(null);
 
@@ -26,7 +28,8 @@ export default function PromoPopupReact({ query, variables, data: initialData, s
     return pickActiveCampaign(popup.campaigns, Date.now());
   }, [visit, popup.excludedPaths, popup.campaigns]);
 
-  const armed = Boolean(eligibleCampaign) && openCampaignId === null && shownOnVisit !== visit.count;
+  const armed =
+    consentAnswered && Boolean(eligibleCampaign) && openCampaignId === null && shownOnVisit !== visit.count;
 
   usePromoTrigger(popup.triggers, armed, visit.count, () => {
     setOpenCampaignId(eligibleCampaign?.id ?? null);
