@@ -54,6 +54,10 @@ export default function HeaderReact({ query, variables, data: initialData, local
   const hidden = scroll.hidden && !megaOpen && openPanel === null;
   const elevated = scroll.scrolled || megaOpen;
 
+  useEffect(() => {
+    document.documentElement.dataset.header = hidden ? "hidden" : scroll.scrolled ? "compact" : "full";
+  }, [hidden, scroll.scrolled]);
+
   const openMegaMenu = (index: number) => {
     setMegaMenuIndex(index);
     setLastMegaMenuIndex(index);
