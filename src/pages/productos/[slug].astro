@@ -6,10 +6,13 @@ import ProductPurchaseReact from "../../components/shop/product/ProductPurchaseR
 import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
 import ProductDetailsReact from "../../components/shop/product/ProductDetailsReact";
 import ProductActionsReact from "../../components/shop/product/ProductActionsReact";
+import RelatedProducts from "../../components/shop/product/RelatedProducts.astro";
+import ShopBenefits from "../../components/shop/ShopBenefits.astro";
 import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
+import { DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
 import { stripHtml, discountPercent } from "../../lib/woo/format";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
@@ -125,6 +128,17 @@ function buildAskUrl(phone: string | null | undefined, template: string | null |
       </div>
     </div>
   </section>
+
+  <ShopBenefits query={shopResult.query} variables={shopResult.variables} data={shopResult.data} />
+
+  <RelatedProducts
+    products={page.related}
+    eyebrow={texts?.relatedEyebrow}
+    title={texts?.relatedTitle}
+    locale={locale}
+    lowStockThreshold={lowStock}
+    newProductDays={shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_DAYS}
+  />
 
   <StockRefresher lowStockThreshold={lowStock} />
 </BaseLayout>

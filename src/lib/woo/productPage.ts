@@ -13,7 +13,7 @@ export interface ProductDetail {
 export interface ProductPageData {
   eyebrow: string;
   details: ProductDetail[];
-  related: WooProduct[];
+  related: WooProductWithStats[];
 }
 
 export const RELATED_LIMIT = 4;
@@ -46,7 +46,7 @@ function buildDetails(product: WooProductWithStats): ProductDetail[] {
   return [{ key: "descripcion", title: "Descripción", body: product.description, isHtml: true }];
 }
 
-function buildRelated(product: WooProductWithStats, all: WooProductWithStats[]): WooProduct[] {
+function buildRelated(product: WooProductWithStats, all: WooProductWithStats[]): WooProductWithStats[] {
   const byId = new Map(all.map((candidate) => [candidate.id, candidate]));
   const rank = featuredRank(all);
   const byFeatured = [...all].sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
