@@ -105,12 +105,14 @@ Colecciones:
 
 - `global` — navegación, footer, SEO por defecto, código inyectado.
 - `home` — contenido de la portada.
-- `post` — artículos del blog en MDX (`src/content/blog/`).
+- `post` — artículos del Skin Journal en MDX (`src/content/blog/`): una
+  `category` fija (Cuidado, Rutina, Ingredientes, Tratamientos) y `tags` libres.
 - `formConfig` — por formulario: `formType`, `label`, `enabled`, `recipients[]`.
 - `dynamicForms` — definición completa de cada formulario (un JSON por formulario).
 - `maintenance` — modo mantenimiento del sitio.
 - `cookieConsent` — textos del banner de cookies.
 - `shop` — cabecera, umbral de "quedan pocas" y SEO de `/productos`.
+- `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
 
 ### Formularios (definidos en el CMS)
 
@@ -193,6 +195,24 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
 `public/woo-config.example.php`), compartido por `woo-api.php` y
 `rebuild-hook.php`. El deploy no pisa `woo-config.php`, `site-config.php` ni el
 contenido de `data/`.
+
+### Skin Journal (blog)
+
+Spec: `specs/11-skin-journal.md`. El listado vive en `/skin-journal` y cada
+artículo en `/skin-journal/<slug>`; `public/.htaccess` redirige las URLs viejas
+de `/blog`. `src/utils/journal.ts` concentra el orden por fecha, el destacado
+(el más reciente con `featured`, o el más reciente) y Anterior / Siguiente
+circular; la sección Journal de la home usa las mismas funciones.
+
+- **Listado** — `JournalListReact` filtra en el navegador con
+  `?categoria=<slug>` o `?etiqueta=<slug>` (`toFilterSlug`: minúsculas, sin
+  tildes, guiones) vía `history.replaceState`. Un valor desconocido equivale a
+  "Todos". En "Todos" la grilla excluye el post del hero. La página no usa
+  `ClientRouter`.
+- **Artículo** — el lead es el `excerpt` (no lo repitas en el cuerpo), la
+  portada va entre lead y cuerpo, y cualquier `>` del MDX se muestra como la
+  cita destacada. `PostBody` da estilo con componentes de `TinaMarkdown`, sin
+  `prose`. "Compartir" usa `useShareLink`, el mismo hook de la ficha.
 
 ### Modo mantenimiento
 
