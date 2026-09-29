@@ -29,7 +29,7 @@ function toJournalPost(post: any): JournalPost {
     href: `/blog/${post._sys.filename}`,
     image: mediaUrl(post.coverImage),
     date: formatShortDate(post.date),
-    tag: post.tags?.[0] || "",
+    tag: post.category || "",
     author: post.author || "",
   };
 }

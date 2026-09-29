@@ -1,10 +1,6 @@
 import type { Collection } from "tinacms";
 
-export const BLOG_TAG_OPTIONS = [
-  "Cuidado de la piel",
-  "Tratamientos",
-  "Novedades",
-];
+export const JOURNAL_CATEGORIES = ["Cuidado", "Rutina", "Ingredientes", "Tratamientos"] as const;
 
 export const postCollection: Collection = {
   name: "post",
@@ -33,13 +29,19 @@ export const postCollection: Collection = {
     { name: "readTime", label: "Tiempo de lectura", type: "string" },
     { name: "author", label: "Autora", description: "Se muestra como \"Por {autora}\".", type: "string" },
     {
+      name: "category",
+      label: "Categoría",
+      description: "Define la pestaña del Skin Journal en la que aparece el post.",
+      type: "string",
+      required: true,
+      options: [...JOURNAL_CATEGORIES],
+    },
+    {
       name: "tags",
       label: "Etiquetas",
-      description:
-        "Uno o varios temas del post. Se usan para filtrar el listado del blog.",
+      description: "Temas libres del post. Cada una enlaza al listado filtrado por esa etiqueta.",
       type: "string",
       list: true,
-      options: BLOG_TAG_OPTIONS,
     },
     { name: "featured", label: "Destacado", type: "boolean" },
     { name: "body", label: "Contenido", type: "rich-text", isBody: true },
