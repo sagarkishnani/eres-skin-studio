@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { PiCheckLight, PiHandbagLight } from "react-icons/pi";
 import { addToCart, checkoutUrl, fetchStock, requestCartOpen } from "../../../utils/wooClient";
 import { discountPercent, formatPrice } from "../../../lib/woo/format";
@@ -28,6 +29,7 @@ type Status = "idle" | "loading" | "done" | "error";
 const STOCK_BAR_SCALE = 30;
 const MAX_QUANTITY_WITHOUT_STOCK = 99;
 const FEEDBACK_MS = 1500;
+const HEADER_CLEARANCE_PX = 72;
 const CHECKOUT_AVAILABLE = Boolean(import.meta.env.PUBLIC_WOO_CHECKOUT_URL);
 
 const addButtonClass =
@@ -64,6 +66,86 @@ function StockNotice({ availability }: { availability: Availability }) {
       </p>
       <div className="h-0.5 max-w-[360px] bg-stone-150" aria-hidden="true">
         <div className="h-full bg-sage-500" style={{ width: `${fill}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function useBuyBlockPassed(enabled: boolean) {
+  const buyBlockRef = useRef<HTMLDivElement>(null);
+  const [passed, setPassed] = useState(false);
+
+  useEffect(() => {
+    const block = buyBlockRef.current;
+    if (!enabled || !block) {
+      setPassed(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setPassed(!entry.isIntersecting && entry.boundingClientRect.bottom < HEADER_CLEARANCE_PX),
+      { rootMargin: `-${HEADER_CLEARANCE_PX}px 0px 0px 0px` },
+    );
+    observer.observe(block);
+    return () => observer.disconnect();
+  }, [enabled]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (passed) root.dataset.buyBar = "visible";
+    else delete root.dataset.buyBar;
+    return () => {
+      delete root.dataset.buyBar;
+    };
+  }, [passed]);
+
+  return { buyBlockRef, passed };
+}
+
+interface StickyBuyBarProps {
+  visible: boolean;
+  name: string;
+  thumb: string | null;
+  stock: WooStock;
+  quantity: number;
+  max: number;
+  onQuantityChange: (value: number) => void;
+  onAdd: () => void;
+  addLabel: string;
+  addDone: boolean;
+  busy: boolean;
+}
+
+function StickyBuyBar({ visible, name, thumb, stock, quantity, max, onQuantityChange, onAdd, addLabel, addDone, busy }: StickyBuyBarProps) {
+  const discount = discountPercent(stock);
+  return (
+    <div
+      inert={!visible}
+      aria-hidden={!visible}
+      className={`fixed inset-x-0 bottom-0 z-[44] border-t border-stone-150 bg-surface-raised pb-[env(safe-area-inset-bottom)] shadow-up transition-transform duration-[650ms] ease-out-expo motion-reduce:transition-none [html[data-scroll-locked]_&]:translate-y-[110%] ${
+        visible ? "translate-y-0" : "translate-y-[110%]"
+      }`}
+    >
+      <div className="mx-auto flex max-w-container items-center gap-4 px-4 py-2.5 md:px-gutter md:py-3">
+        {thumb && <img src={thumb} alt="" loading="lazy" className="hidden h-14 w-14 shrink-0 bg-stone-100 object-cover lg:block" />}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate text-caption-md text-content md:text-body-sm">{name}</span>
+          <span className="flex items-baseline gap-2">
+            <span className="text-body-md font-semibold">{formatPrice(stock.price)}</span>
+            {discount !== null && (
+              <span className="text-caption-md text-content-subtle line-through">{formatPrice(stock.regular_price)}</span>
+            )}
+          </span>
+        </div>
+        <QuantityStepper value={quantity} max={max} onChange={onQuantityChange} className="hidden h-12 lg:flex" />
+        <button
+          type="button"
+          onClick={onAdd}
+          disabled={busy}
+          className="btn-primary h-12 shrink-0 gap-2.5 whitespace-nowrap px-8 text-caption-sm duration-[550ms] disabled:pointer-events-none disabled:opacity-40"
+        >
+          {addDone ? <PiCheckLight size={18} aria-hidden /> : <PiHandbagLight size={18} aria-hidden />}
+          {addLabel}
+        </button>
       </div>
     </div>
   );
@@ -125,6 +207,12 @@ export default function ProductPurchaseReact(props: ProductPurchaseProps) {
   const busy = addStatus === "loading" || buyStatus === "loading";
   const failed = addStatus === "error" || buyStatus === "error";
 
+  const [mounted, setMounted] = useState(false);
+  const showStickyBar = isSimple && !soldOut;
+  const { buyBlockRef, passed } = useBuyBlockPassed(showStickyBar);
+
+  useEffect(() => setMounted(true), []);
+
   const changeQuantity = (next: number) => setQuantity(Math.min(max, Math.max(1, next)));
 
   useEffect(() => {
@@ -170,7 +258,7 @@ export default function ProductPurchaseReact(props: ProductPurchaseProps) {
       </div>
 
       {isSimple ? (
-        <div className="mt-6 grid grid-cols-[auto_minmax(0,1fr)] gap-2.5">
+        <div ref={buyBlockRef} className="mt-6 grid grid-cols-[auto_minmax(0,1fr)] gap-2.5">
           <QuantityStepper value={quantity} max={max} disabled={soldOut} onChange={changeQuantity} />
           <button type="button" onClick={handleAdd} disabled={soldOut || busy} className={addButtonClass}>
             {addStatus === "done" ? <PiCheckLight size={18} aria-hidden /> : <PiHandbagLight size={18} aria-hidden />}
@@ -187,6 +275,25 @@ export default function ProductPurchaseReact(props: ProductPurchaseProps) {
           Ver opciones
         </a>
       )}
+
+      {mounted &&
+        showStickyBar &&
+        createPortal(
+          <StickyBuyBar
+            visible={passed}
+            name={props.name}
+            thumb={props.thumb}
+            stock={stock}
+            quantity={quantity}
+            max={max}
+            onQuantityChange={changeQuantity}
+            onAdd={handleAdd}
+            addLabel={addLabel}
+            addDone={addStatus === "done"}
+            busy={busy}
+          />,
+          document.body,
+        )}
 
       {failed && (
         <p role="alert" className="mt-3 text-body-xs text-semantics-error-dark">

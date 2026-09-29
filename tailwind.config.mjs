@@ -103,6 +103,7 @@ export default {
         xl: '0 30px 60px -30px rgba(29,29,27,.25)',
         header: '0 1px 0 #E4E0D8',
         'header-raised': '0 1px 0 #E4E0D8, 0 10px 30px -18px rgba(29,29,27,.25)',
+        up: '0 -12px 30px -22px rgba(29,29,27,.3)',
       },
       transitionTimingFunction: {
         DEFAULT:    'cubic-bezier(.16,1,.3,1)',
