@@ -1,0 +1,133 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostBody from "../../components/blog/PostBody";
+import JournalBreadcrumb from "../../components/blog/JournalBreadcrumb.astro";
+import PostAdjacent from "../../components/blog/PostAdjacent.astro";
+import { formatShortDate } from "../../utils/formatDate";
+import { mediaUrl } from "../../utils/mediaUrl";
+import {
+  getAdjacentPosts,
+  getSortedPosts,
+  journalFilterHref,
+  postTags,
+  type JournalPostNode,
+} from "../../utils/journal";
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  return posts.map((post) => ({
+    params: { slug: post._sys.filename },
+    props: { post, adjacent: getAdjacentPosts(posts, post) },
+  }));
+}
+
+interface Props {
+  post: JournalPostNode;
+  adjacent: ReturnType<typeof getAdjacentPosts>;
+}
+
+const { post, adjacent } = Astro.props;
+
+const siteUrl = Astro.site || "https://eresskinstudio.com";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const cover = mediaUrl(post.coverImage);
+const tags = postTags(post);
+const title = post.title || "";
+const excerpt = post.excerpt || "";
+
+const metaItems = [
+  post.author ? { key: "author", text: `Por ${post.author}` } : null,
+  post.category ? { key: "category", text: post.category } : null,
+  post.readTime ? { key: "readTime", text: `${post.readTime} de lectura` } : null,
+].filter((item): item is { key: string; text: string } => Boolean(item));
+
+const postJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description: excerpt,
+  ...(cover ? { image: new URL(cover, siteUrl).href } : {}),
+  ...(post.date ? { datePublished: post.date } : {}),
+  ...(post.author ? { author: { "@type": "Person", name: post.author } } : {}),
+  publisher: { "@type": "Organization", name: "ERES Skin Studio" },
+  mainEntityOfPage: canonicalUrl,
+  ...(post.category ? { articleSection: post.category } : {}),
+  ...(tags.length ? { keywords: tags.join(", ") } : {}),
+};
+---
+
+<BaseLayout title={`${title} — ERES Skin Studio`} description={excerpt}>
+  <script type="application/ld+json" set:html={JSON.stringify(postJsonLd)} />
+
+  <article class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-[clamp(24px,4vw,48px)]">
+    <header class="mx-auto flex max-w-[920px] flex-col items-center gap-[18px] px-[clamp(20px,5vw,40px)] text-center">
+      <JournalBreadcrumb linkJournal />
+      {post.date && (
+        <time data-reveal="0" datetime={post.date} class="mt-[clamp(12px,3vw,32px)] text-body-sm text-content">
+          {formatShortDate(post.date)}
+        </time>
+      )}
+      <h1 data-reveal="60" class="text-[length:clamp(34px,4.6vw,64px)] leading-[1.04] tracking-[-.04em] [text-wrap:balance]">
+        {title}
+      </h1>
+      {metaItems.length > 0 && (
+        <div data-reveal="120" class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-body-sm text-content-muted">
+          {metaItems.map((item, index) => (
+            <>
+              {index > 0 && <span aria-hidden="true" class="h-4 w-px bg-line-strong" />}
+              {item.key === "category" ? (
+                <span>
+                  en{" "}
+                  <a
+                    href={journalFilterHref("categoria", item.text)}
+                    class="bg-[length:100%_1px] bg-left-bottom bg-no-repeat pb-px text-content [background-image:linear-gradient(currentColor,currentColor)]"
+                  >
+                    {item.text}
+                  </a>
+                </span>
+              ) : (
+                <span>{item.text}</span>
+              )}
+            </>
+          ))}
+        </div>
+      )}
+    </header>
+
+    {excerpt && (
+      <p class="mx-auto mt-[clamp(36px,5vw,64px)] max-w-container-text px-[clamp(20px,5vw,40px)] text-[length:clamp(18px,1.6vw,21px)] leading-[1.6] text-content [text-wrap:pretty]">
+        {excerpt}
+      </p>
+    )}
+
+    {cover && (
+      <div data-reveal="0" class="mx-auto my-[clamp(36px,5vw,64px)] max-w-container-lg md:px-[clamp(20px,5vw,72px)]">
+        <div class="aspect-[4/3] overflow-hidden bg-stone-100 md:aspect-video">
+          <img src={cover} alt="" decoding="async" class="h-full w-full object-cover" />
+        </div>
+      </div>
+    )}
+
+    <div class:list={["mx-auto max-w-container-text px-[clamp(20px,5vw,40px)]", !cover && "mt-[clamp(36px,5vw,64px)]"]}>
+      <PostBody content={post.body as any} />
+
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+        {tags.length > 0 && (
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span class="mr-1 text-body-sm text-content">Etiquetas:</span>
+            {tags.map((tag) => (
+              <a
+                href={journalFilterHref("etiqueta", tag)}
+                class="inline-flex h-[38px] items-center border border-ink px-4 text-body-xs text-content transition-colors duration-[350ms] hover:bg-ink hover:text-content-inverse focus-visible:bg-ink focus-visible:text-content-inverse"
+              >
+                {tag}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {adjacent && <PostAdjacent adjacent={adjacent} />}
+    </div>
+  </article>
+</BaseLayout>
