@@ -156,12 +156,47 @@
     "email": "eresskinstudio@gmail.com",
     "hours": [
       {
-        "label": "Lunes a viernes",
-        "text": "Mañana: 9:30 am a 2:00 pm\nTarde: 3:00 pm a 8:00 pm"
+        "label": "Lunes — Viernes",
+        "days": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri"
+        ],
+        "shifts": [
+          {
+            "open": "09:30",
+            "close": "14:00"
+          },
+          {
+            "open": "15:00",
+            "close": "20:00"
+          }
+        ]
       },
       {
-        "label": "Sábados",
-        "text": "Mañana: 9:30 am a 2:00 pm\nTarde: 3:00 pm a 6:00 pm"
+        "label": "Sábado",
+        "days": [
+          "sat"
+        ],
+        "shifts": [
+          {
+            "open": "09:30",
+            "close": "14:00"
+          },
+          {
+            "open": "15:00",
+            "close": "18:00"
+          }
+        ]
+      },
+      {
+        "label": "Domingo",
+        "days": [
+          "sun"
+        ],
+        "shifts": []
       }
     ]
   },

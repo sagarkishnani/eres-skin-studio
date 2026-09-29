@@ -2,6 +2,38 @@ import type { Collection, TinaField } from "tinacms";
 
 const labelOf = (fallback: string) => (item: any) => ({ label: item?.label || item?.title || fallback });
 
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+const WEEKDAY_OPTIONS = [
+  { value: "mon", label: "Lunes" },
+  { value: "tue", label: "Martes" },
+  { value: "wed", label: "Miércoles" },
+  { value: "thu", label: "Jueves" },
+  { value: "fri", label: "Viernes" },
+  { value: "sat", label: "Sábado" },
+  { value: "sun", label: "Domingo" },
+];
+
+function validateTime(value: unknown) {
+  if (value && !TIME_PATTERN.test(String(value))) return "Usa el formato HH:MM de 24h, p. ej. 09:30.";
+}
+
+function validateShift(shifts: unknown) {
+  if (!Array.isArray(shifts)) return undefined;
+  const invalid = shifts.find((shift) => shift?.open && shift?.close && shift.close <= shift.open);
+  if (invalid) return `El turno ${invalid.open} — ${invalid.close} cierra antes de abrir.`;
+}
+
+function validateHoursRows(rows: unknown) {
+  if (!Array.isArray(rows)) return undefined;
+  const days = rows.flatMap((row) => row?.days || []);
+  const repeated = days.find((day, index) => days.indexOf(day) !== index);
+  if (repeated) {
+    const label = WEEKDAY_OPTIONS.find((option) => option.value === repeated)?.label || repeated;
+    return `${label} aparece en más de una fila.`;
+  }
+}
+
 const simpleLinkFields: TinaField[] = [
   { name: "label", label: "Texto", type: "string" },
   { name: "url", label: "URL", type: "string" },
@@ -130,10 +162,33 @@ export const globalCollection: Collection = {
           name: "hours",
           label: "Horarios",
           list: true,
-          ui: { itemProps: labelOf("Horario") },
+          description: "Una fila por grupo de días. Se usan en el footer y en /contacto (\"Abierto ahora\", en hora de Lima).",
+          ui: { itemProps: labelOf("Horario"), validate: validateHoursRows },
           fields: [
-            { name: "label", label: "Días", type: "string" },
-            { name: "text", label: "Horas (una línea por turno)", type: "string", ui: { component: "textarea" } },
+            { name: "label", label: "Días (texto visible)", type: "string" },
+            {
+              name: "days",
+              label: "Días que cubre",
+              type: "string",
+              list: true,
+              options: WEEKDAY_OPTIONS,
+              ui: { component: "checkbox-group" },
+            },
+            {
+              type: "object",
+              name: "shifts",
+              label: "Turnos",
+              description: "Vacío = cerrado. Formato 24h, p. ej. 09:30 a 14:00.",
+              list: true,
+              ui: {
+                itemProps: (item: any) => ({ label: item?.open && item?.close ? `${item.open} — ${item.close}` : "Turno" }),
+                validate: validateShift,
+              },
+              fields: [
+                { name: "open", label: "Abre (HH:MM)", type: "string", ui: { validate: validateTime } },
+                { name: "close", label: "Cierra (HH:MM)", type: "string", ui: { validate: validateTime } },
+              ],
+            },
           ],
         },
       ],

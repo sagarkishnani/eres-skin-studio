@@ -7,6 +7,7 @@ import type { Locale } from "../../i18n/config";
 import { presentLinks, type SimpleLink } from "./navTypes";
 import { presentSocials, socialLabel } from "./socialLinks";
 import { phoneHref } from "./contactLinks";
+import { formatShift, presentRows, rowShifts } from "../../utils/openingHours";
 
 const TWNSTUDIOS_CREDIT_URL =
   "https://twnstudios.com/?utm_source=eresskin&utm_medium=referral&utm_campaign=client_portfolio";
@@ -75,7 +76,7 @@ export default function FooterReact({ query, variables, data: initialData, local
   const footer = data?.global?.footer;
   const contact = data?.global?.contact;
   const columns = (footer?.columns || []).filter(Boolean);
-  const hours = (contact?.hours || []).filter((item: any) => item?.label || item?.text);
+  const hours = presentRows(contact?.hours).filter((row) => rowShifts(row).length > 0);
   const socials = presentSocials(footer?.social);
   const [openColumn, setOpenColumn] = useState<string | null>(null);
   const columnToggle = (key: string) => ({
@@ -145,11 +146,14 @@ export default function FooterReact({ query, variables, data: initialData, local
                   {contact.email}
                 </a>
               )}
-              {hours.map((item: any, index: number) => (
-                <p key={index} className="whitespace-pre-line text-body-sm leading-[1.55] text-stone-300">
-                  {item.label && <span data-tina-field={tinaField(item, "label")}>{tField(item, "label", locale)}:</span>}
-                  {item.label && item.text && "\n"}
-                  {item.text && <span data-tina-field={tinaField(item, "text")}>{tField(item, "text", locale)}</span>}
+              {hours.map((row: any, index: number) => (
+                <p key={index} className="flex flex-col text-body-sm leading-[1.55] text-stone-300">
+                  <span data-tina-field={tinaField(row, "label")}>{tField(row, "label", locale)}:</span>
+                  {rowShifts(row).map((shift) => (
+                    <span key={formatShift(shift)} className="tabular-nums" data-tina-field={tinaField(row, "shifts")}>
+                      {formatShift(shift)}
+                    </span>
+                  ))}
                 </p>
               ))}
             </FooterColumn>
