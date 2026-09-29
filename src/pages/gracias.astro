@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ThankYou from "../components/system-pages/ThankYou.astro";
+import client from "../../tina/__generated__/client";
+
+const result = await client.queries.systemPages({ relativePath: "index.json" });
+const thankYou = result.data?.systemPages?.thankYou;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const phoneDigits = (globalResult.data?.global?.contact?.phone || "").replace(/\D/g, "");
+const whatsappUrl = phoneDigits ? `https://wa.me/${phoneDigits}` : null;
+---
+
+<BaseLayout
+  title={thankYou?.seo?.title || "Gracias por tu compra — ERES Skin Studio"}
+  description={thankYou?.seo?.description || thankYou?.intro || undefined}
+  noindex
+>
+  <ThankYou query={result.query} variables={result.variables} data={result.data} whatsappUrl={whatsappUrl} />
+</BaseLayout>

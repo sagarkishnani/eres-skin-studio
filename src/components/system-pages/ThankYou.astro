@@ -1,0 +1,14 @@
+---
+import ThankYouReact from "./ThankYouReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  whatsappUrl: string | null;
+}
+
+const { query, variables, data, whatsappUrl } = Astro.props;
+---
+
+<ThankYouReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:load />
