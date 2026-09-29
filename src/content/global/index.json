@@ -23,19 +23,19 @@
           "featured": [
             {
               "label": "Más vendidos",
-              "url": "/productos"
+              "url": "/productos?orden=mas-vendidos"
             },
             {
               "label": "Novedades",
-              "url": "/productos"
+              "url": "/productos?orden=novedades"
             },
             {
               "label": "Ofertas",
-              "url": "/productos"
+              "url": "/productos?orden=descuento"
             },
             {
               "label": "Kits de rutina",
-              "url": "/productos"
+              "url": "/productos/categoria/pack"
             }
           ],
           "columns": [
@@ -72,6 +72,39 @@
                 },
                 {
                   "label": "Ver todo",
+                  "url": "/productos"
+                }
+              ]
+            },
+            {
+              "title": "Marcas",
+              "links": [
+                {
+                  "label": "Beauty of Joseon",
+                  "url": "/productos?marca=beauty-of-joseon"
+                },
+                {
+                  "label": "Germaine de Capuccini",
+                  "url": "/productos?marca=germaine-de-capuccini"
+                },
+                {
+                  "label": "Ovaco",
+                  "url": "/productos?marca=ovaco"
+                },
+                {
+                  "label": "APBL",
+                  "url": "/productos?marca=apbl"
+                },
+                {
+                  "label": "The Round Lab",
+                  "url": "/productos?marca=round-lab"
+                },
+                {
+                  "label": "Tirtir",
+                  "url": "/productos?marca=tirtir"
+                },
+                {
+                  "label": "Ver todas",
                   "url": "/productos"
                 }
               ]
