@@ -8,6 +8,7 @@ import { postCollection } from "./collections/post";
 import { formConfigCollection } from "./collections/formConfig";
 import { dynamicFormsCollection } from "./collections/dynamicForms";
 import { shopCollection } from "./collections/shop";
+import { journalCollection } from "./collections/journal";
 import { maintenanceCollection } from "./collections/maintenance";
 import { cookieConsentCollection } from "./collections/cookieConsent";
 
@@ -40,6 +41,7 @@ export default defineConfig({
       formConfigCollection,
       dynamicFormsCollection,
       shopCollection,
+      journalCollection,
       maintenanceCollection,
       cookieConsentCollection,
     ],
