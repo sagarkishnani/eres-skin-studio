@@ -125,11 +125,11 @@ function StickyBuyBar({ visible, name, thumb, stock, quantity, max, onQuantityCh
         visible ? "translate-y-0" : "translate-y-[110%]"
       }`}
     >
-      <div className="mx-auto flex max-w-container items-center gap-4 px-4 py-2.5 md:px-gutter md:py-3">
+      <div className="mx-auto flex max-w-container items-center gap-3 px-4 md:gap-4 py-2.5 md:px-gutter md:py-3">
         {thumb && <img src={thumb} alt="" loading="lazy" className="hidden h-14 w-14 shrink-0 bg-stone-100 object-cover lg:block" />}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="truncate text-caption-md text-content md:text-body-sm">{name}</span>
-          <span className="flex items-baseline gap-2">
+          <span className="flex min-w-0 items-baseline gap-2 overflow-hidden whitespace-nowrap">
             <span className="text-body-md font-semibold">{formatPrice(stock.price)}</span>
             {discount !== null && (
               <span className="text-caption-md text-content-subtle line-through">{formatPrice(stock.regular_price)}</span>
@@ -141,7 +141,7 @@ function StickyBuyBar({ visible, name, thumb, stock, quantity, max, onQuantityCh
           type="button"
           onClick={onAdd}
           disabled={busy}
-          className="btn-primary h-12 shrink-0 gap-2.5 whitespace-nowrap px-8 text-caption-sm duration-[550ms] disabled:pointer-events-none disabled:opacity-40"
+          className="btn-primary h-12 shrink-0 gap-2.5 whitespace-nowrap px-4 text-caption-sm tracking-[.1em] duration-[550ms] disabled:pointer-events-none disabled:opacity-40 max-md:[&>svg]:hidden md:px-8 md:tracking-[.14em]"
         >
           {addDone ? <PiCheckLight size={18} aria-hidden /> : <PiHandbagLight size={18} aria-hidden />}
           {addLabel}
