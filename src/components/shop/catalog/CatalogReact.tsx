@@ -111,8 +111,7 @@ export default function CatalogReact({ items, facets, implicitCategory, children
       <div className="grid items-start gap-14 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside
           aria-label="Filtros"
-          data-lenis-prevent
-          className="sticky top-[120px] hidden max-h-[calc(100vh-144px)] overflow-y-auto overscroll-contain border-t border-line transition-[top] duration-[600ms] ease-out-expo motion-reduce:transition-none lg:block [html[data-header=compact]_&]:top-[104px] [html[data-header=hidden]_&]:top-6"
+          className="hidden border-t border-line lg:block"
         >
           {panel}
           {chips.length > 0 && (
