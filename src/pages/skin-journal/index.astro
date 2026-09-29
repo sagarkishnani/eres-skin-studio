@@ -5,6 +5,7 @@ import JournalHero from "../../components/blog/JournalHero.astro";
 import JournalListReact from "../../components/blog/JournalListReact";
 import type { JournalCardData } from "../../components/blog/JournalCard";
 import client from "../../../tina/__generated__/client";
+import { JOURNAL_CATEGORIES } from "../../../tina/collections/post";
 import { formatShortDate } from "../../utils/formatDate";
 import { mediaUrl } from "../../utils/mediaUrl";
 import {
@@ -36,6 +37,11 @@ function toCard(post: JournalPostNode): JournalCardData {
   };
 }
 
+const categories = JOURNAL_CATEGORIES.map((label) => ({ label, slug: toFilterSlug(label) }));
+
+const tagLabels: Record<string, string> = {};
+for (const tag of posts.flatMap(postTags)) tagLabels[toFilterSlug(tag)] ??= tag;
+
 const title = journal?.title || "Skin Journal";
 ---
 
@@ -62,6 +68,8 @@ const title = journal?.title || "Skin Journal";
       <JournalListReact
         posts={posts.map(toCard)}
         featuredSlug={featured?._sys.filename ?? ""}
+        categories={categories}
+        tagLabels={tagLabels}
         emptyText={journal?.emptyText || ""}
         client:load
       />
