@@ -2,6 +2,7 @@
 import type { WooProduct } from "../../lib/woo/types";
 import { formatPrice, discountPercent, stockLabel, isBuyable } from "../../lib/woo/format";
 import { localizeHref } from "../../utils/i18n";
+import { productCardImage } from "../../lib/woo/productImage";
 import type { Locale } from "../../i18n/config";
 import QuickAddReact from "./QuickAddReact";
 
@@ -15,6 +16,10 @@ interface Props {
 const { product, locale, lowStockThreshold = 5, isNew = false } = Astro.props;
 
 const [primaryImage, hoverImage] = product.images;
+const [primarySource, hoverSource] = await Promise.all(
+  [primaryImage, hoverImage].map((image) => (image ? productCardImage(image.src) : null))
+);
+const imageSizes = "(min-width: 1024px) 360px, 50vw";
 const discount = discountPercent(product);
 const stock = stockLabel(product, lowStockThreshold);
 const soldOut = product.stock_status === "outofstock";
@@ -33,7 +38,9 @@ const badgeClass = "px-2 py-[5px] text-caption-xs font-semibold leading-none tra
   <div class="relative aspect-square overflow-hidden bg-stone-100">
     {primaryImage ? (
       <img
-        src={primaryImage.src}
+        src={primarySource!.src}
+        srcset={primarySource!.srcset}
+        sizes={imageSizes}
         alt={primaryImage.alt || product.name}
         loading="lazy"
         decoding="async"
@@ -44,15 +51,17 @@ const badgeClass = "px-2 py-[5px] text-caption-xs font-semibold leading-none tra
     ) : (
       <div class="flex h-full w-full items-center justify-center text-caption-sm text-content-subtle">Sin imagen</div>
     )}
-    {hoverImage && (
+    {hoverSource && (
       <img
-        src={hoverImage.src}
+        src={hoverSource.src}
+        srcset={hoverSource.srcset}
+        sizes={imageSizes}
         alt=""
         loading="lazy"
         decoding="async"
         width="600"
         height="600"
-        class={`${imageClass} scale-[1.06] opacity-0 lg:group-hover:scale-100 lg:group-hover:opacity-100`}
+        class={`${imageClass} scale-[1.06] opacity-0 max-lg:hidden lg:group-hover:scale-100 lg:group-hover:opacity-100`}
       />
     )}
 
