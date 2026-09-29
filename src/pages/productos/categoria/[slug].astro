@@ -1,58 +1,18 @@
 ---
-import BaseLayout from "../../../layouts/BaseLayout.astro";
-import ProductCard from "../../../components/shop/ProductCard.astro";
-import StockRefresher from "../../../components/shop/StockRefresher.astro";
-import client from "../../../../tina/__generated__/client";
-import { getAllProducts, getAllCategories } from "../../../lib/woo/rest";
-import { getLocale, localizeHref } from "../../../utils/i18n";
-import { isLocale } from "../../../i18n/config";
-import type { WooProduct, WooCategory } from "../../../lib/woo/types";
+import CatalogPage from "../../../components/shop/CatalogPage.astro";
+import { getAllCategories } from "../../../lib/woo/rest";
+import type { WooCategory } from "../../../lib/woo/types";
 
 export async function getStaticPaths() {
-  const [categories, products] = await Promise.all([getAllCategories(), getAllProducts()]);
-
-  return categories.map((category) => ({
-    params: { slug: category.slug },
-    props: {
-      category,
-      // Filtrar en memoria evita una petición a WordPress por categoría.
-      products: products.filter((p) => p.categories.some((c) => c.id === category.id)),
-    },
-  }));
+  const categories = await getAllCategories();
+  return categories.map((category) => ({ params: { slug: category.slug }, props: { category } }));
 }
 
-interface Props { category: WooCategory; products: WooProduct[] }
-const { category, products } = Astro.props;
+interface Props {
+  category: WooCategory;
+}
 
-const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
-const shop = await client.queries.shop({ relativePath: "index.json" });
-const lowStock = shop.data?.shop?.lowStockThreshold ?? 5;
+const { category } = Astro.props;
 ---
 
-<BaseLayout
-  title={`${category.name} — ERES Skin Studio`}
-  description={`Productos de la categoría ${category.name}.`}
->
-  <section class="section pt-[128px]">
-    <div class="container-xl">
-      <nav class="mb-6 text-sm text-content-subtle" aria-label="Miga de pan">
-        <a href={localizeHref("/productos", locale, false)} class="hover:text-content">Productos</a>
-        <span class="mx-2">/</span>
-        <span>{category.name}</span>
-      </nav>
-
-      <h1 class="text-heading-xl">{category.name}</h1>
-      <p class="mt-2 text-content-subtle">
-        {products.length} {products.length === 1 ? "producto" : "productos"}
-      </p>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard product={product} locale={locale} lowStockThreshold={lowStock} />
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <StockRefresher lowStockThreshold={lowStock} />
-</BaseLayout>
+<CatalogPage category={category} />

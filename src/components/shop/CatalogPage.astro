@@ -1,0 +1,81 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ShopBanner from "./ShopBanner.astro";
+import ShopBenefits from "./ShopBenefits.astro";
+import ProductCard from "./ProductCard.astro";
+import StockRefresher from "./StockRefresher.astro";
+import client from "../../../tina/__generated__/client";
+import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
+import { buildCatalog, DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
+import { sortItems } from "../../utils/catalog/applyFilters";
+import { CATALOG_PAGE_SIZE, DEFAULT_SORT } from "../../utils/catalog/types";
+import { getLocale } from "../../utils/i18n";
+import { isLocale } from "../../i18n/config";
+import type { WooCategory } from "../../lib/woo/types";
+
+interface Props {
+  category?: WooCategory;
+}
+
+const { category } = Astro.props;
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
+
+const { query, variables, data } = await client.queries.shop({ relativePath: "index.json" });
+const shop = data?.shop;
+const lowStock = shop?.lowStockThreshold ?? 5;
+
+const [products, categories, brands, tags] = await Promise.all([getAllProducts(), getAllCategories(), getAllBrands(), getAllTags()]);
+const { items } = buildCatalog(products, {
+  categories,
+  brands,
+  tags,
+  newProductDays: shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_DAYS,
+});
+
+const productsById = new Map(products.map((product) => [product.id, product]));
+const initialItems = sortItems(
+  category ? items.filter((item) => item.categories.includes(category.slug)) : items,
+  DEFAULT_SORT,
+);
+const initialIds = new Set(initialItems.slice(0, CATALOG_PAGE_SIZE).map((item) => item.id));
+const orderedItems = sortItems(items, DEFAULT_SORT);
+
+const title = category ? `${category.name} — ERES Skin Studio` : shop?.seo?.title;
+const description = category ? `Productos de la categoría ${category.name}.` : shop?.seo?.description;
+---
+
+<BaseLayout title={title} description={description}>
+  <ShopBanner query={query} variables={variables} data={data} categoryName={category?.name} />
+
+  <section class="bg-surface pb-[clamp(64px,8vw,112px)] pt-[clamp(20px,5vw,64px)]">
+    <div class="container-xl">
+      {items.length > 0 ? (
+        <div class="grid grid-cols-2 gap-x-3 gap-y-7 md:gap-x-6 md:gap-y-12 lg:grid-cols-3">
+          {orderedItems.map((item, index) => {
+            const product = productsById.get(item.id)!;
+            return (
+              <div data-catalog-item={item.id} data-reveal={(index % 3) * 90} hidden={!initialIds.has(item.id)}>
+                <ProductCard product={product} locale={locale} lowStockThreshold={lowStock} isNew={item.isNew} />
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div class="border border-dashed border-line px-6 py-20 text-center">
+          <p class="text-body-lg text-content-muted">
+            {wooConfigured ? "Todavía no hay productos publicados." : "La tienda aún no está conectada a WooCommerce."}
+          </p>
+          {!wooConfigured && (
+            <p class="mt-2 text-body-xs text-content-subtle">
+              Completa WOO_STORE_URL, WOO_CONSUMER_KEY y WOO_CONSUMER_SECRET en .env y vuelve a compilar.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <ShopBenefits query={query} variables={variables} data={data} />
+
+  <StockRefresher lowStockThreshold={lowStock} />
+</BaseLayout>
