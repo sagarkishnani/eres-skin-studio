@@ -1,0 +1,29 @@
+---
+import client from "../../../tina/__generated__/client";
+import { presentSocials } from "../shared/socialLinks";
+import PromoPopupReact from "./PromoPopupReact";
+
+let promoResult: Awaited<ReturnType<typeof client.queries.promoPopup>> | null = null;
+try {
+  promoResult = await client.queries.promoPopup({ relativePath: "index.json" });
+} catch {}
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const socials = presentSocials(globalResult.data?.global?.footer?.social).map((social) => ({
+  network: social.network!,
+  url: social.url!,
+}));
+---
+
+{
+  promoResult?.data?.promoPopup?.enabled && (
+    <PromoPopupReact
+      client:idle
+      transition:persist="promo-popup"
+      query={promoResult.query}
+      variables={promoResult.variables}
+      data={promoResult.data}
+      socials={socials}
+    />
+  )
+}

@@ -10,6 +10,7 @@ import "@fontsource-variable/dm-sans/wght-italic.css";
 import "../styles/global.css";
 import CookieConsent from "../components/cookies/CookieConsent.astro";
 import WhatsAppButton from "../components/shared/WhatsAppButton.astro";
+import PromoPopup from "../components/promo-popup/PromoPopup.astro";
 
 interface Props {
   title?: string;
@@ -125,6 +126,7 @@ try {
         <Footer locale={locale} />
         <WhatsAppButton />
         <CookieConsent />
+        <PromoPopup />
       </>
     )}
     <Fragment set:html={injectBodyEnd} />
