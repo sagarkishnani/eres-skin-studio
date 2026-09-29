@@ -20,6 +20,7 @@ async function call<T>(
     Object.entries(params).map(([k, v]) => [k, String(v)])
   ) });
 
+  const generation = cartGeneration;
   try {
     const res = await fetch(`${endpoint()}?${qs}`, {
       ...init,
@@ -30,6 +31,8 @@ async function call<T>(
       console.warn(`[woo] ${resource}: ${body.error}`);
       return null;
     }
+    // Una respuesta pedida antes de forgetCart() traería el carrito ya comprado y volvería a guardar su token.
+    if (generation !== cartGeneration) return null;
     rememberCartToken(res);
     return body.data;
   } catch (err) {
@@ -63,6 +66,7 @@ export async function fetchCategories(): Promise<WooCategory[]> {
 
 // Cart-Token solo apunta a un carrito anónimo, no autentica a nadie: puede vivir en localStorage.
 const TOKEN_KEY = "eres-skin-studio:cart-token";
+let cartGeneration = 0;
 
 function cartToken(): string | null {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -89,6 +93,12 @@ export function requestCartOpen(): void {
 function announce(cart: WooCart | null) {
   if (cart) window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: cart }));
   return cart;
+}
+
+export function forgetCart(): void {
+  cartGeneration += 1;
+  try { localStorage.removeItem(TOKEN_KEY); } catch {}
+  window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: null }));
 }
 
 export async function getCart(): Promise<WooCart | null> {

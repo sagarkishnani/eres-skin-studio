@@ -2,6 +2,7 @@ import { useTina, tinaField } from "tinacms/dist/react";
 import { PiCheckCircleLight } from "react-icons/pi";
 import SystemPageShell, { actionsRowClass } from "./SystemPageShell";
 import { useOrderNumber } from "./useOrderNumber";
+import { useForgetPurchasedCart } from "./useForgetPurchasedCart";
 
 interface Props {
   query: string;
@@ -29,6 +30,7 @@ export default function ThankYouReact({ query, variables, data: initialData, wha
   const { data } = useTina({ query, variables, data: initialData });
   const content = data?.systemPages?.thankYou;
   const orderNumber = useOrderNumber();
+  useForgetPurchasedCart(orderNumber);
 
   return (
     <SystemPageShell

@@ -13,7 +13,7 @@ export function useCart() {
 
   useEffect(() => {
     getCart().finally(() => setLoaded(true));
-    const onUpdate = (event: Event) => setCart((event as CustomEvent<WooCart>).detail);
+    const onUpdate = (event: Event) => setCart((event as CustomEvent<WooCart | null>).detail);
     window.addEventListener(CART_UPDATED, onUpdate);
     return () => window.removeEventListener(CART_UPDATED, onUpdate);
   }, []);
