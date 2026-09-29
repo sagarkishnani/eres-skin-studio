@@ -1,19 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import DynamicForm from "../components/dynamic-form/DynamicForm.astro";
+import ContactDetails from "../components/contact/ContactDetails.astro";
+import client from "../../tina/__generated__/client";
+
+const { query, variables, data } = await client.queries.contact({ relativePath: "index.json" });
+const seo = data?.contact?.seo;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const studioContact = globalResult.data?.global?.contact || {};
 ---
 
-<BaseLayout title="Contacto — ERES Skin Studio" description="Escríbenos y te respondemos pronto.">
-  <section class="section pt-[128px]">
-    <div class="container-lg">
-      <h1 class="text-heading-lg">Contacto</h1>
-      <p class="mt-3 max-w-xl text-body-lg text-content-muted">
-        Escríbenos y te respondemos el mismo día.
-      </p>
-
-      <div class="mt-10">
-        <DynamicForm formSlug="contacto" />
-      </div>
-    </div>
-  </section>
+<BaseLayout title={seo?.title} description={seo?.description}>
+  <ContactDetails query={query} variables={variables} data={data} studioContact={studioContact} />
 </BaseLayout>
