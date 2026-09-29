@@ -42,6 +42,23 @@ Nunca uses claves con permiso de escritura. Si una clave se filtra, revócala en
 2. Plugins → **Imprescindibles**: debe aparecer "ERES · Traspaso de carrito". Los mu-plugins no se activan: se cargan solos.
 3. Comprobación rápida: abre `https://<wordpress>/checkout/?cart-token=invalido`. Debe redirigir a `/checkout/` sin errores.
 
+### mu-plugin de detalle de producto
+
+El acordeón de la ficha (`specs/10-ficha-de-producto.md`) lee tres campos por producto.
+
+1. Copia `wordpress/mu-plugins/eres-product-fields.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Detalle de producto".
+3. En Productos → editar → Datos del producto → **General** aparecen tres textareas:
+
+   | Campo | Meta key |
+   |---|---|
+   | Beneficios | `eres_beneficios` |
+   | Ingredientes clave | `eres_ingredientes` |
+   | Modo de uso | `eres_modo_uso` |
+
+4. Texto plano: los saltos de línea se respetan. Un campo vacío no se muestra en la ficha. Si los tres están vacíos, la ficha muestra la descripción larga del producto como panel "Descripción".
+5. Comprobación: completa "Beneficios" en un producto, guarda y verifica que `https://<wordpress>/wp-json/wc/v3/products/<id>` trae `eres_beneficios` en `meta_data`. Guardar dispara el webhook y el rebuild.
+
 ## 4. Token de GitHub para el rebuild
 
 1. GitHub → Settings (de tu usuario) → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token.
