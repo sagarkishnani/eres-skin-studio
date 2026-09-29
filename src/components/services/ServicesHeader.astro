@@ -1,0 +1,14 @@
+---
+import ServicesHeaderReact from "./ServicesHeaderReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const visible = data?.services?.header && data.services.header.enabled !== false;
+---
+
+{visible && <ServicesHeaderReact query={query} variables={variables} data={data} client:tina />}
