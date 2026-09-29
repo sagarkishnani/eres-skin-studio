@@ -22,7 +22,7 @@ export const GET: APIRoute = async () => {
           title: (locale !== DEFAULT_LOCALE && post[`title_${locale}`]) || post.title || "",
           description:
             (locale !== DEFAULT_LOCALE && post[`excerpt_${locale}`]) || post.excerpt || "",
-          url: `${prefixFor(locale)}blog/${post._sys.filename}`,
+          url: `${prefixFor(locale)}skin-journal/${post._sys.filename}`,
           meta: "Skin Journal",
         });
       }
