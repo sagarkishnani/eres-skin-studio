@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import AboutHeader from "../components/about/AboutHeader.astro";
 import Purpose from "../components/about/Purpose.astro";
 import Pillars from "../components/home/Pillars.astro";
+import Differentiators from "../components/about/Differentiators.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.about({ relativePath: "index.json" });
@@ -16,4 +17,5 @@ const home = await client.queries.home({ relativePath: "index.json" });
   <AboutHeader query={query} variables={variables} data={data} />
   <Purpose query={query} variables={variables} data={data} />
   {showPillars && <Pillars query={home.query} variables={home.variables} data={home.data} standalone />}
+  <Differentiators query={query} variables={variables} data={data} />
 </BaseLayout>
