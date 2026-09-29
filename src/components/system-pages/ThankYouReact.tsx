@@ -1,6 +1,7 @@
 import { useTina, tinaField } from "tinacms/dist/react";
 import { PiCheckCircleLight } from "react-icons/pi";
 import SystemPageShell, { actionsRowClass } from "./SystemPageShell";
+import { useOrderNumber } from "./useOrderNumber";
 
 interface Props {
   query: string;
@@ -9,15 +10,32 @@ interface Props {
   whatsappUrl: string | null;
 }
 
+const ORDER_PLACEHOLDER = "{numero}";
+
+function OrderLine({ content, orderNumber }: { content: any; orderNumber: string }) {
+  const label: string = content?.orderLabel || `Tu número de pedido es ${ORDER_PLACEHOLDER}`;
+  const [before, after = ""] = label.includes(ORDER_PLACEHOLDER) ? label.split(ORDER_PLACEHOLDER) : [`${label} `];
+
+  return (
+    <p className="mt-6 text-body-md text-content" data-tina-field={tinaField(content, "orderLabel")}>
+      {before}
+      <strong className="font-medium">#{orderNumber}</strong>
+      {after}
+    </p>
+  );
+}
+
 export default function ThankYouReact({ query, variables, data: initialData, whatsappUrl }: Props) {
   const { data } = useTina({ query, variables, data: initialData });
   const content = data?.systemPages?.thankYou;
+  const orderNumber = useOrderNumber();
 
   return (
     <SystemPageShell
       content={content}
       icon={<PiCheckCircleLight aria-hidden="true" className="mb-6 h-12 w-12 text-accent" />}
     >
+      {orderNumber && <OrderLine content={content} orderNumber={orderNumber} />}
       {content?.emailNote && (
         <p className="mt-3 text-body-sm text-content-subtle" data-tina-field={tinaField(content, "emailNote")}>
           {content.emailNote}
