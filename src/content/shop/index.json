@@ -11,6 +11,15 @@
     { "title": "Envío seguro", "text": "Lima Metropolitana en 48h.", "icon": "truck" },
     { "title": "Asesoría experta", "text": "Resolvemos dudas por WhatsApp", "icon": "chat" }
   ],
+  "productPage": {
+    "shippingNote": "Envío calculado al finalizar la compra.",
+    "deliveryText": "Envío a Lima Metropolitana en 48h",
+    "pickupTitle": "Recojo disponible en Eres Skin Studio",
+    "pickupText": "Miraflores · Generalmente listo en 24 horas",
+    "relatedEyebrow": "Te puede gustar",
+    "relatedTitle": "Completa tu rutina.",
+    "askMessage": "Hola, tengo una pregunta sobre {producto}"
+  },
   "newProductDays": 30,
   "lowStockThreshold": 5,
   "seo": {

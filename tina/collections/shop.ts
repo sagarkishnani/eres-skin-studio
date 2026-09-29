@@ -42,6 +42,26 @@ export const shopCollection: Collection = {
       ],
     },
     {
+      type: "object",
+      name: "productPage",
+      label: "Ficha de producto",
+      fields: [
+        { name: "shippingNote", label: "Nota bajo el precio", type: "string", required: true },
+        { name: "deliveryText", label: "Envío", type: "string", required: true },
+        { name: "pickupTitle", label: "Recojo · título", type: "string", required: true },
+        { name: "pickupText", label: "Recojo · detalle", type: "string" },
+        { name: "relatedEyebrow", label: "Relacionados · antetítulo", type: "string", required: true },
+        { name: "relatedTitle", label: "Relacionados · título", type: "string", required: true },
+        {
+          name: "askMessage",
+          label: "Mensaje de “Hacer una pregunta”",
+          type: "string",
+          required: true,
+          description: "Se envía por WhatsApp. {producto} se reemplaza por el nombre del producto.",
+        },
+      ],
+    },
+    {
       name: "newProductDays",
       label: "Días con la etiqueta “Nuevo”",
       type: "number",
