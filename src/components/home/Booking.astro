@@ -6,10 +6,12 @@ interface Props {
   variables: object;
   data: any;
   whatsappUrl: string;
+  standalone?: boolean;
 }
 
-const { query, variables, data, whatsappUrl } = Astro.props;
-const visible = data?.home?.booking && data.home.booking.enabled !== false;
+const { query, variables, data, whatsappUrl, standalone = false } = Astro.props;
+const booking = data?.home?.booking;
+const visible = booking && (standalone || booking.enabled !== false);
 ---
 
 {visible && <BookingReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:tina />}

@@ -4,10 +4,14 @@ import ServicesHeader from "../components/services/ServicesHeader.astro";
 import ServiceBlocks from "../components/services/ServiceBlocks.astro";
 import Experience from "../components/services/Experience.astro";
 import Faq from "../components/services/Faq.astro";
+import Booking from "../components/home/Booking.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.services({ relativePath: "index.json" });
 const seo = data?.services?.seo;
+const showBooking = data?.services?.booking?.enabled !== false;
+
+const home = await client.queries.home({ relativePath: "index.json" });
 
 const globalResult = await client.queries.global({ relativePath: "index.json" });
 const socials = globalResult.data?.global?.footer?.social || [];
@@ -19,4 +23,7 @@ const socialUrl = (network: string) => socials.find((social) => social?.network 
   <ServiceBlocks query={query} variables={variables} data={data} whatsappUrl={socialUrl("whatsapp")} />
   <Experience query={query} variables={variables} data={data} />
   <Faq query={query} variables={variables} data={data} whatsappUrl={socialUrl("whatsapp")} />
+  {showBooking && (
+    <Booking query={home.query} variables={home.variables} data={home.data} whatsappUrl={socialUrl("whatsapp")} standalone />
+  )}
 </BaseLayout>
