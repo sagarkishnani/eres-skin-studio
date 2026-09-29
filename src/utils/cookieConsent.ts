@@ -12,3 +12,5 @@ export function readConsent(): ConsentPrefs | null {
     return null;
   }
 }
+
+export const FUNCTIONAL_CATEGORY = "funcional";

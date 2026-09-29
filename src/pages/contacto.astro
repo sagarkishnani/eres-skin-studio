@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ContactDetails from "../components/contact/ContactDetails.astro";
+import VisitUs from "../components/contact/VisitUs.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.contact({ relativePath: "index.json" });
@@ -12,4 +13,5 @@ const studioContact = globalResult.data?.global?.contact || {};
 
 <BaseLayout title={seo?.title} description={seo?.description}>
   <ContactDetails query={query} variables={variables} data={data} studioContact={studioContact} />
+  <VisitUs query={query} variables={variables} data={data} />
 </BaseLayout>
