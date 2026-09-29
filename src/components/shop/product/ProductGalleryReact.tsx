@@ -1,5 +1,6 @@
-import { useRef, useState, type PointerEvent } from "react";
-import { PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { PiCaretLeftLight, PiCaretRightLight, PiMagnifyingGlassPlusLight } from "react-icons/pi";
+import ProductZoom from "./ProductZoom";
 import type { WooImage } from "../../../lib/woo/types";
 
 interface Props {
@@ -21,11 +22,20 @@ function slideClass(active: boolean): string {
 
 export default function ProductGalleryReact({ images, productName, discount }: Props) {
   const [current, setCurrent] = useState(0);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const swipeStartX = useRef<number | null>(null);
+  const zoomButtonRef = useRef<HTMLButtonElement>(null);
   const total = images.length;
   const hasMany = total > 1;
 
-  const go = (delta: number) => setCurrent((index) => (index + delta + total) % total);
+  useEffect(() => setMounted(true), []);
+
+  const go = useCallback((delta: number) => setCurrent((index) => (index + delta + total) % total), [total]);
+  const closeZoom = useCallback(() => {
+    setZoomOpen(false);
+    zoomButtonRef.current?.focus({ preventScroll: true });
+  }, []);
 
   const onPointerDown = (event: PointerEvent) => {
     swipeStartX.current = event.clientX;
@@ -95,6 +105,20 @@ export default function ProductGalleryReact({ images, productName, discount }: P
           </span>
         )}
 
+        {total > 0 && (
+          <button
+            ref={zoomButtonRef}
+            type="button"
+            onClick={() => setZoomOpen(true)}
+            onPointerDown={(event) => event.stopPropagation()}
+            aria-label="Ampliar imagen"
+            aria-haspopup="dialog"
+            className="absolute right-3.5 top-3.5 z-10 grid h-11 w-11 place-items-center rounded-full bg-surface-raised text-content shadow-sm transition-transform duration-[350ms] ease-spring hover:scale-[1.08] motion-reduce:transition-none"
+          >
+            <PiMagnifyingGlassPlusLight size={18} aria-hidden />
+          </button>
+        )}
+
         {hasMany && (
           <>
             <button type="button" onClick={() => go(-1)} aria-label="Imagen anterior" className={`${arrowButton} left-3.5 -translate-x-2`}>
@@ -119,6 +143,17 @@ export default function ProductGalleryReact({ images, productName, discount }: P
             <PiCaretRightLight size={16} aria-hidden />
           </button>
         </div>
+      )}
+
+      {mounted && total > 0 && (
+        <ProductZoom
+          open={zoomOpen}
+          images={images}
+          current={current}
+          productName={productName}
+          onClose={closeZoom}
+          onStep={go}
+        />
       )}
 
       <p className="sr-only" aria-live="polite">
