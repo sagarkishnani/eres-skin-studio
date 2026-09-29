@@ -75,6 +75,10 @@
     @apply btn-fill bg-surface-raised text-ink hover:text-content-inverse focus-visible:text-content-inverse;
     background-image: linear-gradient(theme('colors.ink'), theme('colors.ink'));
   }
+  .btn-outline-light {
+    @apply btn-fill border border-content-inverse text-content-inverse hover:text-ink focus-visible:text-ink;
+    background-image: linear-gradient(theme('colors.surface.raised'), theme('colors.surface.raised'));
+  }
 
   .link-underline {
     @apply inline-flex items-center gap-2.5 self-start py-1.5

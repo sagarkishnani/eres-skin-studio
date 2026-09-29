@@ -1,12 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ServicesHeader from "../components/services/ServicesHeader.astro";
+import ServiceBlocks from "../components/services/ServiceBlocks.astro";
 import client from "../../tina/__generated__/client";
 
 const { query, variables, data } = await client.queries.services({ relativePath: "index.json" });
 const seo = data?.services?.seo;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const socials = globalResult.data?.global?.footer?.social || [];
+const socialUrl = (network: string) => socials.find((social) => social?.network === network)?.url || "";
 ---
 
 <BaseLayout title={seo?.title} description={seo?.description}>
   <ServicesHeader query={query} variables={variables} data={data} />
+  <ServiceBlocks query={query} variables={variables} data={data} whatsappUrl={socialUrl("whatsapp")} />
 </BaseLayout>
