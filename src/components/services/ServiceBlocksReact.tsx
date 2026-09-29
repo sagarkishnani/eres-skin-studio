@@ -1,4 +1,5 @@
 import { useTina, tinaField } from "tinacms/dist/react";
+import { mediaUrl } from "../../utils/mediaUrl";
 
 interface Props {
   query: string;
@@ -54,7 +55,7 @@ export default function ServiceBlocksReact({ query, variables, data: initialData
               >
                 {service.image && (
                   <img
-                    src={service.image}
+                    src={mediaUrl(service.image)}
                     alt={service.name || ""}
                     loading={index === 0 ? "eager" : "lazy"}
                     decoding="async"

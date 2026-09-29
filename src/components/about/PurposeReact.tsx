@@ -1,4 +1,5 @@
 import { useTina, tinaField } from "tinacms/dist/react";
+import { mediaUrl } from "../../utils/mediaUrl";
 
 interface Props {
   query: string;
@@ -18,7 +19,7 @@ export default function PurposeReact({ query, variables, data: initialData }: Pr
         <div data-reveal="0" className="group relative aspect-[4/3] overflow-hidden bg-stone-150">
           {purpose.image && (
             <img
-              src={purpose.image}
+              src={mediaUrl(purpose.image)}
               alt={purpose.imageAlt || ""}
               loading="lazy"
               decoding="async"

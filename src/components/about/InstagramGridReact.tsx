@@ -1,4 +1,5 @@
 import { useTina, tinaField } from "tinacms/dist/react";
+import { mediaUrl } from "../../utils/mediaUrl";
 
 interface Props {
   query: string;
@@ -66,7 +67,7 @@ export default function InstagramGridReact({ query, variables, data: initialData
               data-tina-field={tinaField(image)}
             >
               <img
-                src={image.src}
+                src={mediaUrl(image.src)}
                 alt=""
                 loading="lazy"
                 decoding="async"
