@@ -111,6 +111,8 @@ Colecciones:
 - `dynamicForms` — definición completa de cada formulario (un JSON por formulario).
 - `maintenance` — modo mantenimiento del sitio.
 - `cookieConsent` — textos del banner de cookies.
+- `promoPopup` — popup promocional: disparadores, frecuencia, rutas excluidas y
+  campañas (cupón y/o CTA, con vigencia).
 - `shop` — cabecera, umbral de "quedan pocas" y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
 
@@ -213,6 +215,26 @@ circular; la sección Journal de la home usa las mismas funciones.
   portada va entre lead y cuerpo, y cualquier `>` del MDX se muestra como la
   cita destacada. `PostBody` da estilo con componentes de `TinaMarkdown`, sin
   `prose`. "Compartir" usa `useShareLink`, el mismo hook de la ficha.
+
+### Popup promocional
+
+Spec: `specs/12-popup-promocional.md`. `PromoPopup.astro` monta la isla
+`PromoPopupReact` en `BaseLayout` (`client:idle`) solo si `promoPopup.enabled`.
+
+- **Campaña** — se muestra una sola: la primera con `enabled` cuya vigencia
+  (`startsAt`/`endsAt`) se cumple **en el navegador**, así vence a su hora sin
+  rebuild. El cupón es solo texto: hay que crearlo antes en Woo.
+- **Disparadores** — segundos en la página, % de scroll e intención de salida
+  (solo con puntero fino); abre con el primero que ocurra, contado por página.
+  Con los tres apagados no aparece. No arranca hasta que la persona responde el
+  banner de cookies (`CONSENT_CHANGE_EVENT`), ni en rutas de `excludedPaths`
+  (por prefijo).
+- **Frecuencia** — `localStorage` `eres-skin-studio-promo-popup:v1`, por `id`
+  de campaña: `daysAfterDismiss` tras cerrar y `daysAfterConvert` tras copiar
+  el cupón o usar el CTA. Cambiar el `id` reinicia la campaña para todos.
+- **Editor** — dentro de Tina aparece al instante con la primera campaña
+  habilitada, sin mirar fechas ni frecuencia y sin escribir en `localStorage`.
+- Las redes son las de `global.footer.social`, con iconos Phosphor Light.
 
 ### Modo mantenimiento
 
