@@ -9,13 +9,15 @@
     "daysAfterDismiss": 7,
     "daysAfterConvert": 30
   },
-  "excludedPaths": ["/contacto"],
+  "excludedPaths": [
+    "/contacto"
+  ],
   "dismissLabel": "No, gracias",
   "showSocials": true,
   "campaigns": [
     {
       "id": "primera-compra-10",
-      "enabled": false,
+      "enabled": true,
       "image": "/uploads/home/svc-tratamiento.webp",
       "imageAlt": "Tratamiento facial en ERES Skin Studio",
       "eyebrow": "Únete a ERES",
