@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /admin/
-
-Sitemap: https://eresskinstudio.com/sitemap-index.xml
