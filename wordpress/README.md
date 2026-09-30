@@ -170,3 +170,58 @@ La migración no la ejecuta la SPEC 02. Esta es la checklist para cuando toque:
    - `curl -I https://eresskinstudio.com/product/<slug>/` → `301` a `/productos/<slug>/`
    - `curl -I https://eresskinstudio.com/product-category/<slug>/` → `301` a `/productos/categoria/<slug>/`
 9. Repetir la verificación del paso 9.
+
+## 11. Sitio de prueba
+
+Mientras WordPress siga en `eresskinstudio.com`, la rama `staging` se publica en un sitio aparte para probar el carrito contra el WooCommerce real (`specs/14-sitio-de-prueba-carrito.md`). Lo publica `.github/workflows/deploy-staging.yml` en cada push a `staging`, o a mano desde Actions. Siempre lleva `noindex` y un `robots.txt` con `Disallow: /`.
+
+En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formularios no envían correos.
+
+1. **Dirección.** Cualquier hosting con PHP sirve. Tres opciones:
+   - Hostinger → Sitios web → **Agregar sitio web**, con el dominio temporal que ofrece (`algo.hostingersite.com`). No toca ningún DNS.
+   - Un subdominio de un dominio propio que apunte a ese sitio.
+   - `staging.eresskinstudio.com`, cuando haya acceso al dominio y al DNS del cliente.
+
+   Anota la **carpeta pública** (por ejemplo `/home/u123/domains/algo.hostingersite.com/public_html`) y el **origen** exacto con el que se abre el sitio: esquema y host, sin barra final (`https://algo.hostingersite.com`).
+2. **Acceso SSH.** Si el sitio vive en la misma cuenta que producción, sirve la clave de deploy de siempre. Si es otra cuenta, autoriza su clave pública en hPanel → Avanzado → Acceso SSH → Claves SSH.
+3. **`woo-config.php`.** Copia `public/woo-config.example.php` como `woo-config.php` en la carpeta pública del sitio de prueba:
+   - `store_url`, `consumer_key` y `consumer_secret`: los mismos de producción (paso 2).
+   - `allowed_origins`: `['<origen del paso 1>']`. Si no coincide exacto, agregar al carrito responde `403`.
+   - `webhook_secret`, `github_repo` y `github_token`: vacíos. Así `rebuild-hook.php` responde `503` y no dispara nada desde el sitio de prueba.
+4. **Usuario y contraseña (opcional).** Por SSH, fuera de la carpeta pública:
+
+   ```bash
+   printf 'eres:%s\n' "$(openssl passwd -apr1 'una-contraseña')" > ~/.htpasswd-eres-staging
+   realpath ~/.htpasswd-eres-staging
+   ```
+
+   Esa ruta absoluta va en la variable `STAGING_HTPASSWD_PATH` (paso 5). Sin la variable, el sitio abre sin pedir credenciales.
+5. **Environment `staging` en GitHub.** Repo → Settings → Environments → **New environment** → `staging`. Sus secretos pisan a los del repo con el mismo nombre; lo que no definas aquí se hereda.
+
+   **Secrets:**
+
+   | Nombre | Valor |
+   |---|---|
+   | `HOSTINGER_DEPLOY_PATH` | Carpeta pública del paso 1. **Obligatorio**: sin él, el deploy iría a la carpeta de producción. |
+   | `HOSTINGER_SSH_HOST`, `HOSTINGER_SSH_PORT`, `HOSTINGER_SSH_USER`, `HOSTINGER_SSH_KEY` | Solo si el sitio de prueba vive en otra cuenta de Hostinger. |
+
+   **Variables:**
+
+   | Nombre | Valor |
+   |---|---|
+   | `PUBLIC_WOO_CHECKOUT_URL` | `https://eresskinstudio.com/checkout/` |
+   | `PUBLIC_TURNSTILE_SITE_KEY` | La de producción o vacía |
+   | `STAGING_HTPASSWD_PATH` | Ruta del paso 4, o vacía |
+
+6. **mu-plugin en el WordPress en vivo.** Instala `eres-cart-handoff.php` (paso 3). Solo actúa cuando `/checkout/` trae `?cart-token=`; la tienda en vivo sigue igual. **No** instales `eres-thank-you-redirect.php` apuntando al sitio de prueba: mandaría ahí a las clientas reales.
+7. **Verificación.**
+   1. Lanza "Deploy al sitio de prueba" desde Actions (o haz push a `staging`) y comprueba que sube a la carpeta de prueba.
+   2. `curl -s <origen>/robots.txt` devuelve `Disallow: /`, y el HTML de la home trae `<meta name="robots" content="noindex">`.
+   3. Con `STAGING_HTPASSWD_PATH` definida, `curl -I <origen>/` responde `401`.
+   4. `/productos` muestra los productos reales. Agregar uno sube el contador del carrito sin recargar, y en la pestaña Red `woo-api.php` no responde `403`.
+   5. Recarga: el carrito sigue ahí. Cambia una cantidad y quita un producto.
+   6. "Finalizar compra" abre `https://eresskinstudio.com/checkout/` con los mismos productos. **No pagues.**
+   7. `https://eresskinstudio.com/checkout/?cart-token=invalido` redirige a `/checkout/` sin errores.
+   8. `curl -X POST <origen>/rebuild-hook.php` responde `503`.
+8. **Si el carrito no responde.** Si `woo-api.php` devuelve error al hablar con WordPress, revisa en el Cloudflare del WordPress en vivo que la IP del servidor de prueba no esté bloqueada al llamar a `/wp-json/wc/*` (paso 8).
+9. **Al migrar a `checkout.eresskinstudio.com`.** En el sitio de prueba cambia `store_url` de `woo-config.php`, y en el environment `staging` cambia `PUBLIC_WOO_CHECKOUT_URL` a `https://checkout.eresskinstudio.com/checkout/`. El secret `WOO_STORE_URL` del repo ya cambia en el paso 10.
