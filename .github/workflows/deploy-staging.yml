@@ -14,6 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     steps:
+      # Sin carpeta propia, rsync --delete caería en la de producción, que hoy aloja el WordPress en vivo.
+      - name: Verificar la carpeta del sitio de prueba
+        env:
+          STAGING_DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PRODUCTION_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          if [ -z "$STAGING_DEPLOY_PATH" ]; then
+            echo "::error::Falta el secreto STAGING_DEPLOY_PATH en el environment staging."
+            exit 1
+          fi
+          if [ "${STAGING_DEPLOY_PATH%/}" = "${PRODUCTION_DEPLOY_PATH%/}" ]; then
+            echo "::error::STAGING_DEPLOY_PATH apunta a la carpeta de producción."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: staging
@@ -63,7 +78,7 @@ jobs:
           SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
-          DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+          DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
         run: |
           rsync -az --delete \
             --exclude 'site-config.php' \
