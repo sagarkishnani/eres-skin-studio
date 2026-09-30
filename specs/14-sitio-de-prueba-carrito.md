@@ -54,13 +54,13 @@ Flujo:
 
 ### *Environment* `staging` en GitHub (Settings → Environments)
 
-Los secretos del *environment* pisan a los del repo que tienen el mismo nombre. Así el workflow usa los mismos nombres que `deploy.yml`, y solo se redefine lo que cambia.
+Los secretos del *environment* pisan a los del repo que tienen el mismo nombre. La carpeta de destino es la excepción: usa un nombre propio, `STAGING_DEPLOY_PATH`, para que un environment sin configurar no herede la carpeta de producción.
 
 **Secrets** (solo los que difieren de producción; los demás se heredan del repo):
 
 | Nombre | Valor |
 |---|---|
-| `HOSTINGER_DEPLOY_PATH` | Carpeta pública del sitio de prueba, por ejemplo `/home/u123/domains/algo.hostingersite.com/public_html` |
+| `STAGING_DEPLOY_PATH` | Carpeta pública del sitio de prueba, por ejemplo `/home/u123/domains/algo.hostingersite.com/public_html`. Obligatorio: sin él, o si coincide con `HOSTINGER_DEPLOY_PATH`, el workflow falla antes de compilar |
 | `HOSTINGER_SSH_HOST`, `HOSTINGER_SSH_PORT`, `HOSTINGER_SSH_USER`, `HOSTINGER_SSH_KEY` | Solo si el sitio de prueba vive en otra cuenta de Hostinger |
 
 `WOO_STORE_URL`, `WOO_CONSUMER_KEY`, `WOO_CONSUMER_SECRET`, `TINA_CLIENT_ID` y `TINA_TOKEN` se heredan del repo.
@@ -115,9 +115,10 @@ Rama: `feat/sitio-de-prueba-carrito`, desde `staging` actualizado.
 3. **Workflow.** Crear `.github/workflows/deploy-staging.yml` a partir de `deploy.yml`:
    - disparadores: `push` a `staging` y `workflow_dispatch`;
    - `environment: staging` y `concurrency: { group: deploy-staging, cancel-in-progress: true }`;
+   - primer paso: falla si `STAGING_DEPLOY_PATH` está vacío o coincide con `HOSTINGER_DEPLOY_PATH`;
    - `ref: staging`, `TINA_BRANCH: staging`, `SITE_ENV: staging`;
    - si `vars.STAGING_HTPASSWD_PATH` no está vacía, antes de subir se agrega el bloque de Basic Auth a `dist/.htaccess`;
-   - el mismo `rsync` con las mismas exclusiones (`site-config.php`, `woo-config.php`, `data/*`).
+   - el mismo `rsync` con las mismas exclusiones (`site-config.php`, `woo-config.php`, `data/*`), hacia `STAGING_DEPLOY_PATH`.
 4. **Guía.** Agregar a `wordpress/README.md` una sección **Sitio de prueba**, con estos pasos en orden:
    1. Conseguir la URL: sitio nuevo en Hostinger con dominio temporal, dominio propio o subdominio del cliente.
    2. Autorizar la clave SSH de deploy si es otra cuenta.
@@ -134,7 +135,8 @@ Rama: `feat/sitio-de-prueba-carrito`, desde `staging` actualizado.
 ## Criterios de aceptación
 
 - [ ] Un push a `staging` crea una ejecución de `deploy-staging.yml`, y no de `deploy.yml`.
-- [ ] El workflow sube a `HOSTINGER_DEPLOY_PATH` del *environment* `staging`, no a la carpeta de producción.
+- [ ] El workflow sube a `STAGING_DEPLOY_PATH`, no a la carpeta de producción.
+- [ ] Sin `STAGING_DEPLOY_PATH`, o con el mismo valor que `HOSTINGER_DEPLOY_PATH`, el workflow falla antes de compilar y no sube nada.
 - [ ] El HTML de cualquier página del sitio de prueba contiene `<meta name="robots" content="noindex">`.
 - [ ] `/robots.txt` del sitio de prueba responde `Disallow: /`.
 - [ ] Un build sin `SITE_ENV` genera el mismo `robots.txt` que hoy, y `dist/index.html` sin `noindex`.
@@ -156,7 +158,8 @@ Rama: `feat/sitio-de-prueba-carrito`, desde `staging` actualizado.
 - **No:** Netlify o Cloudflare Pages para la prueba. No ejecutan PHP.
 - **No:** subcarpeta del dominio actual con `DEPLOY_BASE`. Metería el sitio dentro del WordPress en vivo.
 - **Sí:** URL y carpeta como secretos de un *environment*, sin un dominio fijo. El usuario aún no sabe si puede crear subdominios de `eresskinstudio.com`, y así se cambia de URL sin tocar código.
-- **Sí:** *environment* `staging` con los mismos nombres de secretos que producción. El workflow queda casi igual a `deploy.yml`, y solo se redefine lo que cambia.
+- **Sí:** *environment* `staging` con los mismos nombres de secretos que producción para SSH y Woo. El workflow queda casi igual a `deploy.yml`, y solo se redefine lo que cambia.
+- **Sí:** carpeta de destino con nombre propio (`STAGING_DEPLOY_PATH`) y verificada al inicio del workflow. Con el mismo nombre que producción, un environment sin configurar heredaría la carpeta del WordPress en vivo. Se decidió durante la implementación.
 - **Sí:** conectar el sitio de prueba al WooCommerce real con claves de solo lectura. Armar un carrito no crea pedidos, y el catálogo es el verdadero. Cuando WordPress pase a `checkout.eresskinstudio.com`, solo cambian `store_url` y `PUBLIC_WOO_CHECKOUT_URL`.
 - **No:** copia de WordPress con Staging de Hostinger. Duplica productos que se desactualizan, y habría que apagar correos y pasarela. Solo se justifica para probar pagos, y eso queda fuera.
 - **Sí:** instalar `eres-cart-handoff` en el WordPress en vivo. Solo actúa cuando la URL trae `?cart-token=`, y el usuario lo confirmó.
@@ -175,6 +178,6 @@ Rama: `feat/sitio-de-prueba-carrito`, desde `staging` actualizado.
 | Cloudflare del WordPress en vivo bloquea las llamadas del proxy desde la IP del servidor de prueba | La sección 8 del README ya pide permitir `/wp-json/wc/*`. Si pasa, se agrega una excepción para la IP del servidor de prueba. |
 | El mu-plugin rompe el checkout en vivo | Falla cerrado: sin `cart-token` no hace nada, y con uno inválido redirige a `/checkout/`. Se verifica apenas se instala, y se quita borrando el archivo. |
 | Carritos de prueba abandonados en la Store API real | Son sesiones anónimas que WooCommerce expira solo. No crean pedidos ni reservan stock. |
-| Un deploy de prueba apunta por error a la carpeta de producción | `HOSTINGER_DEPLOY_PATH` es un secreto del *environment* `staging` y se revisa en el primer deploy. |
+| Un deploy de prueba apunta por error a la carpeta de producción y el `rsync --delete` borra el WordPress en vivo | La carpeta sale de `STAGING_DEPLOY_PATH`, que no existe a nivel de repo, y el workflow falla si falta o si coincide con `HOSTINGER_DEPLOY_PATH`. |
 | Google indexa el sitio de prueba antes del `noindex` | `noindex` y `Disallow: /` van desde el primer deploy. Opcionalmente, Basic Auth. |
 | TinaCloud no tiene indexada la rama `staging` y el build falla | `TINA_BRANCH: staging` coincide con la rama que ya usa el proyecto. Si falla, se indexa la rama en TinaCloud. |

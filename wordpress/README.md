@@ -202,7 +202,7 @@ En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formu
 
    | Nombre | Valor |
    |---|---|
-   | `HOSTINGER_DEPLOY_PATH` | Carpeta pública del paso 1. **Obligatorio**: sin él, el deploy iría a la carpeta de producción. |
+   | `STAGING_DEPLOY_PATH` | Carpeta pública del paso 1. **Obligatorio**: sin él, o si coincide con `HOSTINGER_DEPLOY_PATH`, el workflow falla sin subir nada. |
    | `HOSTINGER_SSH_HOST`, `HOSTINGER_SSH_PORT`, `HOSTINGER_SSH_USER`, `HOSTINGER_SSH_KEY` | Solo si el sitio de prueba vive en otra cuenta de Hostinger. |
 
    **Variables:**

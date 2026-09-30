@@ -207,8 +207,9 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
   corre en cada push a `main` y todos los días a las 04:00 de Lima.
 - **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
-  sitio aparte (environment `staging` de GitHub, que redefine
-  `HOSTINGER_DEPLOY_PATH`) contra el WooCommerce real, en cada push o a mano.
+  sitio aparte (environment `staging` de GitHub, carpeta en
+  `STAGING_DEPLOY_PATH`: el workflow falla si falta o coincide con la de
+  producción) contra el WooCommerce real, en cada push o a mano.
   Compila con `SITE_ENV=staging` (`src/utils/siteEnv.ts`): `noindex` en todo el
   sitio y `robots.txt` (`src/pages/robots.txt.ts`) con `Disallow: /`. Con
   `STAGING_HTPASSWD_PATH` agrega Basic Auth al `.htaccess`. Su `woo-config.php`
