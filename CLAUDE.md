@@ -206,6 +206,14 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
   (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
   corre en cada push a `main` y todos los días a las 04:00 de Lima.
+- **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
+  sitio aparte (environment `staging` de GitHub, que redefine
+  `HOSTINGER_DEPLOY_PATH`) contra el WooCommerce real, en cada push o a mano.
+  Compila con `SITE_ENV=staging` (`src/utils/siteEnv.ts`): `noindex` en todo el
+  sitio y `robots.txt` (`src/pages/robots.txt.ts`) con `Disallow: /`. Con
+  `STAGING_HTPASSWD_PATH` agrega Basic Auth al `.htaccess`. Su `woo-config.php`
+  necesita el origen de prueba en `allowed_origins`, o el carrito responde
+  `403`. Spec: `specs/14-sitio-de-prueba-carrito.md`; guía: `wordpress/README.md` §11.
 - **Redirecciones** — `public/.htaccess` manda `/product/<slug>/` y
   `/product-category/<slug>/` (URLs heredadas de WordPress) a `/productos/…`.
 
