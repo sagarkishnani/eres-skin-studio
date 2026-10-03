@@ -15,7 +15,7 @@ function Breadcrumb({ categoryName }: { categoryName?: string }) {
   return (
     <nav
       aria-label="Migas de pan"
-      className="flex flex-wrap gap-2.5 text-caption-sm font-medium uppercase tracking-[.18em] text-content-muted"
+      className="flex flex-wrap gap-2.5 text-caption-sm font-medium uppercase tracking-[.18em] text-content-muted md:text-content-inverse"
     >
       <a href="/" className={hoverUnderline}>
         Home
@@ -27,12 +27,12 @@ function Breadcrumb({ categoryName }: { categoryName?: string }) {
             Productos
           </a>
           <span aria-hidden="true">/</span>
-          <span aria-current="page" className="text-content">
+          <span aria-current="page" className="text-content md:text-content-inverse">
             {categoryName}
           </span>
         </>
       ) : (
-        <span aria-current="page" className="text-content">
+        <span aria-current="page" className="text-content md:text-content-inverse">
           Productos
         </span>
       )}
@@ -46,8 +46,8 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
   if (!hero) return <div hidden />;
 
   return (
-    <section className="bg-surface">
-      <div className="relative h-[220px] overflow-hidden bg-surface-sunken md:h-[clamp(300px,33vw,480px)]">
+    <section className="relative bg-surface">
+      <div className="relative h-[220px] overflow-hidden bg-surface-sunken md:h-[clamp(420px,38vw,560px)]">
         {hero.image && (
           <img
             src={mediaUrl(hero.image)}
@@ -58,8 +58,9 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
             data-tina-field={tinaField(hero, "image")}
           />
         )}
+        <div className="absolute inset-0 hidden bg-gradient-to-tr from-ink/55 via-ink/20 via-45% to-transparent to-75% md:block" />
       </div>
-      <div className="container-xl grid grid-cols-[repeat(auto-fit,minmax(min(100%,380px),1fr))] items-end gap-x-16 gap-y-4 pt-[clamp(28px,4vw,56px)]">
+      <div className="container-xl grid grid-cols-[repeat(auto-fit,minmax(min(100%,380px),1fr))] items-end gap-x-16 gap-y-4 pt-[clamp(28px,4vw,56px)] md:absolute md:inset-x-0 md:bottom-0 md:pb-[clamp(32px,4vw,56px)] md:pt-0 md:text-content-inverse">
         <div data-reveal="0" className="flex flex-col gap-4">
           <Breadcrumb categoryName={categoryName} />
           {categoryName ? (
@@ -73,7 +74,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
         {hero.description && (
           <p
             data-reveal="120"
-            className="max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:justify-self-end"
+            className="max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:justify-self-end md:text-content-inverse/85"
             data-tina-field={tinaField(hero, "description")}
           >
             {hero.description}
