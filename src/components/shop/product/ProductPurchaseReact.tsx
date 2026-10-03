@@ -121,7 +121,7 @@ function StickyBuyBar({ visible, name, thumb, stock, quantity, max, onQuantityCh
     <div
       inert={!visible}
       aria-hidden={!visible}
-      className={`fixed inset-x-0 bottom-0 z-[44] border-t border-stone-150 bg-surface-raised pb-[env(safe-area-inset-bottom)] shadow-up transition-transform duration-[650ms] ease-out-expo motion-reduce:transition-none [html[data-scroll-locked]_&]:translate-y-[110%] ${
+      className={`fixed inset-x-0 bottom-0 z-[44] border-t border-stone-150 bg-surface-raised pb-[max(0px,calc(env(safe-area-inset-bottom)-12px))] shadow-up transition-transform duration-[650ms] ease-out-expo motion-reduce:transition-none [html[data-scroll-locked]_&]:translate-y-[110%] ${
         visible ? "translate-y-0" : "translate-y-[110%]"
       }`}
     >
