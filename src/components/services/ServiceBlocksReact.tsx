@@ -38,7 +38,6 @@ export default function ServiceBlocksReact({ query, variables, data: initialData
     <>
       {items.map((service: any, index: number) => {
         const theme = themeForPosition(index);
-        const number = String(index + 1).padStart(2, "0");
         const paragraphs = (service.paragraphs || []).filter(Boolean);
 
         return (
@@ -66,7 +65,7 @@ export default function ServiceBlocksReact({ query, variables, data: initialData
               </div>
               <div data-reveal="120" className="flex max-w-[560px] flex-col gap-[18px]">
                 <span className={`eyebrow ${theme.eyebrow}`} data-tina-field={tinaField(service, "name")}>
-                  — {number} / {service.name}
+                  — {service.name}
                 </span>
                 <h2
                   className="mb-1.5 whitespace-pre-line text-heading-md [text-wrap:balance]"
