@@ -9,11 +9,13 @@ export interface HeroSlide {
   text: string;
   ctaLabel: string;
   ctaUrl: string;
+  scrim: number;
   fields: {
     image?: string;
     title?: string;
     text?: string;
     cta?: string;
+    scrim?: string;
   };
 }
 
@@ -133,6 +135,13 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
                 className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[9000ms] ease-out-soft [object-position:var(--focus-mobile)] md:[object-position:var(--focus)] ${
                   isActive ? "scale-100" : "scale-[1.08]"
                 }`}
+              />
+            )}
+            {slide.scrim > 0 && (
+              <div
+                className="absolute inset-0 bg-ink"
+                style={{ opacity: slide.scrim / 100 }}
+                data-tina-field={slide.fields.scrim}
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-ink/5 from-25% to-ink/65 md:bg-gradient-to-r md:from-ink/50 md:from-0% md:via-ink/30 md:via-40% md:to-transparent md:to-65%" />

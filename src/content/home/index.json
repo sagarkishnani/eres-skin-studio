@@ -10,7 +10,8 @@
         "focusMobile": "62% 50%",
         "title": "Tu ritual, en casa",
         "text": "Eres Skin Studio te ofrece productos seleccionados. Marcas honestas, ingredientes que cumplen, y productos que se integran a tu rutina real.",
-        "cta": { "label": "Ver tienda", "url": "/productos" }
+        "cta": { "label": "Ver tienda", "url": "/productos" },
+        "scrim": 15
       },
       {
         "image": "/uploads/home/hero-2.webp",

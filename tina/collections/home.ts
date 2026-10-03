@@ -34,6 +34,12 @@ export const homeCollection: Collection = {
             { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", ui: textarea },
             { name: "text", label: "Texto", type: "string", ui: textarea },
             linkField("cta", "Botón"),
+            {
+              name: "scrim",
+              label: "Oscurecer imagen (%)",
+              description: "De 0 a 40. Úsalo si el texto no se lee sobre la foto.",
+              type: "number",
+            },
           ],
         },
       ],
