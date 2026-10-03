@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { mediaUrl } from "../../utils/mediaUrl";
 
@@ -74,7 +75,7 @@ export default function ServicesReact({ query, variables, data: initialData }: P
                     {services.ctaLabel}
                   </span>
                   <span aria-hidden="true" className="transition-transform duration-500 ease-out-expo lg:group-hover:translate-x-1.5">
-                    →
+                    <PiArrowRightLight size="1em" />
                   </span>
                 </div>
               </a>

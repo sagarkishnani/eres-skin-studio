@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { tinaField } from "tinacms/dist/react";
 import { localizeHref, tField } from "../../utils/i18n";
 import { mediaUrl } from "../../utils/mediaUrl";
@@ -96,7 +97,9 @@ export default function MegaMenu({ link, open, locale, onNavigate }: Props) {
               {card.ctaLabel && (
                 <span className="flex items-center gap-2.5 text-caption-sm font-medium uppercase tracking-[.14em] text-content">
                   {tField(card, "ctaLabel", locale)}
-                  <span aria-hidden className="transition-transform duration-400 group-hover:translate-x-1">→</span>
+                  <span aria-hidden className="transition-transform duration-400 group-hover:translate-x-1">
+                    <PiArrowRightLight size="1em" />
+                  </span>
                 </span>
               )}
             </a>

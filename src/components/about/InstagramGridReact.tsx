@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { useTina, tinaField } from "tinacms/dist/react";
 import { mediaUrl } from "../../utils/mediaUrl";
 
@@ -50,7 +51,7 @@ export default function InstagramGridReact({ query, variables, data: initialData
           </div>
           {instagram.ctaLabel && (
             <a {...externalLink} className="link-underline" data-tina-field={tinaField(instagram, "ctaLabel")}>
-              {instagram.ctaLabel} <span aria-hidden="true">→</span>
+              {instagram.ctaLabel} <PiArrowRightLight size="1em" aria-hidden />
             </a>
           )}
         </div>

@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { useTina, tinaField } from "tinacms/dist/react";
 
 interface Props {
@@ -33,7 +34,7 @@ export default function EssenceReact({ query, variables, data: initialData }: Pr
           ))}
           {essence.cta?.label && essence.cta?.url && (
             <a href={essence.cta.url} className="link-underline mt-3.5" data-tina-field={tinaField(essence, "cta")}>
-              {essence.cta.label} <span aria-hidden="true">→</span>
+              {essence.cta.label} <PiArrowRightLight size="1em" aria-hidden />
             </a>
           )}
         </div>

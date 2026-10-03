@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { useTina, tinaField } from "tinacms/dist/react";
 
 interface Props {
@@ -47,7 +48,7 @@ export default function FaqReact({ query, variables, data: initialData, whatsapp
               className="link-underline"
               data-tina-field={tinaField(faq, "ctaLabel")}
             >
-              {faq.ctaLabel} <span aria-hidden="true">→</span>
+              {faq.ctaLabel} <PiArrowRightLight size="1em" aria-hidden />
             </a>
           )}
         </div>

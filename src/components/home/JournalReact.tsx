@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { useTina, tinaField } from "tinacms/dist/react";
 
 export interface JournalPost {
@@ -100,7 +101,7 @@ export default function JournalReact({ query, variables, data: initialData, feat
               <span className="max-md:hidden" data-tina-field={tinaField(journal, "ctaLabel")}>
                 {journal.ctaLabel}
               </span>
-              <span aria-hidden="true">→</span>
+              <PiArrowRightLight size="1em" aria-hidden />
             </a>
           )}
         </div>

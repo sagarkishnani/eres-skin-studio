@@ -1,3 +1,4 @@
+import { PiArrowRightLight } from "react-icons/pi";
 import { groupHoverUnderline } from "./underline";
 
 export interface JournalCardData {
@@ -44,7 +45,7 @@ export default function JournalCard({ post, revealDelay, shown }: Props) {
       </span>
       {post.excerpt && <span className="line-clamp-2 text-body-sm text-content-muted">{post.excerpt}</span>}
       <span className="mt-1.5 inline-flex items-center gap-2 self-start border-b border-ink pb-1 text-body-sm font-medium text-content transition-[gap] duration-[450ms] ease-out-expo group-hover:gap-3.5 group-focus-visible:gap-3.5">
-        Leer más <span aria-hidden="true">→</span>
+        Leer más <PiArrowRightLight size="1em" aria-hidden />
       </span>
     </a>
   );
