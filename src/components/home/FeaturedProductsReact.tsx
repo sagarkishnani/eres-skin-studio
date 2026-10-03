@@ -28,7 +28,7 @@ export default function FeaturedProductsReact({ query, variables, data: initialD
       </div>
       {products.cta?.label && products.cta?.url && (
         <a href={products.cta.url} className="btn-fill-dark" data-tina-field={tinaField(products, "cta")}>
-          {products.cta.label} <span aria-hidden="true">→</span>
+          {products.cta.label}
         </a>
       )}
     </div>

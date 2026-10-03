@@ -168,7 +168,7 @@ export function CartDrawer({ open, onClose, cart, loaded, count, busy, onChangeQ
           <p className="text-caption-md text-content-subtle">Envío calculado al finalizar la compra.</p>
           {checkout && (
             <a href={checkout} className="btn-primary h-[54px] w-full">
-              Finalizar compra <span aria-hidden>→</span>
+              Finalizar compra
             </a>
           )}
         </div>

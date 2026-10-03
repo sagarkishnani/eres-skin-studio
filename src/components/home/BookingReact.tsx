@@ -61,7 +61,7 @@ export default function BookingReact({ query, variables, data: initialData, what
               className="btn-fill-light"
               data-tina-field={tinaField(booking, "ctaLabel")}
             >
-              {booking.ctaLabel} <span aria-hidden="true">→</span>
+              {booking.ctaLabel}
             </a>
           )}
         </div>

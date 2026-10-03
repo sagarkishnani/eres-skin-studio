@@ -45,7 +45,7 @@ export default function FirstVisitReact({ query, variables, data: initialData, w
               className="btn-fill-dark"
               data-tina-field={tinaField(firstVisit, "ctaLabel")}
             >
-              {firstVisit.ctaLabel} <span aria-hidden="true">→</span>
+              {firstVisit.ctaLabel}
             </a>
           )}
         </div>

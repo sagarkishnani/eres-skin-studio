@@ -58,7 +58,7 @@ export default function VisitUsReact({ query, variables, data: initialData }: Pr
               className="btn-fill-dark mt-2.5 self-start"
               data-tina-field={tinaField(visit, "ctaLabel")}
             >
-              {visit.ctaLabel} <span aria-hidden="true">→</span>
+              {visit.ctaLabel}
             </a>
           )}
         </div>

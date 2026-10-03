@@ -92,7 +92,7 @@ export default function ServiceBlocksReact({ query, variables, data: initialData
                       className={theme.button}
                       data-tina-field={tinaField(blocks, "ctaLabel")}
                     >
-                      {blocks.ctaLabel} <span aria-hidden="true">→</span>
+                      {blocks.ctaLabel}
                     </a>
                   </div>
                 )}

@@ -132,7 +132,7 @@ export default function MobileDrawer({ open, onClose, links, activeIndex, cta, c
 
             {cta?.label && (
               <a href={localizeHref(cta.url, locale)} onClick={onClose} className="btn-primary mt-7 w-full">
-                {tField(cta, "label", locale)} <span aria-hidden>→</span>
+                {tField(cta, "label", locale)}
               </a>
             )}
 

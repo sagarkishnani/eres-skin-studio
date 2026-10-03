@@ -160,7 +160,7 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
                     className="btn-fill-light mt-2"
                     data-tina-field={slide.fields.cta}
                   >
-                    {slide.ctaLabel} <span aria-hidden="true">→</span>
+                    {slide.ctaLabel}
                   </a>
                 )}
               </div>
