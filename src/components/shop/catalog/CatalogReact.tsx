@@ -187,6 +187,7 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
         open={drawerOpen}
         onClose={closeDrawer}
         sort={state.orden}
+        sortKeys={mobileSortKeys}
         onSortChange={changeSort}
         onClear={clearAll}
         applyLabel={`Ver ${countLabel}`}

@@ -9,6 +9,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   sort: SortKey;
+  sortKeys: SortKey[];
   onSortChange: (sort: SortKey) => void;
   onClear: () => void;
   applyLabel: string;
@@ -17,7 +18,8 @@ interface Props {
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
 
-export default function FilterDrawer({ open, onClose, sort, onSortChange, onClear, applyLabel, children }: Props) {
+export default function FilterDrawer({ open, onClose, sort, sortKeys, onSortChange, onClear, applyLabel, children }: Props) {
+  const sortOptions = SORT_OPTIONS.filter((option) => sortKeys.includes(option.key) || option.key === sort);
   const drawerRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -71,7 +73,7 @@ export default function FilterDrawer({ open, onClose, sort, onSortChange, onClea
           <div className="flex flex-col gap-3.5 border-b border-line pb-[22px] pt-4">
             <span className="text-body-md font-medium text-content">Ordenar por</span>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Ordenar por">
-              {SORT_OPTIONS.map((option) => {
+              {sortOptions.map((option) => {
                 const selected = option.key === sort;
                 return (
                   <button
