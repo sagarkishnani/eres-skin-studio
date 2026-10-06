@@ -108,7 +108,9 @@ da 404 para la media guardada en git; `mediaUrl` los devuelve a `/uploads/…`.
 Colecciones:
 
 - `global` — navegación, footer, SEO por defecto, código inyectado.
-- `home` — contenido de la portada.
+- `home` — contenido de la portada. Cada slide del hero admite `imageMobile`
+  (se sirve bajo `md` con `<picture>`); sin ella se usa `image`. En móvil el
+  encuadre siempre es centrado; `focus` solo aplica desde `md`.
 - `post` — artículos del Skin Journal en MDX (`src/content/blog/`): una
   `category` fija (Cuidado, Rutina, Ingredientes, Tratamientos) y `tags` libres.
 - `formConfig` — por formulario: `formType`, `label`, `enabled`, `recipients[]`.
@@ -117,7 +119,9 @@ Colecciones:
 - `cookieConsent` — textos del banner de cookies.
 - `promoPopup` — popup promocional: disparadores, frecuencia, rutas excluidas y
   campañas (cupón y/o CTA, con vigencia).
-- `shop` — cabecera, umbral de "quedan pocas" y SEO de `/productos`.
+- `shop` — cabecera (con `hero.titleMobile` para el título bajo `md`), umbral
+  de "quedan pocas", estilo de la etiqueta de descuento (`discountBadgeStyle`),
+  ajustes del catálogo (`catalog`) y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
 - `systemPages` — textos y SEO del 404 (`notFound`, con enlaces rápidos) y de
   `/gracias` (`thankYou`).
@@ -178,6 +182,19 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `precio-asc`, `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
   puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
   usan `ClientRouter` para que su `pushState` no choque con el del router.
+  `shop.catalog.visibleFilters` decide qué grupos de filtros se muestran (por
+  defecto Categoría, Marca y Tipo de piel) y `shop.catalog.mobileSortOptions`
+  qué órdenes ofrece el drawer bajo `lg`; `src/utils/catalog/settings.ts`
+  aplica los valores por defecto si la lista llega vacía. Un filtro oculto sigue
+  funcionando por URL y muestra su chip. `CatalogReact` recibe ambas listas
+  como props, sin `useTina`: un cambio se ve tras el rebuild, no en la vista
+  previa. El panel de desktop abre todos los grupos; el drawer, solo Categoría.
+- **Etiqueta de descuento** — `shop.discountBadgeStyle` (`horizontal` |
+  `diagonal`) llega a `ProductCard` como prop desde el catálogo, los destacados
+  de la home y los relacionados. Con `diagonal` es una cinta en la esquina
+  superior izquierda y "Nuevo" pasa a la derecha.
+- **Banner** — el texto de `ShopBannerReact` va oscuro sobre la foto desde `md`,
+  con un velo crema: la foto tiene que ser clara.
 - **Imágenes** — `ProductCard` optimiza las fotos en build con
   `productCardImage()` (`src/lib/woo/productImage.ts`): WebP en cuatro anchos
   con `srcset`. El host de `WOO_STORE_URL` se autoriza en `image.domains` de
