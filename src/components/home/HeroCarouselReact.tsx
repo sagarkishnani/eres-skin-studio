@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, ty
 
 export interface HeroSlide {
   image: string;
+  imageMobile: string;
   imageAlt: string;
   focus: string;
-  focusMobile: string;
   title: string;
   text: string;
   ctaLabel: string;
@@ -124,18 +124,21 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
             }`}
           >
             {showImage && (
-              <img
-                src={slide.image}
-                alt={slide.imageAlt}
-                fetchPriority={index === 0 ? "high" : "low"}
-                decoding="async"
-                draggable={false}
-                data-tina-field={slide.fields.image}
-                style={{ "--focus": slide.focus || "50% 50%", "--focus-mobile": slide.focusMobile || slide.focus || "50% 50%" } as CSSProperties}
-                className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[9000ms] ease-out-soft [object-position:var(--focus-mobile)] md:[object-position:var(--focus)] ${
-                  isActive ? "scale-100" : "scale-[1.08]"
-                }`}
-              />
+              <picture>
+                {slide.imageMobile && <source media="(max-width: 767px)" srcSet={slide.imageMobile} />}
+                <img
+                  src={slide.image}
+                  alt={slide.imageAlt}
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  decoding="async"
+                  draggable={false}
+                  data-tina-field={slide.fields.image}
+                  style={{ "--focus": slide.focus || "50% 50%" } as CSSProperties}
+                  className={`absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[9000ms] ease-out-soft md:[object-position:var(--focus)] ${
+                    isActive ? "scale-100" : "scale-[1.08]"
+                  }`}
+                />
+              </picture>
             )}
             {slide.scrim > 0 && (
               <div

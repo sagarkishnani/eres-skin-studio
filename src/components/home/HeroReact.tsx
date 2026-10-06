@@ -21,9 +21,9 @@ export default function HeroReact({ query, variables, data: initialData }: Props
 
   const slides: HeroSlide[] = (hero?.slides || []).filter(Boolean).map((slide: any) => ({
     image: mediaUrl(slide.image),
+    imageMobile: mediaUrl(slide.imageMobile),
     imageAlt: slide.imageAlt || "",
     focus: slide.focus || "",
-    focusMobile: slide.focusMobile || "",
     title: slide.title || "",
     text: slide.text || "",
     ctaLabel: slide.cta?.label || "",
