@@ -53,7 +53,8 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
 
-      # Los excluidos viven solo en el servidor: --delete no los toca mientras no se use --delete-excluded.
+      # La raíz se comparte con WordPress: ahí no se borra nada y su .htaccess se mantiene a mano en el servidor.
+      # --delete solo corre dentro de las carpetas que genera Astro, para retirar las páginas que ya no existen.
       # De data/ solo se sube el .htaccess que la protege; el resto (contador, envíos, caché de Woo) lo escribe PHP.
       - name: Subir a Hostinger
         env:
@@ -62,10 +63,20 @@ jobs:
           SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
           DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
         run: |
-          rsync -az --delete \
+          REMOTE="$SSH_USER@$SSH_HOST:$DEPLOY_PATH"
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p $SSH_PORT"
+
+          rsync -az \
+            --exclude '/.htaccess' \
             --exclude 'site-config.php' \
             --exclude 'woo-config.php' \
             --include 'data/.htaccess' \
             --exclude 'data/*' \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
-            dist/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+            -e "$RSYNC_SSH" \
+            dist/ "$REMOTE/"
+
+          for astro_dir in dist/*/; do
+            name="$(basename "$astro_dir")"
+            if [ "$name" = "data" ]; then continue; fi
+            rsync -az --delete -e "$RSYNC_SSH" "dist/$name/" "$REMOTE/$name/"
+          done
