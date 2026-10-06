@@ -5,6 +5,7 @@ import ShopBenefits from "./ShopBenefits.astro";
 import ProductCard from "./ProductCard.astro";
 import CatalogReact from "./catalog/CatalogReact";
 import StockRefresher from "./StockRefresher.astro";
+import DiscountBadgePreviewReact from "./DiscountBadgePreviewReact";
 import client from "../../../tina/__generated__/client";
 import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
 import { buildCatalog, DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
@@ -104,4 +105,5 @@ const description = category ? `Productos de la categoría ${category.name}.` : 
   <ShopBenefits query={query} variables={variables} data={data} />
 
   <StockRefresher lowStockThreshold={lowStock} />
+  <DiscountBadgePreviewReact query={query} variables={variables} data={data} client:tina />
 </BaseLayout>

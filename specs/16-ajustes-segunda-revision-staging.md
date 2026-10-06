@@ -64,7 +64,7 @@ Hay dos cortes distintos y no se unifican:
 
 ### 2. Etiqueta de descuento
 
-- `ProductCard.astro` recibe la prop `discountBadgeStyle?: "horizontal" | "diagonal"`, con `horizontal` por defecto.
+- `ProductCard.astro` recibe la prop `discountBadgeStyle?: "horizontal" | "diagonal"`, con `diagonal` por defecto (cualquier valor distinto de `horizontal`).
 - **Horizontal:** idéntico a hoy. Etiqueta `-20%` arriba a la izquierda, con "Nuevo" a su derecha.
 - **Diagonal:** cinta a 45° que cruza la esquina superior izquierda de la foto.
   - Fondo `bg-accent`, texto `text-content-inverse`, `text-caption-xs font-semibold`, centrado.
@@ -74,6 +74,7 @@ Hay dos cortes distintos y no se unifican:
 - Con estilo diagonal, "Nuevo" pasa a la esquina superior derecha (`right-2.5 top-2.5`). Esa esquina está libre: el botón de agregar rápido va abajo.
 - Los tres sitios que montan `ProductCard` le pasan el valor de `shop.discountBadgeStyle`: `CatalogPage.astro`, `FeaturedProducts.astro` y `RelatedProducts.astro` (este último lo recibe de `src/pages/productos/[slug].astro`).
 - `StockRefresher` no toca la etiqueta: el porcentaje se calcula en build, igual que hoy.
+- La tarjeta pinta las dos variantes y las alterna con `data-discount-badge` en su `<article>`. En el editor de Tina, la isla `DiscountBadgePreviewReact` (`client:tina`, en el catálogo y en la ficha) actualiza ese atributo al cambiar el selector, sin guardar ni recompilar.
 
 ### 3. Banner de `/productos` en móvil
 
@@ -185,7 +186,7 @@ Desde `md`:
 ```json
 {
   "hero": { "titleMobile": "Marcas de skincare\nelegidas para ti" },
-  "discountBadgeStyle": "horizontal",
+  "discountBadgeStyle": "diagonal",
   "catalog": {
     "visibleFilters": ["categoria", "marca", "piel"],
     "mobileSortOptions": ["destacados", "mas-vendidos", "novedades", "descuento"]
@@ -222,7 +223,8 @@ Convenciones:
 - [ ] A 390px, la slide 1 muestra `hero-1.webp` con `object-position` computado `50% 50%`.
 - [ ] A 1440px, el encuadre de las tres slides es idéntico al actual.
 - [ ] `public/uploads/home/` no contiene `banner2mobile.webp` ni `banner3mobile.webp`.
-- [ ] Con `discountBadgeStyle: "horizontal"`, las tarjetas se ven idénticas a hoy.
+- [ ] Con `discountBadgeStyle: "horizontal"`, las tarjetas se ven idénticas a antes de esta spec.
+- [ ] En `/admin` → Tienda, cambiar "Etiqueta de descuento" cambia las tarjetas de la vista previa al instante.
 - [ ] Con `discountBadgeStyle: "diagonal"`, un producto en oferta muestra la cinta en la esquina superior izquierda en `/productos`, en los destacados de la home y en los relacionados de una ficha.
 - [ ] Con estilo diagonal, un producto en oferta y nuevo muestra "Nuevo" arriba a la derecha, sin tocar la cinta.
 - [ ] Con estilo diagonal, hacer clic sobre la cinta abre la ficha del producto.
@@ -261,7 +263,8 @@ Convenciones:
 - **Sí:** renombrar las fotos a `hero-N-mobile.webp`. Sigue la convención de `hero-N.webp`.
 - **Sí:** corte en `md` para la foto móvil. Es el mismo del resto del hero.
 - **Sí:** selector de etiqueta global en `shop`. Un valor por tarjeta o por producto no tiene uso: el estilo es de la tienda.
-- **Sí:** `horizontal` como valor inicial. El sitio no cambia hasta que el cliente elija.
+- **Sí:** `diagonal` como valor inicial y como valor por defecto si el campo está vacío. Pedido del usuario al revisar la implementación; antes era `horizontal`.
+- **Sí:** las dos variantes en el HTML, alternadas por CSS. `ProductCard` es Astro estático: sin eso, el selector no se reflejaba en la vista previa de Tina.
 - **Sí:** "Nuevo" a la derecha en el estilo diagonal. A la izquierda quedaría debajo de la cinta. Esta ubicación se asumió: la respuesta del usuario a esa pregunta fue ambigua.
 - **Sí:** `titleMobile` como campo aparte. El título de desktop no cambia.
 - **No:** acortar el título para todos los anchos. La observación es solo de móvil.

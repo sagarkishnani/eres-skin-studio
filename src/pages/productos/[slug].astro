@@ -2,6 +2,7 @@
 import { PiCheckLight, PiPackageLight } from "react-icons/pi";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StockRefresher from "../../components/shop/StockRefresher.astro";
+import DiscountBadgePreviewReact from "../../components/shop/DiscountBadgePreviewReact";
 import ProductPurchaseReact from "../../components/shop/product/ProductPurchaseReact";
 import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
 import ProductDetailsReact from "../../components/shop/product/ProductDetailsReact";
@@ -170,4 +171,5 @@ const productJsonLd = {
   />
 
   <StockRefresher lowStockThreshold={lowStock} />
+  <DiscountBadgePreviewReact query={shopResult.query} variables={shopResult.variables} data={shopResult.data} client:tina />
 </BaseLayout>

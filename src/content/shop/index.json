@@ -23,7 +23,7 @@
   },
   "newProductDays": 30,
   "lowStockThreshold": 5,
-  "discountBadgeStyle": "horizontal",
+  "discountBadgeStyle": "diagonal",
   "catalog": {
     "visibleFilters": ["categoria", "marca", "piel"],
     "mobileSortOptions": ["destacados", "mas-vendidos", "novedades", "descuento"]
