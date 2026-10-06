@@ -74,6 +74,15 @@ export const shopCollection: Collection = {
       description:
         "Unidades en stock a partir de las cuales el producto muestra el aviso de últimas unidades. Es la señal que más mueve la conversión.",
     },
+    {
+      name: "discountBadgeStyle",
+      label: "Etiqueta de descuento",
+      type: "string",
+      options: [
+        { value: "horizontal", label: "Horizontal" },
+        { value: "diagonal", label: "Diagonal (cinta en la esquina)" },
+      ],
+    },
     seoField("SEO"),
   ],
 };

@@ -22,6 +22,7 @@ const enabled = data?.home?.products?.enabled !== false;
 const products = enabled ? await getFeaturedProducts(FEATURED_LIMIT) : [];
 const shop = products.length > 0 ? await client.queries.shop({ relativePath: "index.json" }) : null;
 const newProductDays = shop?.data?.shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_DAYS;
+const discountBadgeStyle = shop?.data?.shop?.discountBadgeStyle;
 ---
 
 {
@@ -32,7 +33,12 @@ const newProductDays = shop?.data?.shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_D
         <div class="grid grid-cols-2 gap-x-3 gap-y-7 md:grid-cols-4 md:gap-x-6 md:gap-y-12">
           {products.map((product, index) => (
             <div data-reveal={(index % FEATURED_LIMIT) * REVEAL_STEP_MS}>
-              <ProductCard product={product} locale={locale} isNew={isNewProduct(product, newProductDays)} />
+              <ProductCard
+                product={product}
+                locale={locale}
+                isNew={isNewProduct(product, newProductDays)}
+                discountBadgeStyle={discountBadgeStyle}
+              />
             </div>
           ))}
         </div>

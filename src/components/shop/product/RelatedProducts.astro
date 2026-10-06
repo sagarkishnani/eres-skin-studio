@@ -11,9 +11,10 @@ interface Props {
   locale: Locale;
   lowStockThreshold: number;
   newProductDays: number;
+  discountBadgeStyle?: string | null;
 }
 
-const { products, eyebrow, title, locale, lowStockThreshold, newProductDays } = Astro.props;
+const { products, eyebrow, title, locale, lowStockThreshold, newProductDays, discountBadgeStyle } = Astro.props;
 ---
 
 {
@@ -35,6 +36,7 @@ const { products, eyebrow, title, locale, lowStockThreshold, newProductDays } = 
                 locale={locale}
                 lowStockThreshold={lowStockThreshold}
                 isNew={isNewProduct(product, newProductDays)}
+                discountBadgeStyle={discountBadgeStyle}
               />
             </div>
           ))}

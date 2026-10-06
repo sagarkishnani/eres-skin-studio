@@ -11,9 +11,10 @@ interface Props {
   locale: Locale;
   lowStockThreshold?: number;
   isNew?: boolean;
+  discountBadgeStyle?: string | null;
 }
 
-const { product, locale, lowStockThreshold = 5, isNew = false } = Astro.props;
+const { product, locale, lowStockThreshold = 5, isNew = false, discountBadgeStyle } = Astro.props;
 
 const [primaryImage, hoverImage] = product.images;
 const [primarySource, hoverSource] = await Promise.all(
@@ -21,6 +22,7 @@ const [primarySource, hoverSource] = await Promise.all(
 );
 const imageSizes = "(min-width: 1024px) 360px, 50vw";
 const discount = discountPercent(product);
+const diagonalDiscount = discountBadgeStyle === "diagonal";
 const stock = stockLabel(product, lowStockThreshold);
 const soldOut = product.stock_status === "outofstock";
 const quickAdd = product.type === "simple" && isBuyable(product);
@@ -32,6 +34,7 @@ const imageClass = "absolute inset-0 h-full w-full object-cover transition-[opac
 const priceClass = "text-body-xs font-semibold md:text-body-sm";
 const regularPriceClass = "text-caption-sm text-content-subtle line-through md:text-caption-md";
 const badgeClass = "px-2 py-[5px] text-caption-xs font-semibold leading-none tracking-[.04em]";
+const ribbonClass = "pointer-events-none absolute left-0 top-0 grid h-6 w-[140px] place-items-center bg-accent text-caption-xs font-semibold leading-none tracking-[.04em] text-content-inverse [transform:translate(21px,21px)_translate(-50%,-50%)_rotate(-45deg)]";
 ---
 
 <article class="group relative flex flex-col gap-3 md:gap-[18px]" data-woo-id={product.id}>
@@ -65,9 +68,11 @@ const badgeClass = "px-2 py-[5px] text-caption-xs font-semibold leading-none tra
       />
     )}
 
-    {(discount !== null || isNew) && (
-      <div class="absolute left-2.5 top-2.5 flex gap-1.5">
-        {discount !== null && <span class={`${badgeClass} bg-accent text-content-inverse`}>-{discount}%</span>}
+    {diagonalDiscount && discount !== null && <span class={ribbonClass}>-{discount}%</span>}
+
+    {((discount !== null && !diagonalDiscount) || isNew) && (
+      <div class={`absolute top-2.5 flex gap-1.5 ${diagonalDiscount ? "right-2.5" : "left-2.5"}`}>
+        {discount !== null && !diagonalDiscount && <span class={`${badgeClass} bg-accent text-content-inverse`}>-{discount}%</span>}
         {isNew && <span class={`${badgeClass} bg-surface-raised text-content`}>Nuevo</span>}
       </div>
     )}

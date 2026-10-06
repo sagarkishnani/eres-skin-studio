@@ -65,7 +65,13 @@ const description = category ? `Productos de la categoría ${category.name}.` : 
             const product = productsById.get(item.id)!;
             return (
               <div data-catalog-item={item.id} data-reveal={(index % 3) * 90} hidden={!initialIds.has(item.id)}>
-                <ProductCard product={product} locale={locale} lowStockThreshold={lowStock} isNew={item.isNew} />
+                <ProductCard
+                  product={product}
+                  locale={locale}
+                  lowStockThreshold={lowStock}
+                  isNew={item.isNew}
+                  discountBadgeStyle={shop?.discountBadgeStyle}
+                />
               </div>
             );
           })}
