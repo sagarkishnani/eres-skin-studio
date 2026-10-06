@@ -101,6 +101,7 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
       items={items}
       facets={facets}
       state={state}
+      visibleFilters={visibleFilters}
       openGroups={openGroups}
       onToggleGroup={toggleGroup}
       onToggleValue={toggleValue}

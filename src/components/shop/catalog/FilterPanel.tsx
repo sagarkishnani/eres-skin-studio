@@ -15,6 +15,7 @@ interface Props {
   items: CatalogItem[];
   facets: CatalogFacets;
   state: CatalogState;
+  visibleFilters: FilterKey[];
   openGroups: Set<FilterKey>;
   onToggleGroup: (key: FilterKey) => void;
   onToggleValue: (key: ListFilterKey, slug: string) => void;
@@ -36,8 +37,19 @@ export function listGroups(facets: CatalogFacets): ListGroup[] {
   ].filter((group) => group.options.length > 0);
 }
 
-export default function FilterPanel({ items, facets, state, openGroups, onToggleGroup, onToggleValue, onPriceChange }: Props) {
-  const [availability, ...otherGroups] = listGroups(facets);
+export default function FilterPanel({
+  items,
+  facets,
+  state,
+  visibleFilters,
+  openGroups,
+  onToggleGroup,
+  onToggleValue,
+  onPriceChange,
+}: Props) {
+  const visibleListGroups = listGroups(facets).filter((group) => visibleFilters.includes(group.key));
+  const availabilityGroups = visibleListGroups.filter((group) => group.key === "disponibilidad");
+  const otherGroups = visibleListGroups.filter((group) => group.key !== "disponibilidad");
 
   const renderListGroup = (group: ListGroup) => {
     const counts = countOptions(items, state, group.key, group.options.map((option) => option.slug));
@@ -59,10 +71,12 @@ export default function FilterPanel({ items, facets, state, openGroups, onToggle
 
   return (
     <>
-      {renderListGroup(availability)}
-      <FilterGroup title="Precio" open={openGroups.has("precio")} onToggle={() => onToggleGroup("precio")}>
-        <PriceRange priceMax={facets.priceMax} value={state.precio} onCommit={onPriceChange} />
-      </FilterGroup>
+      {availabilityGroups.map(renderListGroup)}
+      {visibleFilters.includes("precio") && (
+        <FilterGroup title="Precio" open={openGroups.has("precio")} onToggle={() => onToggleGroup("precio")}>
+          <PriceRange priceMax={facets.priceMax} value={state.precio} onCommit={onPriceChange} />
+        </FilterGroup>
+      )}
       {otherGroups.map(renderListGroup)}
     </>
   );
