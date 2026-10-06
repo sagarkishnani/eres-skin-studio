@@ -15,6 +15,7 @@ import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
 import { DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
 import { stripHtml, discountPercent } from "../../lib/woo/format";
+import { resolveDiscountBadgeStyle } from "../../utils/discountBadge";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooProduct } from "../../lib/woo/types";
@@ -92,6 +93,7 @@ const productJsonLd = {
           images={product.images}
           productName={product.name}
           discount={discountPercent(product)}
+          discountBadgeStyle={resolveDiscountBadgeStyle(shop?.discountBadgeStyle)}
           client:load
         />
 

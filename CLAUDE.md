@@ -191,10 +191,10 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   previa. El panel de desktop abre todos los grupos; el drawer, solo Categoría.
 - **Etiqueta de descuento** — `shop.discountBadgeStyle` (`horizontal` |
   `diagonal`) llega a `ProductCard` como prop desde el catálogo, los destacados
-  de la home y los relacionados. Con `diagonal` (el valor por defecto) es una
+  de la home y los relacionados, y a `ProductGalleryReact` en la ficha. Con `diagonal` (el valor por defecto) es una
   cinta en la esquina superior izquierda y "Nuevo" pasa a la derecha. La
-  tarjeta pinta las dos variantes y las alterna con `data-discount-badge` en su
-  `<article>`; la isla `DiscountBadgePreviewReact` (`client:tina`, en catálogo
+  tarjeta y la galería pintan las dos variantes y las alternan con
+  `data-discount-badge` en su contenedor `group`; la isla `DiscountBadgePreviewReact` (`client:tina`, en catálogo
   y ficha) actualiza ese atributo en el editor para que el selector se vea al
   instante.
 - **Banner** — el texto de `ShopBannerReact` va oscuro sobre la foto desde `md`,

@@ -40,7 +40,7 @@ La observación 4 revierte una decisión de SPEC 15 ("texto claro con degradado 
 - Intensidad del velo del banner editable en Tina.
 - Editar el nombre o el orden de las opciones de "Ordenar por".
 - Cambiar las opciones de orden en desktop. `SortMenu` sigue con las siete.
-- Etiqueta de descuento en la ficha de producto (`ProductPurchaseReact`).
+- El aviso "Ahorras S/ …" junto al precio de la ficha (`ProductPurchaseReact`). No cambia.
 - Estilo diagonal para la etiqueta "Nuevo".
 
 ## Referencia de diseño
@@ -73,6 +73,7 @@ Hay dos cortes distintos y no se unifican:
   - `pointer-events-none`, para no tapar el enlace de la tarjeta.
 - Con estilo diagonal, "Nuevo" pasa a la esquina superior derecha (`right-2.5 top-2.5`). Esa esquina está libre: el botón de agregar rápido va abajo.
 - Los tres sitios que montan `ProductCard` le pasan el valor de `shop.discountBadgeStyle`: `CatalogPage.astro`, `FeaturedProducts.astro` y `RelatedProducts.astro` (este último lo recibe de `src/pages/productos/[slug].astro`).
+- La galería de la ficha (`ProductGalleryReact`) sigue el mismo selector: recibe `discountBadgeStyle` y pinta la cinta con las mismas reglas, en tamaño mayor (32px de alto, `text-caption-sm`). Se agregó a pedido del usuario al revisar la implementación.
 - `StockRefresher` no toca la etiqueta: el porcentaje se calcula en build, igual que hoy.
 - La tarjeta pinta las dos variantes y las alterna con `data-discount-badge` en su `<article>`. En el editor de Tina, la isla `DiscountBadgePreviewReact` (`client:tina`, en el catálogo y en la ficha) actualiza ese atributo al cambiar el selector, sin guardar ni recompilar.
 
@@ -303,7 +304,6 @@ Convenciones:
 - Encuadre o intensidad de velo editables para el banner de `/productos`.
 - Nombres u orden editables de las opciones de "Ordenar por".
 - Cambios en "Ordenar por" de desktop.
-- Etiqueta de descuento en la ficha de producto.
 - Estilo diagonal para "Nuevo".
 
 Cada una, si llega, va en su propia spec.

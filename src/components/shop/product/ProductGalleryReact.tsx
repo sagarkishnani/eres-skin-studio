@@ -2,11 +2,13 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent } from "rea
 import { PiCaretLeftLight, PiCaretRightLight, PiMagnifyingGlassPlusLight } from "react-icons/pi";
 import ProductZoom from "./ProductZoom";
 import type { WooImage } from "../../../lib/woo/types";
+import type { DiscountBadgeStyle } from "../../../utils/discountBadge";
 
 interface Props {
   images: WooImage[];
   productName: string;
   discount: number | null;
+  discountBadgeStyle: DiscountBadgeStyle;
 }
 
 const SWIPE_THRESHOLD_PX = 40;
@@ -20,7 +22,7 @@ function slideClass(active: boolean): string {
   return `absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-[700ms,1400ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)] motion-reduce:transition-none ${state}`;
 }
 
-export default function ProductGalleryReact({ images, productName, discount }: Props) {
+export default function ProductGalleryReact({ images, productName, discount, discountBadgeStyle }: Props) {
   const [current, setCurrent] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -75,6 +77,7 @@ export default function ProductGalleryReact({ images, productName, discount }: P
 
       <div
         className={`group relative aspect-square touch-pan-y select-none overflow-hidden bg-stone-100 ${hasMany ? "" : "lg:col-span-2"}`}
+        data-discount-badge={discountBadgeStyle}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipeStartX.current = null)}
@@ -100,9 +103,14 @@ export default function ProductGalleryReact({ images, productName, discount }: P
         )}
 
         {discount !== null && (
-          <span className="absolute left-3.5 top-3.5 bg-accent px-[9px] py-1.5 text-caption-sm font-semibold leading-none tracking-[.04em] text-content-inverse">
-            -{discount}%
-          </span>
+          <>
+            <span className="absolute left-3.5 top-3.5 bg-accent px-[9px] py-1.5 text-caption-sm font-semibold leading-none tracking-[.04em] text-content-inverse group-data-[discount-badge=diagonal]:hidden">
+              -{discount}%
+            </span>
+            <span className="pointer-events-none absolute left-0 top-0 hidden h-8 w-[200px] place-items-center bg-accent text-caption-sm font-semibold leading-none tracking-[.04em] text-content-inverse [transform:translate(30px,30px)_translate(-50%,-50%)_rotate(-45deg)] group-data-[discount-badge=diagonal]:grid">
+              -{discount}%
+            </span>
+          </>
         )}
 
         {total > 0 && (
