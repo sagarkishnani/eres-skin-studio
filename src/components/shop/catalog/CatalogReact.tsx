@@ -26,11 +26,17 @@ interface Props {
   children: ReactNode;
 }
 
-const DEFAULT_OPEN_GROUPS: FilterKey[] = ["disponibilidad", "precio", "categoria"];
+const DRAWER_OPEN_GROUPS: FilterKey[] = ["categoria"];
 const GRID_SCROLL_OFFSET = { desktop: 120, mobile: 150 };
 
 export function productCountLabel(count: number): string {
   return count === 1 ? "1 producto" : `${count} productos`;
+}
+
+function withGroupToggled(groups: Set<FilterKey>, key: FilterKey): Set<FilterKey> {
+  const next = new Set(groups);
+  next.has(key) ? next.delete(key) : next.add(key);
+  return next;
 }
 
 function scrollToTopOf(element: HTMLElement) {
@@ -53,7 +59,8 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
   const { state, ready, commit, updateFilters } = useCatalogState(facets, implicitCategory);
   const view = useMemo(() => runCatalog(items, state), [items, state]);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [openGroups, setOpenGroups] = useState<Set<FilterKey>>(() => new Set(DEFAULT_OPEN_GROUPS));
+  const [sidebarOpenGroups, setSidebarOpenGroups] = useState<Set<FilterKey>>(() => new Set(visibleFilters));
+  const [drawerOpenGroups, setDrawerOpenGroups] = useState<Set<FilterKey>>(() => new Set(DRAWER_OPEN_GROUPS));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const filterCount = activeFilterCount(state);
@@ -68,15 +75,8 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
   useEffect(() => {
     if (!ready) return;
     const activeGroups = (["marca", "piel"] as const).filter((key) => state[key].length > 0);
-    if (activeGroups.length) setOpenGroups((groups) => new Set([...groups, ...activeGroups]));
+    if (activeGroups.length) setDrawerOpenGroups((groups) => new Set([...groups, ...activeGroups]));
   }, [ready]);
-
-  const toggleGroup = (key: FilterKey) =>
-    setOpenGroups((groups) => {
-      const next = new Set(groups);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
 
   const toggleValue = (key: ListFilterKey, slug: string) => {
     const selected: string[] = state[key];
@@ -96,14 +96,14 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
     clearPrice: () => updateFilters({ precio: null }),
   });
 
-  const panel = (
+  const renderPanel = (openGroups: Set<FilterKey>, onToggleGroup: (key: FilterKey) => void) => (
     <FilterPanel
       items={items}
       facets={facets}
       state={state}
       visibleFilters={visibleFilters}
       openGroups={openGroups}
-      onToggleGroup={toggleGroup}
+      onToggleGroup={onToggleGroup}
       onToggleValue={toggleValue}
       onPriceChange={(precio) => updateFilters({ precio })}
     />
@@ -116,7 +116,7 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
           aria-label="Filtros"
           className="hidden border-t border-line lg:block"
         >
-          {panel}
+          {renderPanel(sidebarOpenGroups, (key) => setSidebarOpenGroups((groups) => withGroupToggled(groups, key)))}
           {chips.length > 0 && (
             <button
               type="button"
@@ -191,7 +191,7 @@ export default function CatalogReact({ items, facets, implicitCategory, visibleF
         onClear={clearAll}
         applyLabel={`Ver ${countLabel}`}
       >
-        {panel}
+        {renderPanel(drawerOpenGroups, (key) => setDrawerOpenGroups((groups) => withGroupToggled(groups, key)))}
       </FilterDrawer>
     </>
   );
