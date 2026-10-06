@@ -245,7 +245,10 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
 **Secretos**: `public/woo-config.php` (git-ignored, plantilla en
 `public/woo-config.example.php`), compartido por `woo-api.php` y
 `rebuild-hook.php`. El deploy no pisa `woo-config.php`, `site-config.php` ni el
-contenido de `data/`.
+contenido de `data/`. El de producción (`deploy.yml`) comparte la raíz con
+WordPress: ahí no borra nada ni sube `.htaccess` (se fusiona a mano con el de
+WordPress en el servidor), y solo usa `--delete` dentro de las carpetas que
+genera Astro.
 
 ### Skin Journal (blog)
 
