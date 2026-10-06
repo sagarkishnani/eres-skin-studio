@@ -21,6 +21,8 @@ interface Props {
   items: CatalogItem[];
   facets: CatalogFacets;
   implicitCategory?: string;
+  visibleFilters: FilterKey[];
+  mobileSortKeys: SortKey[];
   children: ReactNode;
 }
 
@@ -47,7 +49,7 @@ function applyViewToGrid(grid: HTMLElement, visibleIds: number[]) {
   });
 }
 
-export default function CatalogReact({ items, facets, implicitCategory, children }: Props) {
+export default function CatalogReact({ items, facets, implicitCategory, visibleFilters, mobileSortKeys, children }: Props) {
   const { state, ready, commit, updateFilters } = useCatalogState(facets, implicitCategory);
   const view = useMemo(() => runCatalog(items, state), [items, state]);
   const gridRef = useRef<HTMLDivElement>(null);

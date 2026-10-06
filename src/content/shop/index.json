@@ -24,6 +24,10 @@
   "newProductDays": 30,
   "lowStockThreshold": 5,
   "discountBadgeStyle": "horizontal",
+  "catalog": {
+    "visibleFilters": ["categoria", "marca", "piel"],
+    "mobileSortOptions": ["destacados", "mas-vendidos", "novedades", "descuento"]
+  },
   "seo": {
     "title": "Tienda — ERES Skin Studio",
     "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."

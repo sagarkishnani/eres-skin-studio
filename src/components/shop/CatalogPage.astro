@@ -9,6 +9,7 @@ import client from "../../../tina/__generated__/client";
 import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
 import { buildCatalog, DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
 import { sortItems } from "../../utils/catalog/applyFilters";
+import { resolveMobileSortKeys, resolveVisibleFilters } from "../../utils/catalog/settings";
 import { CATALOG_PAGE_SIZE, CATALOG_PARAM_KEYS, DEFAULT_SORT } from "../../utils/catalog/types";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
@@ -24,6 +25,8 @@ const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(A
 const { query, variables, data } = await client.queries.shop({ relativePath: "index.json" });
 const shop = data?.shop;
 const lowStock = shop?.lowStockThreshold ?? 5;
+const visibleFilters = resolveVisibleFilters(shop?.catalog?.visibleFilters);
+const mobileSortKeys = resolveMobileSortKeys(shop?.catalog?.mobileSortOptions);
 
 const [products, categories, brands, tags] = await Promise.all([getAllProducts(), getAllCategories(), getAllBrands(), getAllTags()]);
 const { items, facets } = buildCatalog(products, {
@@ -60,7 +63,14 @@ const description = category ? `Productos de la categoría ${category.name}.` : 
   <section class="bg-surface pb-[clamp(64px,8vw,112px)] pt-[clamp(20px,5vw,64px)]">
     <div class="container-xl">
       {items.length > 0 ? (
-        <CatalogReact items={items} facets={facets} implicitCategory={category?.slug} client:load>
+        <CatalogReact
+          items={items}
+          facets={facets}
+          implicitCategory={category?.slug}
+          visibleFilters={visibleFilters}
+          mobileSortKeys={mobileSortKeys}
+          client:load
+        >
           {orderedItems.map((item, index) => {
             const product = productsById.get(item.id)!;
             return (

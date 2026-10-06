@@ -40,6 +40,7 @@ export const SORT_OPTIONS = [
 export type SortKey = (typeof SORT_OPTIONS)[number]["key"];
 
 export const DEFAULT_SORT: SortKey = "destacados";
+export const DEFAULT_MOBILE_SORT_KEYS: SortKey[] = ["destacados", "mas-vendidos", "novedades", "descuento"];
 
 export type Availability = "en-stock" | "agotado";
 
@@ -60,6 +61,9 @@ export interface CatalogState {
 
 export type ListFilterKey = "categoria" | "marca" | "piel" | "disponibilidad";
 export type FilterKey = ListFilterKey | "precio";
+
+export const FILTER_KEYS: FilterKey[] = ["disponibilidad", "precio", "categoria", "marca", "piel"];
+export const DEFAULT_VISIBLE_FILTERS: FilterKey[] = ["categoria", "marca", "piel"];
 
 export const CATALOG_PARAM_KEYS = ["categoria", "marca", "piel", "disponibilidad", "precio", "orden", "pagina"] as const;
 

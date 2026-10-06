@@ -95,6 +95,43 @@ export const shopCollection: Collection = {
         { value: "diagonal", label: "Diagonal (cinta en la esquina)" },
       ],
     },
+    {
+      type: "object",
+      name: "catalog",
+      label: "Catálogo",
+      fields: [
+        {
+          name: "visibleFilters",
+          label: "Filtros visibles",
+          description: "Sin ninguno marcado se muestran Categoría, Marca y Tipo de piel.",
+          type: "string",
+          list: true,
+          options: [
+            { value: "categoria", label: "Categoría" },
+            { value: "marca", label: "Marca" },
+            { value: "piel", label: "Tipo de piel" },
+            { value: "disponibilidad", label: "Disponibilidad" },
+            { value: "precio", label: "Precio" },
+          ],
+        },
+        {
+          name: "mobileSortOptions",
+          label: "Opciones de orden en móvil",
+          description: "Sin ninguna marcada se muestran Destacados, Más vendidos, Novedades y Mayor descuento.",
+          type: "string",
+          list: true,
+          options: [
+            { value: "destacados", label: "Destacados" },
+            { value: "mas-vendidos", label: "Más vendidos" },
+            { value: "novedades", label: "Novedades" },
+            { value: "precio-asc", label: "Precio: menor a mayor" },
+            { value: "precio-desc", label: "Precio: mayor a menor" },
+            { value: "descuento", label: "Mayor descuento" },
+            { value: "a-z", label: "Alfabético, A–Z" },
+          ],
+        },
+      ],
+    },
     seoField("SEO"),
   ],
 };
