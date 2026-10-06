@@ -225,3 +225,26 @@ En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formu
    8. `curl -X POST <origen>/rebuild-hook.php` responde `503`.
 8. **Si el carrito no responde.** Si `woo-api.php` devuelve error al hablar con WordPress, revisa en el Cloudflare del WordPress en vivo que la IP del servidor de prueba no esté bloqueada al llamar a `/wp-json/wc/*` (paso 8).
 9. **Al migrar a `checkout.eresskinstudio.com`.** En el sitio de prueba cambia `store_url` de `woo-config.php`, y en el environment `staging` cambia `PUBLIC_WOO_CHECKOUT_URL` a `https://checkout.eresskinstudio.com/checkout/`. El secret `WOO_STORE_URL` del repo ya cambia en el paso 10.
+
+## 12. Staging en Amplify con el proxy de producción
+
+Amplify no ejecuta PHP, así que el staging no puede servir su propio `woo-api.php`. Usa el del hosting de producción, que convive con el WordPress en vivo, y termina en el checkout real.
+
+1. **Proxy en el hosting de producción.** En la raíz pública, junto a WordPress, sube a mano:
+   - `public/woo-api.php`
+   - `public/data/.htaccess`, como `data/.htaccess`
+   - `woo-config.php`, a partir de `public/woo-config.example.php`: `store_url`, `consumer_key` y `consumer_secret` del paso 2; `allowed_origins` con el origen exacto de Amplify (esquema y host, sin barra final); `webhook_secret`, `github_repo` y `github_token` vacíos mientras no exista `rebuild-hook.php` ahí.
+2. **mu-plugin.** Instala `eres-cart-handoff.php` (paso 3). **No** instales `eres-thank-you-redirect.php` apuntando al staging.
+3. **Variables en Amplify** (App settings → Environment variables), y un redeploy:
+
+   | Nombre | Valor |
+   |---|---|
+   | `PUBLIC_WOO_API_URL` | `https://eresskinstudio.com/woo-api.php` |
+   | `PUBLIC_WOO_CHECKOUT_URL` | `https://eresskinstudio.com/checkout/` |
+
+4. **Verificación.**
+   1. `curl -s 'https://eresskinstudio.com/woo-api.php?resource=categories'` responde `{"ok":true,…}`.
+   2. En el staging, agregar un producto sube el contador; en la pestaña Red, `woo-api.php` no responde `403` (origen mal escrito en `allowed_origins`).
+   3. `https://eresskinstudio.com/checkout/?cart-token=invalido` redirige a `/checkout/`, no a `/cart/`.
+   4. "Finalizar compra" abre el checkout con los mismos productos. Un pedido pagado ahí es un pedido real.
+5. **En producción** `PUBLIC_WOO_API_URL` queda vacía: el sitio y el proxy comparten dominio.

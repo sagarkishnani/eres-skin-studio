@@ -172,6 +172,9 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   un proxy con allowlist de rutas que proyecta campo a campo. `StockRefresher`
   refresca precio y stock; el carrito usa la Store API y guarda el `Cart-Token`
   en `localStorage`. Un recurso nuevo se agrega primero a `$ROUTES` del proxy.
+  Con `PUBLIC_WOO_API_URL` el cliente llama a un proxy en otro dominio (el
+  staging de Amplify no ejecuta PHP y usa el del hosting de producción); vacía,
+  usa `/woo-api.php` del mismo sitio. Ese origen va en `allowed_origins`.
 - **Catálogo** — `/productos` y `/productos/categoria/<slug>` comparten
   `CatalogPage.astro`: renderiza todas las tarjetas y la isla `CatalogReact`
   las filtra, ordena y pagina en el navegador (spec
