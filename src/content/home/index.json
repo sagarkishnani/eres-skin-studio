@@ -7,7 +7,6 @@
         "image": "/uploads/home/hero-1.webp",
         "imageAlt": "Productos de skincare de ERES Skin Studio",
         "focus": "50% 50%",
-        "focusMobile": "62% 50%",
         "title": "Tu ritual, en casa",
         "text": "Eres Skin Studio te ofrece productos seleccionados. Marcas honestas, ingredientes que cumplen, y productos que se integran a tu rutina real.",
         "cta": { "label": "Ver tienda", "url": "/productos" },
@@ -16,8 +15,8 @@
       {
         "image": "/uploads/home/hero-2.webp",
         "imageAlt": "Tratamiento facial en ERES Skin Studio",
+        "imageMobile": "/uploads/home/hero-2-mobile.webp",
         "focus": "50% 50%",
-        "focusMobile": "62% 50%",
         "title": "Eres única,\ntu piel también",
         "text": "Tratamientos faciales avanzados y depilación láser, diseñados a la medida de cada piel. Tecnología, ciencia y un acompañamiento experto para transformar tu piel desde adentro hacia afuera.",
         "cta": { "label": "Ver servicios", "url": "/servicios" }
@@ -25,8 +24,8 @@
       {
         "image": "/uploads/home/hero-3.webp",
         "imageAlt": "El equipo de ERES Skin Studio",
+        "imageMobile": "/uploads/home/hero-3-mobile.webp",
         "focus": "50% 50%",
-        "focusMobile": "72% 50%",
         "title": "Conoce más\nde nosotras",
         "text": "Detrás de Eres está Adriana Paradisi y un equipo de skin coaches expertas que acompañan a cada clienta con honestidad, ciencia y cariño. Nuestra promesa: nunca venderte algo que no necesites.",
         "cta": { "label": "Conoce más", "url": "/nosotras" }

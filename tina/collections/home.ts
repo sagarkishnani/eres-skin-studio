@@ -25,12 +25,17 @@ export const homeCollection: Collection = {
             { name: "image", label: "Imagen", type: "image" },
             { name: "imageAlt", label: "Texto alternativo", type: "string" },
             {
+              name: "imageMobile",
+              label: "Imagen en móvil",
+              description: "Opcional. Vertical, p. ej. 780×1700. Sin ella se usa la imagen principal, centrada.",
+              type: "image",
+            },
+            {
               name: "focus",
               label: "Encuadre en escritorio",
               description: "Posición del foco de la imagen, p. ej. 50% 50%.",
               type: "string",
             },
-            { name: "focusMobile", label: "Encuadre en móvil", description: "p. ej. 62% 50%.", type: "string" },
             { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", ui: textarea },
             { name: "text", label: "Texto", type: "string", ui: textarea },
             linkField("cta", "Botón"),
