@@ -22,7 +22,12 @@ export const shopCollection: Collection = {
           ui: textarea,
         },
         { name: "description", label: "Descripción", type: "string", ui: textarea },
-        { name: "image", label: "Imagen", type: "image" },
+        {
+          name: "image",
+          label: "Imagen",
+          description: "Usa una foto clara: el texto del banner va en color oscuro encima.",
+          type: "image",
+        },
         { name: "imageAlt", label: "Texto alternativo", type: "string" },
       ],
     },
