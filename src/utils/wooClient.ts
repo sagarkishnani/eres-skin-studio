@@ -4,6 +4,8 @@ import type { WooProduct, WooStock, WooCategory } from "../lib/woo/types";
 import type { WooCart } from "../lib/woo/types";
 
 function endpoint(): string {
+  const external = import.meta.env.PUBLIC_WOO_API_URL;
+  if (external) return external;
   const base = import.meta.env.BASE_URL || "/";
   return `${base}woo-api.php`.replace(/([^:])\/\//g, "$1/");
 }
