@@ -65,6 +65,15 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
           <Breadcrumb categoryName={categoryName} />
           {categoryName ? (
             <h1 className="text-heading-xl [text-wrap:balance]">{categoryName}</h1>
+          ) : hero.titleMobile ? (
+            <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance]">
+              <span className="md:hidden" data-tina-field={tinaField(hero, "titleMobile")}>
+                {hero.titleMobile}
+              </span>
+              <span className="hidden md:inline" data-tina-field={tinaField(hero, "title")}>
+                {hero.title}
+              </span>
+            </h1>
           ) : (
             <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance]" data-tina-field={tinaField(hero, "title")}>
               {hero.title}
@@ -74,7 +83,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
         {hero.description && (
           <p
             data-reveal="120"
-            className="max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:justify-self-end md:text-content-inverse/85"
+            className="hidden max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:block md:justify-self-end md:text-content-inverse/85"
             data-tina-field={tinaField(hero, "description")}
           >
             {hero.description}

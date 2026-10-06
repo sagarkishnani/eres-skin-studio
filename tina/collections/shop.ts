@@ -14,6 +14,13 @@ export const shopCollection: Collection = {
       label: "Banner",
       fields: [
         { name: "title", label: "Título", description: "Admite saltos de línea.", type: "string", required: true, ui: textarea },
+        {
+          name: "titleMobile",
+          label: "Título en móvil",
+          description: "Opcional. Admite saltos de línea. Vacío: se usa el título principal.",
+          type: "string",
+          ui: textarea,
+        },
         { name: "description", label: "Descripción", type: "string", ui: textarea },
         { name: "image", label: "Imagen", type: "image" },
         { name: "imageAlt", label: "Texto alternativo", type: "string" },
