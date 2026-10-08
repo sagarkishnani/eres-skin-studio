@@ -64,9 +64,9 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
         <div data-reveal="0" className="flex flex-col gap-4">
           <Breadcrumb categoryName={categoryName} />
           {categoryName ? (
-            <h1 className="text-heading-xl [text-wrap:balance]">{categoryName}</h1>
+            <h1 className="text-heading-xl [text-wrap:balance] md:text-heading-lg">{categoryName}</h1>
           ) : hero.titleMobile ? (
-            <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance]">
+            <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance] md:text-heading-lg">
               <span className="md:hidden" data-tina-field={tinaField(hero, "titleMobile")}>
                 {hero.titleMobile}
               </span>
@@ -75,7 +75,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
               </span>
             </h1>
           ) : (
-            <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance]" data-tina-field={tinaField(hero, "title")}>
+            <h1 className="whitespace-pre-line text-heading-xl [text-wrap:balance] md:text-heading-lg" data-tina-field={tinaField(hero, "title")}>
               {hero.title}
             </h1>
           )}
