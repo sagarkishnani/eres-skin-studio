@@ -25,8 +25,8 @@ function EmphasizedTitle({ text }: { text: string }) {
 
 function PlayfairLetterE({ className }: { className: string }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 417 543" fill="currentColor" className={className}>
-      <path d="M226 0Q314 0 364 54Q413 107 413 220L100 220Q99 233 98 248Q97 266 97 284Q97 352 119 401Q141 450 177 476Q212 501 250 501Q280 501 307 492Q334 482 357 460Q380 438 397 401L417 409Q406 442 381 473Q356 504 318 524Q280 543 230 543Q158 543 107 510Q55 477 28 419Q0 360 0 284Q0 196 28 133Q56 69 107 35Q158 0 226 0M99 201L317 201Q319 152 309 111Q299 69 278 44Q256 19 222 19Q176 19 141 65Q107 109 99 201" />
+    <svg aria-hidden="true" viewBox="0 0 404 542" fill="currentColor" className={className}>
+      <path d="M72 301Q128 282 174 264Q219 245 246 224Q282 195 303 154Q324 113 324 64Q324 35 320 27Q316 19 308 19Q283 19 254 41Q225 63 197 102Q169 140 146 189Q122 238 108 294Q94 349 94 404Q94 455 113 478Q132 500 163 500Q199 500 239 478Q279 456 317 400L333 408Q314 441 283 472Q252 503 214 523Q175 542 132 542Q92 542 62 526Q32 510 16 479Q0 447 0 401Q0 358 16 305Q32 251 62 198Q91 144 132 99Q173 54 223 27Q273 0 330 0Q361 0 383 17Q404 33 404 66Q404 106 381 141Q357 175 319 204Q280 232 235 254Q190 276 147 292Q104 308 71 318Z" />
     </svg>
   );
 }
@@ -38,7 +38,7 @@ export default function BookingReact({ query, variables, data: initialData, what
 
   return (
     <section className="relative overflow-hidden bg-sage-700 py-[clamp(72px,10vw,140px)] text-content-inverse">
-      <PlayfairLetterE className="pointer-events-none absolute bottom-gutter right-gutter h-[clamp(260px,32vw,500px)] w-auto select-none text-content-inverse/[.12]" />
+      <PlayfairLetterE className="pointer-events-none absolute bottom-gutter right-gutter h-[clamp(260px,32vw,500px)] w-auto select-none text-content-inverse/[.18]" />
       <div className="container-xl relative grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-x-20 gap-y-9">
         <div data-reveal="0" className="flex flex-col gap-[22px]">
           {booking.eyebrow && (
