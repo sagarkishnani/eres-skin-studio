@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { PiCaretLeftLight, PiCaretRightLight, PiXLight } from "react-icons/pi";
 import { useFocusTrap } from "../../../hooks/useFocusTrap";
@@ -24,6 +24,10 @@ export default function ProductZoom({ open, images, current, productName, onClos
 
   useFocusTrap(dialogRef, open);
 
+  const closeOnBackdropClick = (event: MouseEvent) => {
+    if (event.target === event.currentTarget) onClose();
+  };
+
   useEffect(() => {
     if (!open) return;
     lockScroll();
@@ -48,17 +52,21 @@ export default function ProductZoom({ open, images, current, productName, onClos
       aria-label={`Imagen ampliada de ${productName}`}
       inert={!open}
       data-lenis-prevent
+      onClick={closeOnBackdropClick}
       className={`fixed inset-0 z-[80] bg-surface-raised transition-opacity duration-[450ms] ease-out-soft motion-reduce:transition-none ${
         open ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
       {image && (
-        <div className="absolute inset-x-[clamp(12px,6vw,96px)] inset-y-[clamp(64px,7vw,88px)]">
+        <div
+          onClick={closeOnBackdropClick}
+          className="absolute inset-x-[clamp(12px,6vw,96px)] inset-y-[clamp(64px,7vw,88px)] grid place-items-center"
+        >
           <img
             src={image.src}
             alt={image.alt || productName}
             decoding="async"
-            className={`h-full w-full object-contain transition-transform duration-700 ease-out-expo motion-reduce:transition-none ${
+            className={`max-h-full max-w-full object-contain transition-transform duration-700 ease-out-expo motion-reduce:transition-none ${
               open ? "scale-100" : "scale-[.96]"
             }`}
           />
@@ -76,7 +84,10 @@ export default function ProductZoom({ open, images, current, productName, onClos
       </button>
 
       {hasMany && (
-        <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 text-body-xs tabular-nums">
+        <div
+          onClick={closeOnBackdropClick}
+          className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 text-body-xs tabular-nums"
+        >
           <button type="button" onClick={() => onStep(-1)} aria-label="Imagen anterior" className={navButton}>
             <PiCaretLeftLight size={16} aria-hidden />
           </button>
