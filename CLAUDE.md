@@ -181,8 +181,8 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `specs/09-catalogo-con-filtros.md`). El estado vive en la query:
   `categoria`, `marca`, `piel` (tags de Woo; `todo-tipo-de-piel` pasa
   cualquier filtro de piel), `disponibilidad` (`en-stock`, `agotado`),
-  `precio=min-max`, `orden` (`destacados`, `mas-vendidos`, `novedades`,
-  `precio-asc`, `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
+  `precio=min-max`, `orden` (`destacados`, `mas-vendidos`, `precio-asc`,
+  `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
   puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
   usan `ClientRouter` para que su `pushState` no choque con el del router.
   `shop.catalog.visibleFilters` decide qué grupos de filtros se muestran (por
@@ -211,7 +211,10 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `eres_modo_uso`, que se editan con `wordpress/mu-plugins/eres-product-fields.php`;
   sin ninguno, muestra la descripción larga. `src/lib/woo/productPage.ts` los
   resuelve en build junto con los relacionados (cross-sells → categoría →
-  destacados). `ProductPurchaseReact` refresca precio y stock por su cuenta
+  destacados). Desde `lg` y con mouse, la foto principal de
+  `ProductGalleryReact` se amplía 2x siguiendo al puntero (`data-magnifying` y
+  `--magnifier-origin` en su contenedor); `ProductZoom` se cierra con la X,
+  `Esc` o un clic fuera de la foto. `ProductPurchaseReact` refresca precio y stock por su cuenta
   (la columna no lleva `data-woo-id`) y su barra fija escribe
   `<html data-buy-bar>`, que sube el botón de WhatsApp. Cualquier isla abre el
   carrito con `requestCartOpen()` (evento `eres-skin-studio:cart-open`). Los
