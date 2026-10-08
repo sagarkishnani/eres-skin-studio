@@ -13,7 +13,7 @@
     ]
   },
   "nav": {
-    "logo": "/uploads/eres-studio-logo-dark.svg",
+    "logo": "/uploads/logo-eres.svg",
     "logoAlt": "ERES Skin Studio",
     "links": [
       {
@@ -154,6 +154,7 @@
             }
           ],
           "card": {
+            "image": "/uploads/menu/menu-servicios-img.webp",
             "eyebrow": "Primera consulta",
             "title": "Eres única, tu piel también.",
             "ctaLabel": "Reservar",
@@ -247,7 +248,7 @@
     ]
   },
   "footer": {
-    "logo": "/uploads/eres-studio-logo.svg",
+    "logo": "/uploads/logo-eres-claro.svg",
     "logoAlt": "ERES Skin Studio",
     "tagline": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima. Cada piel es única; cada experiencia en Eres también.",
     "columns": [

@@ -6,6 +6,7 @@
       {
         "image": "/uploads/home/hero-1.webp",
         "imageAlt": "Productos de skincare de ERES Skin Studio",
+        "imageMobile": "/uploads/home/hero-1-mobile.webp",
         "focus": "50% 50%",
         "title": "Tu ritual, en casa",
         "text": "Eres Skin Studio te ofrece productos seleccionados. Marcas honestas, ingredientes que cumplen, y productos que se integran a tu rutina real.",
