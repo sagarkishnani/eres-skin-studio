@@ -18,7 +18,9 @@ const arrowButton =
 const counterButton = "grid h-11 w-11 place-items-center text-content";
 
 function slideClass(active: boolean): string {
-  const state = active ? "opacity-100 scale-100 lg:group-hover:scale-[1.03]" : "opacity-0 scale-[1.04]";
+  const state = active
+    ? "opacity-100 scale-100 [transform-origin:var(--magnifier-origin,center)] lg:group-data-[magnifying]:scale-[2]"
+    : "opacity-0 scale-[1.04]";
   return `absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-[700ms,1400ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)] motion-reduce:transition-none ${state}`;
 }
 
@@ -41,6 +43,18 @@ export default function ProductGalleryReact({ images, productName, discount, dis
 
   const onPointerDown = (event: PointerEvent) => {
     swipeStartX.current = event.clientX;
+  };
+  const magnifyAtPointer = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const stage = event.currentTarget;
+    const bounds = stage.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 100;
+    stage.style.setProperty("--magnifier-origin", `${x}% ${y}%`);
+    stage.dataset.magnifying = "";
+  };
+  const stopMagnifying = (event: PointerEvent<HTMLDivElement>) => {
+    delete event.currentTarget.dataset.magnifying;
   };
   const onPointerUp = (event: PointerEvent) => {
     if (swipeStartX.current === null) return;
@@ -81,6 +95,8 @@ export default function ProductGalleryReact({ images, productName, discount, dis
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipeStartX.current = null)}
+        onPointerMove={magnifyAtPointer}
+        onPointerLeave={stopMagnifying}
       >
         {total > 0 ? (
           images.map((image, index) => (
