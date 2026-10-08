@@ -45,7 +45,7 @@
   },
   "products": {
     "enabled": true,
-    "eyebrow": "— Skincare",
+    "eyebrow": "",
     "title": "Productos para llevar el cuidado de tu piel a casa.",
     "cta": { "label": "Ver todos", "url": "/productos" }
   },
@@ -88,7 +88,7 @@
   },
   "results": {
     "enabled": true,
-    "eyebrow": "— Resultados",
+    "eyebrow": "",
     "title": "Resultados que se ven, cuidado que se siente.",
     "paragraphs": [
       { "text": "Cada piel responde a su propio ritmo. Por eso en Eres Skin Studio trabajamos con diagnóstico, técnica y seguimiento, ajustando cada tratamiento según la respuesta real de tu piel." },
