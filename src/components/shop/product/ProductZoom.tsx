@@ -60,7 +60,7 @@ export default function ProductZoom({ open, images, current, productName, onClos
       {image && (
         <div
           onClick={closeOnBackdropClick}
-          className="absolute inset-x-[clamp(12px,6vw,96px)] inset-y-[clamp(64px,7vw,88px)] grid place-items-center"
+          className="absolute inset-x-[clamp(12px,6vw,96px)] inset-y-[clamp(64px,7vw,88px)] flex items-center justify-center"
         >
           <img
             src={image.src}
