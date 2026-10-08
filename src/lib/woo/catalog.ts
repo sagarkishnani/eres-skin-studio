@@ -45,7 +45,6 @@ export function buildCatalog(products: WooProductWithStats[], sources: CatalogSo
   const now = sources.now ?? new Date();
   const featured = featuredRank(products);
   const salesRank = rankBy(products, (a, b) => (b.total_sales || 0) - (a.total_sales || 0));
-  const newestRank = rankBy(products, (a, b) => Date.parse(b.date_created) - Date.parse(a.date_created));
 
   const items: CatalogItem[] = products.map((product) => ({
     id: product.id,
@@ -60,7 +59,6 @@ export function buildCatalog(products: WooProductWithStats[], sources: CatalogSo
     rank: {
       destacados: featured.get(product.id) ?? 0,
       "mas-vendidos": salesRank.get(product.id) ?? 0,
-      novedades: newestRank.get(product.id) ?? 0,
     },
   }));
 

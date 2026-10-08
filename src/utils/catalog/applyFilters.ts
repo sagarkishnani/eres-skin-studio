@@ -47,7 +47,6 @@ export function filterItems(items: CatalogItem[], state: CatalogState, skip?: Fi
 const SORTERS: Record<SortKey, (a: CatalogItem, b: CatalogItem) => number> = {
   destacados: (a, b) => a.rank.destacados - b.rank.destacados,
   "mas-vendidos": (a, b) => a.rank["mas-vendidos"] - b.rank["mas-vendidos"],
-  novedades: (a, b) => a.rank.novedades - b.rank.novedades,
   "precio-asc": (a, b) => a.price - b.price || a.rank.destacados - b.rank.destacados,
   "precio-desc": (a, b) => b.price - a.price || a.rank.destacados - b.rank.destacados,
   descuento: (a, b) => b.discount - a.discount || a.rank.destacados - b.rank.destacados,

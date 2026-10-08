@@ -12,7 +12,7 @@ export interface CatalogItem {
   skins: string[];
   inStock: boolean;
   isNew: boolean;
-  rank: { destacados: number; "mas-vendidos": number; novedades: number };
+  rank: { destacados: number; "mas-vendidos": number };
 }
 
 export interface FacetOption {
@@ -30,7 +30,6 @@ export interface CatalogFacets {
 export const SORT_OPTIONS = [
   { key: "destacados", label: "Destacados" },
   { key: "mas-vendidos", label: "Más vendidos" },
-  { key: "novedades", label: "Novedades" },
   { key: "precio-asc", label: "Precio: menor a mayor" },
   { key: "precio-desc", label: "Precio: mayor a menor" },
   { key: "descuento", label: "Mayor descuento" },
@@ -40,7 +39,7 @@ export const SORT_OPTIONS = [
 export type SortKey = (typeof SORT_OPTIONS)[number]["key"];
 
 export const DEFAULT_SORT: SortKey = "destacados";
-export const DEFAULT_MOBILE_SORT_KEYS: SortKey[] = ["destacados", "mas-vendidos", "novedades", "descuento"];
+export const DEFAULT_MOBILE_SORT_KEYS: SortKey[] = ["destacados", "mas-vendidos", "descuento"];
 
 export type Availability = "en-stock" | "agotado";
 
