@@ -26,10 +26,6 @@
               "url": "/productos?orden=mas-vendidos"
             },
             {
-              "label": "Novedades",
-              "url": "/productos?orden=novedades"
-            },
-            {
               "label": "Ofertas",
               "url": "/productos?orden=descuento"
             },

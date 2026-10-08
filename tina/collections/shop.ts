@@ -117,13 +117,12 @@ export const shopCollection: Collection = {
         {
           name: "mobileSortOptions",
           label: "Opciones de orden en móvil",
-          description: "Sin ninguna marcada se muestran Destacados, Más vendidos, Novedades y Mayor descuento.",
+          description: "Sin ninguna marcada se muestran Destacados, Más vendidos y Mayor descuento.",
           type: "string",
           list: true,
           options: [
             { value: "destacados", label: "Destacados" },
             { value: "mas-vendidos", label: "Más vendidos" },
-            { value: "novedades", label: "Novedades" },
             { value: "precio-asc", label: "Precio: menor a mayor" },
             { value: "precio-desc", label: "Precio: mayor a menor" },
             { value: "descuento", label: "Mayor descuento" },

@@ -26,7 +26,7 @@
   "discountBadgeStyle": "diagonal",
   "catalog": {
     "visibleFilters": ["categoria", "marca", "piel"],
-    "mobileSortOptions": ["destacados", "mas-vendidos", "novedades", "descuento"]
+    "mobileSortOptions": ["destacados", "mas-vendidos", "descuento"]
   },
   "seo": {
     "title": "Tienda — ERES Skin Studio",
