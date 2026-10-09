@@ -479,3 +479,45 @@ function eres_checkout_sanitize_trust($posted, array $current): array
 
     return $trust;
 }
+
+const ERES_CHECKOUT_RESET_ACTION = 'eres_checkout_reset';
+const ERES_CHECKOUT_RESTORED_FLAG = 'eres_checkout_restored';
+
+add_action('admin_init', 'eres_checkout_handle_settings_reset');
+add_action('woocommerce_settings_' . ERES_CHECKOUT_SETTINGS_TAB, 'eres_checkout_render_settings_reset', 20);
+
+function eres_checkout_settings_url(array $query = []): string
+{
+    return add_query_arg(
+        array_merge(['page' => 'wc-settings', 'tab' => ERES_CHECKOUT_SETTINGS_TAB], $query),
+        admin_url('admin.php')
+    );
+}
+
+function eres_checkout_handle_settings_reset(): void
+{
+    $is_reset_request = !empty($_GET[ERES_CHECKOUT_RESET_ACTION])
+        && ($_GET['page'] ?? '') === 'wc-settings'
+        && ($_GET['tab'] ?? '') === ERES_CHECKOUT_SETTINGS_TAB;
+    if (!$is_reset_request || !current_user_can('manage_woocommerce')) {
+        return;
+    }
+
+    check_admin_referer(ERES_CHECKOUT_RESET_ACTION);
+    delete_option(ERES_CHECKOUT_SETTINGS_OPTION);
+    wp_safe_redirect(eres_checkout_settings_url([ERES_CHECKOUT_RESTORED_FLAG => 1]));
+    exit;
+}
+
+function eres_checkout_render_settings_reset(): void
+{
+    if (!empty($_GET[ERES_CHECKOUT_RESTORED_FLAG])) {
+        echo '<div class="notice notice-success inline"><p>Se restablecieron los valores originales del checkout.</p></div>';
+    }
+
+    printf(
+        '<p style="margin-top: 32px;"><a href="%s" onclick="return confirm(\'%s\');">Restablecer valores</a><br><span class="description">Descarta todo lo guardado en esta pestaña y vuelve a los valores originales.</span></p>',
+        esc_url(wp_nonce_url(eres_checkout_settings_url([ERES_CHECKOUT_RESET_ACTION => 1]), ERES_CHECKOUT_RESET_ACTION)),
+        esc_js('¿Restablecer los valores originales del checkout? Se perderán los cambios guardados en esta pestaña.')
+    );
+}
