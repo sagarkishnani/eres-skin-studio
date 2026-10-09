@@ -137,9 +137,14 @@ function eres_checkout_apply_settings(array $config): array
 
 const ERES_CHECKOUT_SETTINGS_TAB = 'eres_checkout';
 const ERES_CHECKOUT_SETTINGS_INPUT = 'eres_checkout';
-const ERES_CHECKOUT_SETTINGS_SECTIONS = ['fields', 'document_types', 'districts'];
+const ERES_CHECKOUT_SETTINGS_SECTIONS = ['fields', 'document_types', 'districts', 'delivery', 'free_shipping_threshold', 'trust'];
 const ERES_CHECKOUT_LABEL_MAX_LENGTH = 60;
 const ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH = 80;
+const ERES_CHECKOUT_SUBTITLE_MAX_LENGTH = 120;
+const ERES_CHECKOUT_TRUST_TITLE_MAX_LENGTH = 40;
+const ERES_CHECKOUT_TRUST_TEXT_MAX_LENGTH = 80;
+const ERES_CHECKOUT_FREE_SHIPPING_METHOD = 'free_shipping';
+const ERES_CHECKOUT_MIN_AMOUNT_REQUIREMENTS = ['min_amount', 'either', 'both'];
 
 add_filter('woocommerce_settings_tabs_array', 'eres_checkout_settings_tab', 50);
 add_action('woocommerce_settings_' . ERES_CHECKOUT_SETTINGS_TAB, 'eres_checkout_render_settings');
@@ -333,4 +338,144 @@ function eres_checkout_sanitize_districts($posted, array $current): array
     }
 
     return $districts;
+}
+
+function eres_checkout_render_delivery_section(array $delivery): void
+{
+    $defaults = eres_checkout_default_config()['delivery'];
+    ?>
+    <h2>Entrega</h2>
+    <p>Texto que aparece bajo el título de cada tarjeta de entrega. Los precios y los métodos se configuran en la pestaña Envío.</p>
+    <table class="form-table">
+        <?php foreach ($delivery as $method => $texts) : ?>
+            <?php $input_id = 'eres-checkout-delivery-' . $method; ?>
+            <tr>
+                <th scope="row">
+                    <label for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($defaults[$method]['title']); ?></label>
+                    <br><code><?php echo esc_html($method); ?></code>
+                </th>
+                <td>
+                    <input type="text" class="large-text" style="max-width: 640px;" id="<?php echo esc_attr($input_id); ?>" name="<?php echo esc_attr(eres_checkout_settings_input_name('delivery', (string) $method, 'subtitle')); ?>" value="<?php echo esc_attr($texts['subtitle']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_SUBTITLE_MAX_LENGTH); ?>">
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php
+}
+
+function eres_checkout_sanitize_delivery($posted, array $current): array
+{
+    $posted = (array) $posted;
+    $delivery = [];
+    foreach (array_keys(eres_checkout_default_config()['delivery']) as $method) {
+        $delivery[$method] = ['subtitle' => eres_checkout_limited_text(((array) ($posted[$method] ?? []))['subtitle'] ?? '', ERES_CHECKOUT_SUBTITLE_MAX_LENGTH)];
+    }
+
+    return $delivery;
+}
+
+function eres_checkout_woocommerce_free_shipping_amounts(): array
+{
+    $zones = array_map(
+        static fn(array $zone): WC_Shipping_Zone => new WC_Shipping_Zone($zone['id']),
+        WC_Shipping_Zones::get_zones()
+    );
+    $zones[] = new WC_Shipping_Zone(0);
+
+    $amounts = [];
+    foreach ($zones as $zone) {
+        foreach ($zone->get_shipping_methods(true) as $method) {
+            if ($method->id === ERES_CHECKOUT_FREE_SHIPPING_METHOD && in_array($method->requires, ERES_CHECKOUT_MIN_AMOUNT_REQUIREMENTS, true)) {
+                $amounts[] = (float) $method->min_amount;
+            }
+        }
+    }
+
+    return array_values(array_unique($amounts));
+}
+
+function eres_checkout_free_shipping_notice(float $threshold): void
+{
+    $amounts = eres_checkout_woocommerce_free_shipping_amounts();
+    if (!$amounts) {
+        echo '<p class="description">WooCommerce no tiene un método de envío gratuito con monto mínimo configurado.</p>';
+
+        return;
+    }
+
+    $formatted_amounts = wp_strip_all_tags(implode(', ', array_map('wc_price', $amounts)));
+    printf('<p class="description">Monto mínimo del envío gratuito en WooCommerce: %s.</p>', esc_html($formatted_amounts));
+
+    $has_mismatch = $threshold > 0 && array_filter($amounts, static fn(float $amount): bool => abs($amount - $threshold) > 0.001);
+    if ($has_mismatch) {
+        printf(
+            '<div class="notice notice-warning inline"><p>El monto no coincide con el de WooCommerce (%s). La barra prometería un envío gratuito que no se aplica.</p></div>',
+            esc_html($formatted_amounts)
+        );
+    }
+}
+
+function eres_checkout_render_free_shipping_threshold_section(float $threshold): void
+{
+    ?>
+    <h2>Envío gratuito</h2>
+    <table class="form-table">
+        <tr>
+            <th scope="row"><label for="eres-checkout-free-shipping">Monto para envío gratuito (<?php echo esc_html(get_woocommerce_currency_symbol()); ?>)</label></th>
+            <td>
+                <input type="number" min="0" step="0.01" class="small-text" style="width: 120px;" id="eres-checkout-free-shipping" name="<?php echo esc_attr(eres_checkout_settings_input_name('free_shipping_threshold')); ?>" value="<?php echo esc_attr((string) $threshold); ?>">
+                <p class="description">Es el monto de la barra "Te faltan… para obtener envío gratuito". Con 0 la barra no se muestra.</p>
+                <?php eres_checkout_free_shipping_notice($threshold); ?>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+
+function eres_checkout_sanitize_free_shipping_threshold($posted, float $current): float
+{
+    return is_scalar($posted) ? max(0.0, (float) wc_format_decimal((string) $posted)) : $current;
+}
+
+function eres_checkout_render_trust_section(array $trust): void
+{
+    ?>
+    <h2>Textos de confianza</h2>
+    <p>Los tres mensajes que aparecen bajo el total. Un mensaje con título y texto vacíos no se muestra.</p>
+    <table class="widefat striped" style="max-width: 960px;">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Texto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($trust as $index => $item) : ?>
+                <tr>
+                    <td>
+                        <input type="text" class="regular-text" style="width: 100%;" name="<?php echo esc_attr(eres_checkout_settings_input_name('trust', (string) $index, 'title')); ?>" value="<?php echo esc_attr($item['title']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_TRUST_TITLE_MAX_LENGTH); ?>" aria-label="Título">
+                    </td>
+                    <td>
+                        <input type="text" class="regular-text" style="width: 100%;" name="<?php echo esc_attr(eres_checkout_settings_input_name('trust', (string) $index, 'text')); ?>" value="<?php echo esc_attr($item['text']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_TRUST_TEXT_MAX_LENGTH); ?>" aria-label="Texto">
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php
+}
+
+function eres_checkout_sanitize_trust($posted, array $current): array
+{
+    $posted = (array) $posted;
+    $trust = [];
+    foreach (array_keys(eres_checkout_default_config()['trust']) as $index) {
+        $item = (array) ($posted[$index] ?? []);
+        $trust[$index] = [
+            'title' => eres_checkout_limited_text($item['title'] ?? '', ERES_CHECKOUT_TRUST_TITLE_MAX_LENGTH),
+            'text' => eres_checkout_limited_text($item['text'] ?? '', ERES_CHECKOUT_TRUST_TEXT_MAX_LENGTH),
+        ];
+    }
+
+    return $trust;
 }
