@@ -2,14 +2,23 @@
 
 Qué hay que configurar en WordPress (y alrededor) para que el sitio en Astro
 muestre los productos, arme el carrito y mande a pagar al checkout de WooCommerce.
-Sigue los pasos en orden. La decisión de diseño está en `specs/02-integracion-woocommerce.md`.
+Sigue los pasos en orden. La decisión de diseño está en `specs/02-integracion-woocommerce.md`
+y el pase a producción en `specs/21-pase-a-produccion.md`.
 
 ## Cómo encaja todo
 
-| Pieza | Dominio | Qué hace |
-|---|---|---|
-| Astro | `eresskinstudio.com` | Catálogo en `/productos`, carrito, `woo-api.php`, `rebuild-hook.php` |
-| WordPress + WooCommerce | `checkout.eresskinstudio.com` (hoy: `eresskinstudio.com`) | Productos, pedidos, checkout y pago |
+Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta (`public_html`). Cada ruta la sirve uno de los dos:
+
+| Ruta | Quién la sirve |
+|---|---|
+| `/`, `/nosotras/`, `/servicios/`, `/contacto/`, `/productos/…`, `/skin-journal/…`, `/gracias/`, páginas legales, `/admin/` (Tina) | Astro (archivos estáticos) |
+| `/woo-api.php`, `/send-email.php`, `/rebuild-hook.php` | PHP del sitio Astro |
+| `/checkout/…` (incluye `order-pay` y `order-received`) | WordPress |
+| `/wp-admin/`, `/wp-login.php`, `/wp-json/…`, `/wp-content/…`, `/wp-includes/…`, `/wc-api/…` | WordPress |
+| `/?wc-ajax=…`, `/?wc-api=…` | WordPress |
+| Cualquier otra URL que no exista | `404.html` de Astro |
+
+Una carpeta real de Astro (`nosotras/`) gana sola a la página de WordPress del mismo nombre. El reparto lo hace el bloque `wordpress/htaccess-astro.conf`, pegado a mano en el `.htaccess` del servidor (paso 10).
 
 - **Catálogo:** se compila en el build con la API REST v3 de Woo (claves de solo lectura).
 - **Precio y stock:** el navegador los refresca a través de `woo-api.php`.
@@ -83,7 +92,7 @@ Después del pago, lleva a la clienta de la página "pedido recibido" de WooComm
    ```
 
    Sin la constante se usa esa misma URL. Con la constante vacía (`''`) no hay redirección y WooCommerce muestra su página como siempre.
-4. **Mientras WordPress siga en `eresskinstudio.com`**, `/gracias/` todavía no es el sitio Astro: instala el plugin con `ERES_THANK_YOU_URL` vacía y complétala en la migración (paso 10).
+4. **Hasta el pase a producción**, `/gracias/` todavía no es el sitio Astro: instala el plugin con `ERES_THANK_YOU_URL` vacía y complétala en el pase (paso 10).
 5. No redirige pedidos fallidos ni URLs con una `key` inválida: ahí se queda la página de WooCommerce.
 6. Si la tienda ofrece transferencia bancaria, los datos de la cuenta ya no se ven tras el pago: solo llegan en el correo de "pedido en espera".
 7. Comprobación: haz un pedido de prueba con "Pago contra entrega". Debe terminar en `https://eresskinstudio.com/gracias/?pedido=<número>` con el carrito vacío.
@@ -102,7 +111,7 @@ Después del pago, lleva a la clienta de la página "pedido recibido" de WooComm
 2. Completa:
    - `store_url`: URL del WordPress, con `https://` y sin barra final.
    - `consumer_key` / `consumer_secret`: las del paso 2.
-   - `allowed_origins`: `['https://eresskinstudio.com']`.
+   - `allowed_origins`: `['https://eresskinstudio.com']`, más el origen del staging de Amplify mientras exista (paso 12).
    - `webhook_secret`: una cadena aleatoria larga (por ejemplo, `openssl rand -hex 32`). Es la misma que irá en los webhooks.
    - `github_repo`: `sagarkishnani/eres-skin-studio`.
    - `github_token`: el del paso 4.
@@ -132,7 +141,7 @@ En el repo → Settings → Secrets and variables → Actions.
 | Nombre | Valor |
 |---|---|
 | `TINA_CLIENT_ID`, `TINA_TOKEN` | Los de TinaCloud |
-| `WOO_STORE_URL` | URL del WordPress |
+| `WOO_STORE_URL` | `https://eresskinstudio.com` |
 | `WOO_CONSUMER_KEY`, `WOO_CONSUMER_SECRET` | Paso 2 |
 | `HOSTINGER_SSH_HOST` | Host SSH de Hostinger (hPanel → Avanzado → Acceso SSH) |
 | `HOSTINGER_SSH_PORT` | Puerto SSH (en Hostinger suele ser `65002`) |
@@ -144,14 +153,18 @@ En el repo → Settings → Secrets and variables → Actions.
 
 | Nombre | Valor |
 |---|---|
-| `PUBLIC_WOO_CHECKOUT_URL` | `https://<wordpress>/checkout/` |
+| `PUBLIC_WOO_CHECKOUT_URL` | `https://eresskinstudio.com/checkout/` |
 | `PUBLIC_TURNSTILE_SITE_KEY` | Site key pública de Cloudflare Turnstile |
+
+`PUBLIC_WOO_API_URL` no se define en producción: el sitio y el proxy comparten dominio.
+
+"Deploy a producción" corre en cada push a `main`, con cada webhook de producto y todos los días a las 04:00 de Lima. Antes de subir se detiene si `dist/` trae en su raíz un nombre de WordPress (`wp-content`, `index.php`, `wp-*.php`…). Al terminar corre una prueba de humo contra `https://eresskinstudio.com`: si falla, el job queda en rojo, pero lo subido no se revierte solo.
 
 ## 8. Cloudflare
 
 - Regla de caché: **Bypass** para `eresskinstudio.com/*.php`. `woo-api.php` ya cachea en disco lo que conviene cachear, y el carrito nunca debe salir de caché.
-- Regla de caché: **Bypass** para `/wp-json/*`, `/checkout/*`, `/cart/*` y `/my-account/*` en el dominio de WordPress.
-- Si hay reglas WAF o "Bot Fight Mode", permite los `POST` a `/rebuild-hook.php` (vienen desde el servidor de WordPress) y las llamadas de `woo-api.php` a `/wp-json/wc/*`.
+- Regla de caché: **Bypass** para `/wp-json/*` y `/checkout/*`.
+- Si hay reglas WAF o "Bot Fight Mode", permite los `POST` a `/rebuild-hook.php` (vienen desde el servidor de WordPress), las llamadas de `woo-api.php` a `/wp-json/wc/*` y las peticiones de la prueba de humo, que salen de los servidores de GitHub Actions.
 
 ## 9. Verificación de punta a punta
 
@@ -163,28 +176,137 @@ En el repo → Settings → Secrets and variables → Actions.
 6. Cambia el precio de un producto en WooCommerce. En GitHub → Actions aparece una ejecución de "Deploy a producción" con evento `repository_dispatch`. Cuando termina, la ficha muestra el precio nuevo.
 7. `curl -X POST -H 'X-WC-Webhook-Topic: product.updated' -H 'X-WC-Webhook-Signature: falsa' -d '{}' https://eresskinstudio.com/rebuild-hook.php` responde `401` y no crea ninguna ejecución en GitHub.
 
-## 10. Migración a `checkout.eresskinstudio.com`
+## 10. Pase a producción
 
-La migración no la ejecuta la SPEC 02. Esta es la checklist para cuando toque:
+Publica el sitio Astro en `eresskinstudio.com`, en la misma carpeta que WordPress (`specs/21-pase-a-produccion.md`). WordPress no se mueve: queda reducido a tienda (checkout, admin y APIs).
 
-1. Crear el subdominio `checkout.eresskinstudio.com` en Hostinger con SSL activo.
-2. Migrar WordPress (plugin de migración o copia de archivos + base de datos) y cambiar `siteurl` y `home` al subdominio.
-3. Revisar en la pasarela de pago las URLs de retorno y de notificación (IPN/webhooks de la pasarela). Todas deben apuntar al subdominio.
-4. Instalar los mu-plugins (paso 3) en el WordPress migrado y definir `ERES_THANK_YOU_URL` como `https://eresskinstudio.com/gracias/`.
-5. Actualizar las URLs:
-   - `.env` y secret `WOO_STORE_URL` → `https://checkout.eresskinstudio.com`
-   - Variable `PUBLIC_WOO_CHECKOUT_URL` → `https://checkout.eresskinstudio.com/checkout/`
-   - `store_url` en `woo-config.php` → `https://checkout.eresskinstudio.com`
-6. Los webhooks siguen apuntando a `https://eresskinstudio.com/rebuild-hook.php`: no cambian.
-7. Publicar el sitio Astro en `eresskinstudio.com` (lanzar "Deploy a producción" a mano desde Actions).
-8. Comprobar las redirecciones 301 de `public/.htaccess` en el dominio raíz:
+Tres reglas para todo el pase:
+
+- **El `.htaccess` de la raíz se edita a mano.** El deploy nunca lo sube. El bloque de Astro está en `wordpress/htaccess-astro.conf` y va **arriba** de `# BEGIN LSCACHE`.
+- **Nada se borra el día del pase.** Los plugins se desactivan ese día y se borran una semana después; las páginas van a la papelera.
+- **La reversa solo existe antes de la limpieza.**
+
+### Preparación (días antes, sin efecto visible)
+
+1. Respaldo completo desde hPanel: archivos y base de datos.
+2. Copia el `.htaccess` actual como `.htaccess.pre-astro-<fecha>`.
+3. Completa los Secrets y Variables de GitHub (paso 7). `HOSTINGER_DEPLOY_PATH` es la ruta absoluta de `public_html`.
+4. Completa `woo-config.php` (paso 5): `allowed_origins`, `webhook_secret`, `github_repo` y `github_token`.
+5. Crea `site-config.php` en `public_html` a partir de `public/config.example.php`, con el SMTP y `turnstile_secret`.
+6. Crea los cuatro webhooks de producto (paso 6).
+7. Agrega `eresskinstudio.com` a los dominios del widget de Turnstile en Cloudflare.
+8. Confirma en TinaCloud que la rama `main` está indexada.
+9. Exporta las entradas de SureForms y los reclamos del plugin "Reclamaciones".
+10. Pega la **parte previa** de `wordpress/htaccess-astro.conf` en el `.htaccess`. El sitio de WordPress sigue igual.
+11. Revisa en el sitio de prueba las páginas legales (`specs/20-paginas-legales.md`).
+
+### Pase (hora de poco tráfico)
+
+1. Merge de `staging` a `main`. El push dispara "Deploy a producción".
+2. Cuando el deploy termina, pega la **parte definitiva** del bloque en el `.htaccess`.
+3. Define en `wp-config.php`:
+
+   ```php
+   define('ERES_STOREFRONT_URL', 'https://eresskinstudio.com');
+   define('ERES_THANK_YOU_URL', 'https://eresskinstudio.com/gracias/');
+   ```
+
+4. Purga LiteSpeed (Caja de herramientas → Purgar todo) y Cloudflare.
+5. Relanza "Deploy a producción" a mano desde Actions: la prueba de humo tiene que pasar completa.
+6. Desactiva todos los fragmentos de WPCode, incluido "ERES · Comprar ahora".
+7. Haz un pedido real de monto bajo con Culqi por cada método de entrega. Comprueba que termina en `/gracias/?pedido=<número>`, que llega el correo y que Analytics y el píxel de Meta registran la compra.
+8. Desactiva, sin borrar, los plugins de la lista "Se retiran". Primero los Jet, después Elementor. El plugin "Reclamaciones" espera a la limpieza.
+9. Repite el pedido de prueba y recorre la verificación de abajo.
+
+Si después del paso 6 deja de salir la compra en Analytics o en Meta, reactiva solo el fragmento que la cargaba: WPCode Lite se queda.
+
+Si LiteSpeed rechaza `[R=404]` (el sitio responde 500 al pegar la parte definitiva), cambia la última regla del bloque por `RewriteRule . /404.html [L]`. Muestra el 404 de Astro con código `200`; se corrige después.
+
+### Verificación
+
+1. `https://eresskinstudio.com/` y `/nosotras/`, `/servicios/`, `/contacto/`, `/productos/` y `/skin-journal/` muestran las páginas de Astro.
+2. `/wp-admin/` abre el panel de WordPress y `/admin/` el de Tina.
+3. En el checkout, cambiar el método de entrega actualiza el total sin recargar.
+4. Redirecciones:
    - `curl -I https://eresskinstudio.com/product/<slug>/` → `301` a `/productos/<slug>/`
    - `curl -I https://eresskinstudio.com/product-category/<slug>/` → `301` a `/productos/categoria/<slug>/`
-9. Repetir la verificación del paso 9.
+   - `curl -I https://eresskinstudio.com/blog/` → `301` a `/skin-journal/`
+   - `curl -I https://eresskinstudio.com/cart/` → `302` a `/productos/?carrito=abierto`
+5. `curl -I https://eresskinstudio.com/ruta-que-no-existe/` → `404`, y en el navegador se ve el 404 de Astro.
+6. `/?utm_source=prueba` muestra la home de Astro.
+7. `/robots.txt` es el de Astro y apunta a `sitemap-index.xml`.
+8. El formulario de contacto envía el correo y devuelve un correlativo.
+9. Cambiar el precio de un producto dispara "Deploy a producción" con evento `repository_dispatch`.
+10. Después de dos deploys, `woo-config.php`, `site-config.php`, el `.htaccess` y `data/counter.json` conservan su contenido.
+11. Repite la verificación del paso 9.
+
+### Qué se queda y qué se retira
+
+**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los cinco mu-plugins `eres-*` también.
+
+**Plugins que se retiran:**
+
+| Plugin | Antes de retirarlo |
+|---|---|
+| Los plugins Jet (JetBlocks, JetBlog, JetElements, JetMenu, JetPopup, JetProductGallery, JetSearch, JetSmartFilters, JetThemeCore, JetTricks, JetWooBuilder) y Crocoblock Wizard | — |
+| JetEngine | Con el plugin desactivado, `/wp-json/wc/v3/products` sigue trayendo `brands` y los meta `eres_*` |
+| Elementor | No queda ninguna página hecha con Elementor |
+| CookieYes, Site Kit by Google, WooPayments, WooCommerce.com Update Manager, Simple Custom CSS and JS, Editor clásico | — |
+| All in One SEO | Borra también `llms.txt` de `public_html` |
+| SureForms | Entradas exportadas |
+| Simple Custom Post Order | El orden queda guardado en cada producto; se reordena en Productos → Ordenar |
+| Jetpack | Desconecta el sitio antes de borrarlo |
+| WPCode Lite | Todos los fragmentos desactivados y la medición comprobada |
+| Reclamaciones | Páginas legales publicadas en Astro y reclamos exportados |
+| Cualquier otro que solo afecte al sitio público de WordPress (WhatsApp, Instagram Feed…) | — |
+
+**Páginas de WordPress:**
+
+| Página | Destino |
+|---|---|
+| `checkout`, `cart`, `my-account` | Se quedan: WooCommerce las espera asignadas. `/cart/` y `/my-account/` redirigen a Astro desde el `.htaccess` |
+| `home`, `nosotras`, `contacto`, `servicios`, `skin-journal`, `productos` | A la papelera |
+| `terminos-y-condiciones`, `cambios-y-devoluciones`, `libro-de-reclamaciones` | A la papelera |
+| Entradas del blog | A la papelera |
+
+**Temas:** se queda el activo (Hello Elementor funciona sin Elementor) y un tema por defecto de WordPress como respaldo.
+
+**Archivos de `public_html`:**
+
+| Elemento | Destino |
+|---|---|
+| `wp-admin/`, `wp-content/`, `wp-includes/`, `wp-*.php`, `index.php`, `xmlrpc.php`, `.private/` | Se quedan |
+| `data/`, `woo-api.php`, `woo-config.php`, `site-config.php` | Se quedan |
+| `qa/`, `staging/`, `default.php`, `llms.txt` | Se borran |
+| `.htaccess.bk` | Se borra: la copia vigente es `.htaccess.pre-astro-<fecha>` |
+| `readme.html`, `license.txt`, `wp-config-sample.php` | Se pueden borrar. WordPress recrea los dos primeros al actualizarse |
+
+### Limpieza (7 días después, con el pase confirmado)
+
+1. Manda a la papelera las páginas y entradas de la tabla. La papelera da 30 días para restaurar.
+2. Borra los plugins desactivados y los temas sobrantes.
+3. Borra los archivos de la tabla.
+4. Quita el origen de Amplify de `allowed_origins` cuando el staging deje de usarse.
+
+### Reversa
+
+Solo antes de la limpieza.
+
+1. En el `.htaccess`, reemplaza el bloque `ERES Astro` por el de `wordpress/htaccess-reversa.conf`.
+2. Deja vacías `ERES_STOREFRONT_URL` y `ERES_THANK_YOU_URL` en `wp-config.php`.
+3. Reactiva los plugins y los fragmentos desactivados en el pase.
+4. Purga LiteSpeed y Cloudflare.
+5. Desactiva el workflow "Deploy a producción" en GitHub → Actions, para que el cron diario y los webhooks no vuelvan a subir.
+
+### Después del pase
+
+- Una actualización de WordPress o de LiteSpeed solo reescribe sus bloques del `.htaccess`. Si el bloque de Astro desaparece, vuelve a pegarlo desde `wordpress/htaccess-astro.conf`.
+- Si un plugin nuevo necesita una URL propia de WordPress (una pasarela, por ejemplo), agrégala a la lista de la última regla del bloque, en el servidor y en el repo.
+- LiteSpeed da caché de navegador de un año a imágenes, CSS y JS. Una imagen de `/uploads/` reemplazada con el mismo nombre no se refresca: súbela con otro nombre.
 
 ## 11. Sitio de prueba
 
-Mientras WordPress siga en `eresskinstudio.com`, la rama `staging` se publica en un sitio aparte para probar el carrito contra el WooCommerce real (`specs/14-sitio-de-prueba-carrito.md`). Lo publica `.github/workflows/deploy-staging.yml` en cada push a `staging`, o a mano desde Actions. Siempre lleva `noindex` y un `robots.txt` con `Disallow: /`.
+La rama `staging` se publica en un sitio aparte para probar el carrito contra el WooCommerce real (`specs/14-sitio-de-prueba-carrito.md`). Lo publica `.github/workflows/deploy-staging.yml` en cada push a `staging`, o a mano desde Actions. Siempre lleva `noindex` y un `robots.txt` con `Disallow: /`.
 
 En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formularios no envían correos.
 
@@ -235,7 +357,7 @@ En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formu
    7. `https://eresskinstudio.com/checkout/?cart-token=invalido` redirige a `/checkout/` sin errores.
    8. `curl -X POST <origen>/rebuild-hook.php` responde `503`.
 8. **Si el carrito no responde.** Si `woo-api.php` devuelve error al hablar con WordPress, revisa en el Cloudflare del WordPress en vivo que la IP del servidor de prueba no esté bloqueada al llamar a `/wp-json/wc/*` (paso 8).
-9. **Al migrar a `checkout.eresskinstudio.com`.** En el sitio de prueba cambia `store_url` de `woo-config.php`, y en el environment `staging` cambia `PUBLIC_WOO_CHECKOUT_URL` a `https://checkout.eresskinstudio.com/checkout/`. El secret `WOO_STORE_URL` del repo ya cambia en el paso 10.
+9. **`/gracias` y el sitio de prueba.** Desde el pase, `ERES_THANK_YOU_URL` apunta a producción: un pedido pagado desde el sitio de prueba termina en `https://eresskinstudio.com/gracias/`.
 
 ## 12. Staging en Amplify con el proxy de producción
 
@@ -318,14 +440,14 @@ define('ERES_STOREFRONT_URL', 'https://eresskinstudio.com');
 | Checkout con carrito vacío | Redirige a la tienda de WooCommerce | Redirige a `<url>/productos` |
 | Enlaces legales y de privacidad | Páginas de este WordPress | `<url>` + ruta |
 
-**Mientras WordPress siga en `eresskinstudio.com`, no la definas.** Antes de definirla, el sitio Astro tiene que tener `/terminos-y-condiciones/`, `/cambios-y-devoluciones/` y `/libro-de-reclamaciones/`: hoy no existen y los enlaces darían 404.
+**Se define en el pase a producción (paso 10), no antes.** Los enlaces legales apuntan a `/terminos-y-condiciones/`, `/cambios-y-devoluciones/` y `/libro-de-reclamaciones/` del sitio Astro (`specs/20-paginas-legales.md`): hasta que estén publicadas en producción, darían 404.
 
-### Pase a producción
+### Instalación sobre la tienda en vivo
 
 No hay staging de WordPress: se hace sobre la tienda en vivo, en una hora de poco tráfico.
 
 1. Code Snippets → **Exportar** todos los snippets. Guarda una copia de `uploads/eres/checkout-eres.css` y del CSS global.
-2. Crea un snippet "ERES · Comprar ahora" con el filtro `woocommerce_add_to_cart_redirect` (`eres_buy_now`), que hoy vive dentro de "Eres Checkout — Resumen mejorado". La tienda de WordPress lo necesita hasta la migración.
+2. Crea un snippet "ERES · Comprar ahora" con el filtro `woocommerce_add_to_cart_redirect` (`eres_buy_now`), que hoy vive dentro de "Eres Checkout — Resumen mejorado". La tienda de WordPress lo necesita hasta el pase a producción (paso 10), que lo desactiva junto con los demás.
 3. **Desactiva** (sin borrar) los snippets del checkout:
    - Formulario de Checkout + Validaciones + Distritos
    - Eres Checkout — Enqueue CSS + Preload fuentes
