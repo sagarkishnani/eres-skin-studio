@@ -222,7 +222,17 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `global.contact.phone` porque el enlace `wa.link` descarta el `?text=`.
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
   (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
-  copia ese carrito a la sesión del navegador.
+  copia ese carrito a la sesión del navegador. El checkout, `order-pay` y
+  "pedido recibido" los pinta `wordpress/mu-plugins/eres-checkout.php` (spec
+  `specs/18-checkout-homologado.md`, guía `wordpress/README.md` §13) con
+  plantilla propia, sin Elementor ni el CSS de WooCommerce: los tokens de este
+  sitio están copiados como variables en `eres-checkout/assets/checkout.css`,
+  así que un cambio de token se replica ahí a mano. Campos, distritos, textos
+  de entrega y umbral de envío gratuito viven en `eres-checkout/config.php`
+  (filtro `eres_checkout_config`). El maquetado sale de hooks y fragmentos de
+  WooCommerce; el JS no mueve nodos. `ERES_STOREFRONT_URL` (`wp-config.php`)
+  apunta "Volver" y "Editar" a este sitio; "Editar" usa `?carrito=abierto`,
+  que `HeaderReact` consume con `consumeCartOpenQuery()` para abrir el carrito.
 - **Gracias** — tras el pago, `wordpress/mu-plugins/eres-thank-you-redirect.php`
   manda la página "pedido recibido" a `ERES_THANK_YOU_URL` (`wp-config.php`;
   vacía ⇒ sin redirección) con `?pedido=<número>`. `/gracias` (con `noindex`)

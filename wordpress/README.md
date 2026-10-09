@@ -259,3 +259,93 @@ Amplify no ejecuta PHP, así que el staging no puede servir su propio `woo-api.p
    3. `https://eresskinstudio.com/checkout/?cart-token=invalido` redirige a `/checkout/`, no a `/cart/`.
    4. "Finalizar compra" abre el checkout con los mismos productos. Un pedido pagado ahí es un pedido real.
 5. **En producción** `PUBLIC_WOO_API_URL` queda vacía: el sitio y el proxy comparten dominio.
+
+## 13. Checkout
+
+El mu-plugin `eres-checkout` pinta `/checkout/`, el pago de un pedido (`order-pay`) y "pedido recibido" con el diseño del sitio Astro (`specs/18-checkout-homologado.md`). Reemplaza a los snippets del checkout y a `wp-content/uploads/eres/checkout-eres.css`.
+
+### Qué hace
+
+- Sirve una plantilla propia: header "Volver / logo / Compra segura", footer con los enlaces legales y botón de WhatsApp. No carga los estilos del tema, de Elementor, de los plugins Jet ni el CSS de WooCommerce.
+- Usa DM Sans desde `eres-checkout/assets/fonts/`. No llama a Google Fonts.
+- Pide Nombre, Apellidos, Correo, Celular, Tipo y N° de documento. Con "Envío a domicilio" suma Distrito, Dirección y Referencia.
+- País (`PE`) y región (`LMA`) van fijos. La ciudad del pedido es el distrito, o `Lima` en recojo. No hay código postal.
+- Guarda `_billing_tipo_documento`, `_billing_numero_documento` y `_billing_distrito` en el pedido, las mismas claves de antes.
+- Oculta el banner de CookieYes en estas tres páginas.
+
+### Instalación
+
+1. Copia `wordpress/mu-plugins/eres-checkout.php` **y** la carpeta `wordpress/mu-plugins/eres-checkout/` a `wp-content/mu-plugins/`. El archivo suelto no funciona sin la carpeta.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Checkout".
+3. La página de checkout puede tener el shortcode o el bloque: la plantilla siempre pinta el checkout clásico.
+
+### Configuración
+
+Todo lo editable está en `eres-checkout/config.php`:
+
+| Clave | Qué controla |
+|---|---|
+| `fields` | Por campo: `label`, `placeholder`, `visible` y `required`. Los que llevan `locked` siempre se muestran y son obligatorios. Los que llevan `delivery_only` solo aparecen con envío a domicilio. |
+| `document_types` | Opciones de "Tipo de documento". |
+| `districts` | Opciones de "Distrito". |
+| `delivery` | Título, subtítulo y texto del resumen por método de envío (`local_pickup`, `flat_rate`, `free_shipping`). El precio lo pone WooCommerce. |
+| `free_shipping_threshold` | Monto de la barra "Te faltan S/…". Debe coincidir con el mínimo del método "Envío gratuito" de WooCommerce: se cambian juntos. `0` oculta la barra. |
+| `trust` | Los tres textos bajo el total. |
+| `whatsapp_url` | Enlace del botón flotante. Vacío lo oculta. |
+| `legal_links` | Enlaces del footer. |
+
+Otro plugin puede cambiar estos valores con el filtro `eres_checkout_config`.
+
+Las reglas de formato (celular de 9 dígitos, DNI de 8, RUC de 11, otros documentos de 5 a 12 letras o números, dirección de 5 caracteres o más) están en `eres-checkout/validation.php`.
+
+### Enlaces hacia el sitio Astro
+
+En `wp-config.php`:
+
+```php
+define('ERES_STOREFRONT_URL', 'https://eresskinstudio.com');
+```
+
+| Enlace | Sin la constante (o vacía) | Con la constante |
+|---|---|---|
+| "Volver" y logo | Tienda de WooCommerce | `<url>/productos` |
+| "Editar" del resumen | `/cart/` | `<url>/productos?carrito=abierto` |
+| Checkout con carrito vacío | Redirige a `/cart/` | Redirige a `<url>/productos` |
+| Enlaces legales y de privacidad | Páginas de este WordPress | `<url>` + ruta |
+
+**Mientras WordPress siga en `eresskinstudio.com`, no la definas.** Antes de definirla, el sitio Astro tiene que tener `/terminos-y-condiciones/`, `/cambios-y-devoluciones/` y `/libro-de-reclamaciones/`: hoy no existen y los enlaces darían 404.
+
+### Pase a producción
+
+No hay staging de WordPress: se hace sobre la tienda en vivo, en una hora de poco tráfico.
+
+1. Code Snippets → **Exportar** todos los snippets. Guarda una copia de `uploads/eres/checkout-eres.css` y del CSS global.
+2. Crea un snippet "ERES · Comprar ahora" con el filtro `woocommerce_add_to_cart_redirect` (`eres_buy_now`), que hoy vive dentro de "Eres Checkout — Resumen mejorado". La tienda de WordPress lo necesita hasta la migración.
+3. **Desactiva** (sin borrar) los snippets del checkout:
+   - Formulario de Checkout + Validaciones + Distritos
+   - Eres Checkout — Enqueue CSS + Preload fuentes
+   - Eres Checkout — Wrapper del resumen + Step headers
+   - Eres Checkout — Trust badges + Tax note
+   - Eres Checkout — Botón con candado + total + reorden de campos
+   - Eres Checkout — Resumen mejorado (imagen + categoría)
+   - Eres Checkout — Mover botón de pago a columna izquierda
+   - El de la barra de envío gratuito (`eres-free-shipping-notice`)
+   - El de la validación en línea (`eres-field-error`)
+4. Sube `eres-checkout.php` y la carpeta `eres-checkout/`.
+5. LiteSpeed Cache → Caja de herramientas → **Purgar todo**.
+6. Recorre los criterios de aceptación de la spec. Incluye un pedido real de monto bajo con Culqi por cada método de entrega.
+
+### Reversa
+
+Si algo falla: borra `eres-checkout.php` de `wp-content/mu-plugins/`, reactiva los snippets del paso 3 y purga LiteSpeed. El checkout vuelve al estado anterior.
+
+### Limpieza
+
+Otro día, cuando el pase esté confirmado:
+
+1. Borra los snippets desactivados y `uploads/eres/checkout-eres.css`.
+2. Quita del CSS global los bloques de avisos (`.woocommerce-message`, `.woocommerce-info`, `.woocommerce-error`), cupón, documento (`#billing_tipo_documento_field`, `#billing_numero_documento_field`), `#place_order`, `.eres-field-error`, `.eres-step--shipping`, `.eres-shipping-target` y `.cky-*`.
+
+### Al cambiar un token de diseño
+
+`eres-checkout/assets/checkout.css` copia los tokens de `tailwind.config.mjs` como variables CSS en `:root`. Un cambio de color o tipografía en el sitio Astro se replica ahí a mano, y se vuelve a subir la carpeta.
