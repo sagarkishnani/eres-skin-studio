@@ -137,7 +137,7 @@ function eres_checkout_apply_settings(array $config): array
 
 const ERES_CHECKOUT_SETTINGS_TAB = 'eres_checkout';
 const ERES_CHECKOUT_SETTINGS_INPUT = 'eres_checkout';
-const ERES_CHECKOUT_SETTINGS_SECTIONS = ['fields'];
+const ERES_CHECKOUT_SETTINGS_SECTIONS = ['fields', 'document_types', 'districts'];
 const ERES_CHECKOUT_LABEL_MAX_LENGTH = 60;
 const ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH = 80;
 
@@ -254,4 +254,83 @@ function eres_checkout_sanitize_fields($posted, array $current): array
     }
 
     return $fields;
+}
+
+function eres_checkout_render_document_types_section(array $types): void
+{
+    $defaults = eres_checkout_default_config()['document_types'];
+    ?>
+    <h2>Tipos de documento</h2>
+    <p>Opciones del campo "Tipo de documento". Tiene que quedar al menos una activa.</p>
+    <table class="widefat striped" style="max-width: 640px;">
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Activo</th>
+                <th>Etiqueta</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($types as $code => $type) : ?>
+                <tr>
+                    <td><strong><?php echo esc_html($defaults[$code]); ?></strong></td>
+                    <td>
+                        <input type="checkbox" name="<?php echo esc_attr(eres_checkout_settings_input_name('document_types', (string) $code, 'active')); ?>" value="1" aria-label="Activo" <?php checked($type['active']); ?>>
+                    </td>
+                    <td>
+                        <input type="text" class="regular-text" style="width: 100%;" name="<?php echo esc_attr(eres_checkout_settings_input_name('document_types', (string) $code, 'label')); ?>" value="<?php echo esc_attr($type['label']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_LABEL_MAX_LENGTH); ?>" aria-label="Etiqueta">
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php
+}
+
+function eres_checkout_sanitize_document_types($posted, array $current): array
+{
+    $posted = (array) $posted;
+    $types = [];
+    foreach (eres_checkout_default_config()['document_types'] as $code => $default_label) {
+        $type = (array) ($posted[$code] ?? []);
+        $label = eres_checkout_limited_text($type['label'] ?? '', ERES_CHECKOUT_LABEL_MAX_LENGTH);
+        $types[$code] = [
+            'active' => !empty($type['active']),
+            'label' => $label !== '' ? $label : $default_label,
+        ];
+    }
+
+    if (!array_filter(array_column($types, 'active'))) {
+        WC_Admin_Settings::add_error('Deja al menos un tipo de documento activo.');
+
+        return $current;
+    }
+
+    return $types;
+}
+
+function eres_checkout_render_districts_section(array $districts): void
+{
+    ?>
+    <h2>Distritos</h2>
+    <p>Opciones del campo "Distrito", en el orden en que se muestran. Escribe un distrito por línea.</p>
+    <textarea name="<?php echo esc_attr(eres_checkout_settings_input_name('districts')); ?>" rows="12" class="large-text" style="max-width: 640px;" aria-label="Distritos"><?php echo esc_textarea(implode("\n", $districts)); ?></textarea>
+    <?php
+}
+
+function eres_checkout_sanitize_districts($posted, array $current): array
+{
+    $lines = preg_split('/\R/u', is_string($posted) ? $posted : '') ?: [];
+    $districts = array_values(array_unique(array_filter(
+        array_map(static fn(string $line): string => eres_checkout_limited_text($line, ERES_CHECKOUT_LABEL_MAX_LENGTH), $lines),
+        static fn(string $district): bool => $district !== ''
+    )));
+
+    if (!$districts) {
+        WC_Admin_Settings::add_error('Agrega al menos un distrito.');
+
+        return $current;
+    }
+
+    return $districts;
 }
