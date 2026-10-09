@@ -143,8 +143,6 @@ const ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH = 80;
 const ERES_CHECKOUT_SUBTITLE_MAX_LENGTH = 120;
 const ERES_CHECKOUT_TRUST_TITLE_MAX_LENGTH = 40;
 const ERES_CHECKOUT_TRUST_TEXT_MAX_LENGTH = 80;
-const ERES_CHECKOUT_FREE_SHIPPING_METHOD = 'free_shipping';
-const ERES_CHECKOUT_MIN_AMOUNT_REQUIREMENTS = ['min_amount', 'either', 'both'];
 
 add_filter('woocommerce_settings_tabs_array', 'eres_checkout_settings_tab', 50);
 add_action('woocommerce_settings_' . ERES_CHECKOUT_SETTINGS_TAB, 'eres_checkout_render_settings');
@@ -374,47 +372,6 @@ function eres_checkout_sanitize_delivery($posted, array $current): array
     return $delivery;
 }
 
-function eres_checkout_woocommerce_free_shipping_amounts(): array
-{
-    $zones = array_map(
-        static fn(array $zone): WC_Shipping_Zone => new WC_Shipping_Zone($zone['id']),
-        WC_Shipping_Zones::get_zones()
-    );
-    $zones[] = new WC_Shipping_Zone(0);
-
-    $amounts = [];
-    foreach ($zones as $zone) {
-        foreach ($zone->get_shipping_methods(true) as $method) {
-            if ($method->id === ERES_CHECKOUT_FREE_SHIPPING_METHOD && in_array($method->requires, ERES_CHECKOUT_MIN_AMOUNT_REQUIREMENTS, true)) {
-                $amounts[] = (float) $method->min_amount;
-            }
-        }
-    }
-
-    return array_values(array_unique($amounts));
-}
-
-function eres_checkout_free_shipping_notice(float $threshold): void
-{
-    $amounts = eres_checkout_woocommerce_free_shipping_amounts();
-    if (!$amounts) {
-        echo '<p class="description">WooCommerce no tiene un método de envío gratuito con monto mínimo configurado.</p>';
-
-        return;
-    }
-
-    $formatted_amounts = wp_strip_all_tags(implode(', ', array_map('wc_price', $amounts)));
-    printf('<p class="description">Monto mínimo del envío gratuito en WooCommerce: %s.</p>', esc_html($formatted_amounts));
-
-    $has_mismatch = $threshold > 0 && array_filter($amounts, static fn(float $amount): bool => abs($amount - $threshold) > 0.001);
-    if ($has_mismatch) {
-        printf(
-            '<div class="notice notice-warning inline"><p>El monto no coincide con el de WooCommerce (%s). La barra prometería un envío gratuito que no se aplica.</p></div>',
-            esc_html($formatted_amounts)
-        );
-    }
-}
-
 function eres_checkout_render_free_shipping_threshold_section(float $threshold): void
 {
     ?>
@@ -424,8 +381,8 @@ function eres_checkout_render_free_shipping_threshold_section(float $threshold):
             <th scope="row"><label for="eres-checkout-free-shipping">Monto para envío gratuito (<?php echo esc_html(get_woocommerce_currency_symbol()); ?>)</label></th>
             <td>
                 <input type="number" min="0" step="0.01" class="small-text" style="width: 120px;" id="eres-checkout-free-shipping" name="<?php echo esc_attr(eres_checkout_settings_input_name('free_shipping_threshold')); ?>" value="<?php echo esc_attr((string) $threshold); ?>">
-                <p class="description">Es el monto de la barra "Te faltan… para obtener envío gratuito". Con 0 la barra no se muestra.</p>
-                <?php eres_checkout_free_shipping_notice($threshold); ?>
+                <p class="description">Desde este monto de compra, descontados los cupones, el envío a domicilio pasa a costar <?php echo esc_html(wp_strip_all_tags(wc_price(0))); ?> y la barra "Te faltan… para obtener envío gratuito" lo anuncia. El recojo en el local no cambia.</p>
+                <p class="description">Con 0 no hay envío gratuito y la barra no se muestra. No hace falta agregar el método "Envío gratuito" en la pestaña Envío.</p>
             </td>
         </tr>
     </table>

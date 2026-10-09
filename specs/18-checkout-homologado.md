@@ -348,7 +348,7 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 - **Sí:** maquetado con hooks, fragmentos y una plantilla de WooCommerce. El JS que movía nodos era la parte más frágil.
 - **Sí:** cupón propio contra `wc-ajax=apply_coupon`. El formulario nativo vive fuera de `form.checkout` y meterlo dentro anida formularios.
 - **Sí:** reescribir la barra de envío gratuito y la validación en línea a partir de lo que se ve en la página. Elegido por el usuario.
-- **Sí:** umbral de envío gratuito en la configuración. No se lee del método de envío de WooCommerce.
+- **Sí:** umbral de envío gratuito en la configuración. No se lee del método de envío de WooCommerce. Desde SPEC 19, ese mismo monto pone en S/0 el envío a domicilio.
 - **Sí:** conservar las claves de meta del pedido. Los pedidos existentes siguen legibles.
 - **Sí:** `ERES_STOREFRONT_URL` con comportamiento propio cuando está vacía. El mu-plugin se puede instalar antes de la migración, igual que `ERES_THANK_YOU_URL`.
 - **Sí:** `?carrito=abierto` en Astro. "Editar" necesita un destino cuando `/cart/` deje de existir.
@@ -370,7 +370,7 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 | Culqi rechaza por antifraude un pedido de recojo sin dirección | Manda cada dato solo si existe. Si aparecen rechazos, en recojo se guarda la dirección del local. |
 | El CSS global sigue cargando reglas con `!important` sobre avisos y botón | La plantilla desencola los estilos ajenos. Los criterios miden estilos computados. El paso 13 borra esos bloques. |
 | LiteSpeed sirve el CSS o el JS combinado anterior | Purga total en el paso 12. La versión de los archivos es su `filemtime`. |
-| El umbral de la barra no coincide con el del envío gratuito de WooCommerce | Los dos valen 300 hoy. La guía pide cambiarlos juntos. SPEC 19 lo deja editable. |
+| El umbral de la barra no coincide con el del envío gratuito de WooCommerce | Resuelto en SPEC 19: el mu-plugin aplica el envío gratuito con el mismo monto de la barra. |
 | Las páginas legales no existen en Astro y los enlaces dan 404 tras la migración | Fuera de alcance. Sin la constante, los enlaces apuntan a WordPress. La guía lo marca como requisito antes de definirla. |
 | Un método de envío nuevo no tiene entrada en `delivery` | Muestra su título de WooCommerce sin subtítulo y se trata como envío a domicilio. |
 | Otro plugin engancha contenido en hooks del checkout que ya no se pintan donde espera | Se usan los hooks estándar de WooCommerce. Solo cambian de lugar el pago y la fila de envío. |

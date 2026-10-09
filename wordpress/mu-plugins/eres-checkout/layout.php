@@ -342,6 +342,8 @@ const ERES_CHECKOUT_FREE_SHIPPING_FRAGMENT = '.eres-free-shipping';
 add_action('woocommerce_before_checkout_form', 'eres_checkout_free_shipping_bar', 20);
 add_filter('woocommerce_update_order_review_fragments', 'eres_checkout_free_shipping_fragment');
 add_filter('woocommerce_order_button_text', 'eres_checkout_order_button_text');
+add_filter('woocommerce_package_rates', 'eres_checkout_apply_free_shipping', 100);
+add_filter('woocommerce_cart_shipping_packages', 'eres_checkout_tag_packages_with_free_shipping_threshold');
 
 function eres_checkout_free_shipping_basis(): float
 {
@@ -354,9 +356,47 @@ function eres_checkout_free_shipping_basis(): float
     return max(0.0, (float) $cart->get_displayed_subtotal() - $discount);
 }
 
+function eres_checkout_free_shipping_threshold(): float
+{
+    return (float) eres_checkout_config()['free_shipping_threshold'];
+}
+
+function eres_checkout_qualifies_for_free_shipping(): bool
+{
+    $threshold = eres_checkout_free_shipping_threshold();
+
+    return $threshold > 0 && WC()->cart && eres_checkout_free_shipping_basis() >= $threshold;
+}
+
+function eres_checkout_apply_free_shipping(array $rates): array
+{
+    if (!eres_checkout_qualifies_for_free_shipping()) {
+        return $rates;
+    }
+
+    foreach ($rates as $rate) {
+        if (!eres_checkout_is_pickup($rate->get_id())) {
+            $rate->set_cost(0);
+            $rate->set_taxes(array_fill_keys(array_keys($rate->get_taxes()), 0));
+        }
+    }
+
+    return $rates;
+}
+
+// WooCommerce guarda las tarifas por paquete en la sesión: con el monto dentro del paquete, cambiarlo en los ajustes las recalcula.
+function eres_checkout_tag_packages_with_free_shipping_threshold(array $packages): array
+{
+    foreach ($packages as $index => $package) {
+        $packages[$index]['eres_free_shipping_threshold'] = eres_checkout_free_shipping_threshold();
+    }
+
+    return $packages;
+}
+
 function eres_checkout_free_shipping_html(): string
 {
-    $threshold = (float) eres_checkout_config()['free_shipping_threshold'];
+    $threshold = eres_checkout_free_shipping_threshold();
     if ($threshold <= 0 || !WC()->cart->needs_shipping()) {
         return '';
     }

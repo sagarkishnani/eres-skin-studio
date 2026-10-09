@@ -20,7 +20,7 @@
 - Sección **Tipos de documento**: activar o desactivar cada tipo y cambiar su etiqueta.
 - Sección **Distritos**: lista editable, uno por línea.
 - Sección **Entrega**: subtítulo de cada tarjeta.
-- Sección **Envío gratuito**: monto de la barra, con aviso si no coincide con WooCommerce.
+- Sección **Envío gratuito**: monto desde el que el envío a domicilio es gratis.
 - Sección **Textos de confianza**: título y texto de los tres ítems del resumen.
 - Botón **Restablecer valores**, que vuelve a los de `config.php`.
 - Guardado en una sola opción de WordPress, `eres_checkout_settings`.
@@ -78,11 +78,10 @@ Tabla con una fila por campo de `config.php`, en su orden:
 
 ### Envío gratuito
 
-- Campo numérico "Monto para envío gratuito", en soles, mayor o igual a 0. Con 0 la barra no se muestra.
-- Debajo se lee el monto mínimo del método "Envío gratuito" de las zonas de WooCommerce.
-- Si no existe ese método: "WooCommerce no tiene un método de envío gratuito configurado."
-- Si existe y el monto es distinto: aviso amarillo "El monto no coincide con el de WooCommerce (S/…). La barra prometería un envío gratuito que no se aplica."
-- El aviso informa, no bloquea el guardado.
+- Campo numérico "Monto para envío gratuito", en soles, mayor o igual a 0.
+- Desde ese monto de compra, descontados los cupones, el mu-plugin pone en S/0 el costo de todo método que no sea recojo. La barra usa el mismo monto.
+- Con 0 no hay envío gratuito y la barra no se muestra.
+- No depende del método "Envío gratuito" de WooCommerce.
 
 ### Textos de confianza
 
@@ -203,7 +202,8 @@ Rama: `feat/spec-19-ajustes-del-checkout`, desde `staging` actualizado y con SPE
 - [ ] Guardar el subtítulo vacío muestra la tarjeta solo con su título.
 - [ ] Con el monto en 250 y un subtotal de S/209.00, la barra dice "Te faltan S/41.00 para obtener envío gratuito".
 - [ ] Con el monto en 0, la barra no se muestra.
-- [ ] Con un monto distinto al de WooCommerce, la pestaña muestra el aviso amarillo y aun así guarda.
+- [ ] Con el monto en 250 y un subtotal de S/418.00, la tarjeta dice "Envío a domicilio · Gratis" y elegirla no suma nada al total.
+- [ ] Con el monto en 250 y un subtotal de S/209.00, el envío a domicilio cuesta S/12.00.
 - [ ] Cambiar el título del primer texto de confianza lo cambia bajo el total, con el mismo ícono.
 - [ ] Vaciar título y texto del tercer ítem deja dos textos de confianza en el checkout.
 
@@ -231,8 +231,9 @@ Rama: `feat/spec-19-ajustes-del-checkout`, desde `staging` actualizado y con SPE
 - **Sí:** distritos en un `textarea`, uno por línea. Es la forma más rápida de pegar o corregir una lista.
 - **No:** un repetidor con botones de agregar y quitar. Más código para el mismo resultado.
 - **Sí:** solo el subtítulo de las tarjetas de entrega. Confirmado por el usuario.
-- **Sí:** aviso si el monto no coincide con WooCommerce, sin bloquear. Era un riesgo abierto de SPEC 18.
-- **No:** leer el monto directamente del método de WooCommerce y quitar el campo. Puede haber varias zonas con montos distintos, o ninguna.
+- **Sí:** el monto de la pestaña aplica el envío gratuito (filtro `woocommerce_package_rates`). Tras el pase, la barra anunciaba un envío gratuito que WooCommerce no aplicaba porque la zona no tenía ese método. Con un solo monto no hay nada que desincronizar.
+- **Revierte:** el aviso de "no coincide con WooCommerce" de la primera versión de esta spec. Ya no hay dos montos.
+- **No:** usar el método "Envío gratuito" nativo. Mostraría dos tarjetas de envío a domicilio, una paga y una gratis, y el monto viviría en otra pantalla.
 - **Sí:** títulos de pasos, botón, WhatsApp y enlaces legales siguen en código. Confirmado por el usuario para pasos y botón. Los otros dos son una propuesta.
 - **Sí:** capacidad `manage_woocommerce`. Es la que ya protege el resto de Ajustes.
 - **Definición rápida:** el alcance lo confirmó el usuario al definir SPEC 18. Son propuestas no revisadas: los límites de caracteres, que los tipos de documento sean una lista fija, que WhatsApp y los enlaces legales queden en código, la advertencia de Distrito y Dirección, el aviso del monto y el botón de restablecer.
@@ -244,7 +245,7 @@ Rama: `feat/spec-19-ajustes-del-checkout`, desde `staging` actualizado y con SPE
 | El cliente oculta Dirección o Distrito y llegan pedidos de envío sin dirección | Advertencia fija bajo la tabla de campos. Restablecer devuelve los valores originales. |
 | El cliente vuelve opcional el celular y no hay cómo coordinar la entrega | Decisión del cliente. La guía explica para qué se usa cada campo. |
 | El cliente renombra un distrito y los pedidos anteriores conservan el nombre viejo | Es el comportamiento esperado: el distrito se guarda como texto en cada pedido. |
-| El monto de la barra no coincide con el envío gratuito real | Aviso amarillo en la pestaña con el monto de WooCommerce. |
+| La zona también tiene el método "Envío gratuito" de WooCommerce | Aparece como una tarjeta más. La guía indica que no hace falta y que conviene quitarlo. |
 | Una actualización del mu-plugin cambia las claves de `config.php` | Las claves guardadas que ya no existen se ignoran y las nuevas usan su valor por defecto. `version` queda para migraciones. |
 | LiteSpeed sirve el checkout anterior tras guardar | WooCommerce excluye el checkout de la caché de página. La guía indica purgar si un cambio no se ve. |
 | Texto con HTML en una etiqueta | Se guarda con `sanitize_text_field` y se escapa al pintar, en el admin y en el checkout. |
