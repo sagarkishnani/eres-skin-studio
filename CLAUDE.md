@@ -157,14 +157,19 @@ configurado.
 
 ### Tienda (WooCommerce)
 
-Los productos viven en un WordPress + WooCommerce aparte; el sitio solo los
-muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
+Los productos viven en un WordPress + WooCommerce; el sitio solo los muestra y
+arma el carrito. El pago es 100% WooCommerce. Spec:
 `specs/02-integracion-woocommerce.md`; guía de configuración: `wordpress/README.md`.
 
-| Pieza | Dominio |
+Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
+(`public_html`); el plan de mover WordPress a un subdominio quedó descartado
+(spec `specs/21-pase-a-produccion.md`).
+
+| Ruta | Quién la sirve |
 |---|---|
-| Astro | `eresskinstudio.com` |
-| WordPress | `checkout.eresskinstudio.com` (hasta la migración: `eresskinstudio.com`) |
+| Páginas, `/admin/` (Tina), `woo-api.php`, `send-email.php`, `rebuild-hook.php` | Astro |
+| `/checkout/…`, `/wp-admin/`, `/wp-json/…`, `/wp-content/…`, `/wc-api/…`, `/?wc-ajax=…`, `/?wc-api=…` | WordPress |
+| Cualquier otra URL que no exista | `404.html` de Astro |
 
 - **Build time** — `src/lib/woo/rest.ts` lee la API REST v3 con claves de solo
   lectura (`WOO_STORE_URL`, `WOO_CONSUMER_KEY`, `WOO_CONSUMER_SECRET`, sin
@@ -261,14 +266,27 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `403`. Spec: `specs/14-sitio-de-prueba-carrito.md`; guía: `wordpress/README.md` §11.
 - **Redirecciones** — `public/.htaccess` manda `/product/<slug>/` y
   `/product-category/<slug>/` (URLs heredadas de WordPress) a `/productos/…`.
+  Ese archivo solo llega al sitio de prueba: en producción las mismas reglas
+  viven en el bloque de la raíz compartida.
+- **Raíz compartida** — el `.htaccess` de producción se edita a mano en el
+  servidor. `wordpress/htaccess-astro.conf` es el bloque que reparte las rutas
+  (va arriba de `# BEGIN LSCACHE`): fija `DirectoryIndex`, manda a `index.php`
+  las llamadas a `/` con `wc-ajax=` o `wc-api=`, redirige las URLs heredadas y
+  responde el 404 de Astro para todo lo que no exista fuera de la lista de
+  rutas de WordPress. Una ruta nueva de WordPress se agrega a esa lista, en el
+  servidor y en el repo. `wordpress/htaccess-reversa.conf` devuelve el sitio
+  de WordPress sin borrar archivos. Una página de Astro no puede llamarse como
+  una carpeta o archivo de WordPress: `deploy.yml` se detiene si `dist/` trae
+  `wp-admin`, `wp-content`, `wp-includes`, `.private`, `index.php`,
+  `xmlrpc.php` o `wp-*.php`, y al terminar corre una prueba de humo contra el
+  sitio (no revierte nada si falla).
 
 **Secretos**: `public/woo-config.php` (git-ignored, plantilla en
 `public/woo-config.example.php`), compartido por `woo-api.php` y
 `rebuild-hook.php`. El deploy no pisa `woo-config.php`, `site-config.php` ni el
 contenido de `data/`. El de producción (`deploy.yml`) comparte la raíz con
-WordPress: ahí no borra nada ni sube `.htaccess` (se fusiona a mano con el de
-WordPress en el servidor), y solo usa `--delete` dentro de las carpetas que
-genera Astro.
+WordPress: ahí no borra nada ni sube `.htaccess` ni las plantillas
+`*.example.php`, y solo usa `--delete` dentro de las carpetas que genera Astro.
 
 ### Skin Journal (blog)
 
