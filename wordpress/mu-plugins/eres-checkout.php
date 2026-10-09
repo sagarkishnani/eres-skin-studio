@@ -33,3 +33,4 @@ function eres_checkout_asset_version(string $path): string
 require ERES_CHECKOUT_DIR . '/shell.php';
 require ERES_CHECKOUT_DIR . '/fields.php';
 require ERES_CHECKOUT_DIR . '/layout.php';
+require ERES_CHECKOUT_DIR . '/validation.php';

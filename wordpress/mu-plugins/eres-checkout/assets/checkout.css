@@ -76,42 +76,42 @@ body.eres-checkout-page {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.eres-checkout-page h1,
-.eres-checkout-page h2,
-.eres-checkout-page h3,
-.eres-checkout-page p,
-.eres-checkout-page ul,
-.eres-checkout-page ol,
-.eres-checkout-page dl,
-.eres-checkout-page dd {
+:where(.eres-checkout-page) h1,
+:where(.eres-checkout-page) h2,
+:where(.eres-checkout-page) h3,
+:where(.eres-checkout-page) p,
+:where(.eres-checkout-page) ul,
+:where(.eres-checkout-page) ol,
+:where(.eres-checkout-page) dl,
+:where(.eres-checkout-page) dd {
   margin: 0;
   padding: 0;
 }
 
-.eres-checkout-page h1,
-.eres-checkout-page h2,
-.eres-checkout-page h3 {
+:where(.eres-checkout-page) h1,
+:where(.eres-checkout-page) h2,
+:where(.eres-checkout-page) h3 {
   font-weight: 400;
 }
 
-.eres-checkout-page ul,
-.eres-checkout-page ol {
+:where(.eres-checkout-page) ul,
+:where(.eres-checkout-page) ol {
   list-style: none;
 }
 
-.eres-checkout-page a {
+:where(.eres-checkout-page) a {
   color: inherit;
 }
 
-.eres-checkout-page img {
+:where(.eres-checkout-page) img {
   max-width: 100%;
   height: auto;
 }
 
-.eres-checkout-page button,
-.eres-checkout-page input,
-.eres-checkout-page select,
-.eres-checkout-page textarea {
+:where(.eres-checkout-page) button,
+:where(.eres-checkout-page) input,
+:where(.eres-checkout-page) select,
+:where(.eres-checkout-page) textarea {
   font: inherit;
   color: inherit;
   border-radius: 0;
@@ -775,10 +775,38 @@ form.checkout {
   vertical-align: top;
 }
 
-.woocommerce-checkout-review-order-table thead th {
-  padding: 12px 0;
+.woocommerce-checkout-review-order-table,
+.woocommerce-checkout-review-order-table thead,
+.woocommerce-checkout-review-order-table tbody,
+.woocommerce-checkout-review-order-table tfoot,
+.woocommerce-checkout-review-order-table th,
+.woocommerce-checkout-review-order-table td {
+  display: block;
+}
+
+.woocommerce-checkout-review-order-table tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.woocommerce-checkout-review-order-table .product-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.woocommerce-checkout-review-order-table thead tr {
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--line);
+}
+
+.woocommerce-checkout-review-order-table tbody tr,
+.woocommerce-checkout-review-order-table tfoot tr {
+  border-bottom: 1px solid var(--line);
+}
+
+.woocommerce-checkout-review-order-table thead th {
+  padding: 12px 0;
   font-size: var(--caption-xs);
   font-weight: 500;
   letter-spacing: .18em;
@@ -788,18 +816,19 @@ form.checkout {
 .woocommerce-checkout-review-order-table .product-total,
 .woocommerce-checkout-review-order-table tfoot td {
   text-align: right;
+}
+
+.woocommerce-checkout-review-order-table .amount {
   white-space: nowrap;
 }
 
 .woocommerce-checkout-review-order-table .cart_item td {
   padding: 20px 0;
-  border-bottom: 1px solid var(--line);
   font-size: var(--body-sm);
 }
 
 .woocommerce-checkout-review-order-table .cart_item .product-total {
-  padding-left: 12px;
-  vertical-align: middle;
+  align-self: center;
 }
 
 .woocommerce-checkout-review-order-table .variation {
@@ -875,15 +904,17 @@ form.checkout {
 .woocommerce-checkout-review-order-table tfoot th,
 .woocommerce-checkout-review-order-table tfoot td {
   padding: 16px 0;
-  border-bottom: 1px solid var(--line);
   font-size: var(--body-sm);
+}
+
+.woocommerce-checkout-review-order-table tfoot .order-total {
+  align-items: baseline;
+  border-bottom: 0;
 }
 
 .woocommerce-checkout-review-order-table tfoot .order-total th,
 .woocommerce-checkout-review-order-table tfoot .order-total td {
   padding: 28px 0 0;
-  border-bottom: 0;
-  vertical-align: baseline;
 }
 
 .woocommerce-checkout-review-order-table tfoot .order-total th {
@@ -949,8 +980,10 @@ form.checkout {
   opacity: .6 !important;
 }
 
-.eres-main--single .woocommerce > * + * {
-  margin-top: 24px;
+.eres-main--single .woocommerce > * + *,
+.eres-main--single .woocommerce-order > * + *,
+.eres-main--single section {
+  margin-top: 28px;
 }
 
 .eres-main--single h2,

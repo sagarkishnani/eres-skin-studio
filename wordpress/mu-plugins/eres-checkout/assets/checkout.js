@@ -49,6 +49,50 @@
       });
   }
 
+  var VALIDATED_FIELDS = "#billing_phone, #billing_numero_documento, #billing_address_1";
+  var PHONE_SEPARATORS = /[\s\-()]/g;
+
+  function fieldErrorMessage(fieldId, value) {
+    var rules = settings.validation;
+    if (!rules || value === "") {
+      return "";
+    }
+    if (fieldId === "billing_phone") {
+      return new RegExp(rules.phone.pattern).test(value.replace(PHONE_SEPARATORS, "")) ? "" : rules.phone.message;
+    }
+    if (fieldId === "billing_numero_documento") {
+      var documentRule = rules.documents[$("#billing_tipo_documento").val()] || rules.defaultDocument;
+      return new RegExp(documentRule.pattern).test(value) ? "" : documentRule.message;
+    }
+    return value.length >= rules.address.minLength ? "" : rules.address.message;
+  }
+
+  function clearFieldError() {
+    $(this).closest(".form-row").find(".eres-field-error").remove();
+  }
+
+  function validateField() {
+    var $input = $(this);
+    var $row = $input.closest(".form-row");
+    var message = fieldErrorMessage(this.id, $.trim($input.val()));
+
+    $row.find(".eres-field-error").remove();
+    if (message === "") {
+      return;
+    }
+    $input.attr("aria-invalid", "true");
+    $row.removeClass("woocommerce-validated").addClass("woocommerce-invalid");
+    $("<p>", { "class": "eres-field-error", text: message }).appendTo($row);
+  }
+
+  function revalidateDocumentNumber() {
+    $("#billing_numero_documento").trigger("change");
+  }
+
+  function clearAllFieldErrors() {
+    $(".eres-field-error").remove();
+  }
+
   function toggleCouponForm() {
     var $toggle = $(this);
     var $form = $("#" + $toggle.attr("aria-controls"));
@@ -73,7 +117,11 @@
     .on("updated_checkout", syncDeliveryAddress)
     .on("click", ".eres-coupon__toggle", toggleCouponForm)
     .on("click", ".eres-coupon__apply", applyCoupon)
-    .on("keydown", "#eres-coupon-code", applyCouponOnEnter);
+    .on("keydown", "#eres-coupon-code", applyCouponOnEnter)
+    .on("focusout change", VALIDATED_FIELDS, validateField)
+    .on("input", VALIDATED_FIELDS, clearFieldError)
+    .on("change", "#billing_tipo_documento", revalidateDocumentNumber)
+    .on("checkout_error", clearAllFieldErrors);
 
   $(syncDeliveryAddress);
 })(jQuery);
