@@ -209,3 +209,49 @@ function eres_checkout_render_fields_section(array $fields): void
     <p class="description">Si ocultas Distrito o Dirección, los pedidos con envío a domicilio llegarán sin ese dato.</p>
     <?php
 }
+
+add_action('woocommerce_update_options_' . ERES_CHECKOUT_SETTINGS_TAB, 'eres_checkout_save_settings');
+
+function eres_checkout_limited_text($value, int $max_length): string
+{
+    return mb_substr(sanitize_text_field(is_scalar($value) ? (string) $value : ''), 0, $max_length);
+}
+
+function eres_checkout_save_settings(): void
+{
+    if (!current_user_can('manage_woocommerce')) {
+        return;
+    }
+
+    // WooCommerce ya verificó el nonce del formulario de ajustes antes de disparar este hook.
+    $posted = isset($_POST[ERES_CHECKOUT_SETTINGS_INPUT]) ? (array) wp_unslash($_POST[ERES_CHECKOUT_SETTINGS_INPUT]) : [];
+    $settings = array_merge(eres_checkout_settings_values(), ['version' => ERES_CHECKOUT_SETTINGS_VERSION]);
+    foreach (ERES_CHECKOUT_SETTINGS_SECTIONS as $section) {
+        $settings[$section] = call_user_func('eres_checkout_sanitize_' . $section, $posted[$section] ?? null, $settings[$section]);
+    }
+
+    update_option(ERES_CHECKOUT_SETTINGS_OPTION, $settings, true);
+}
+
+function eres_checkout_sanitize_fields($posted, array $current): array
+{
+    $posted = (array) $posted;
+    $defaults = eres_checkout_default_config()['fields'];
+    $fields = [];
+
+    foreach ($defaults as $key => $default) {
+        $field = (array) ($posted[$key] ?? []);
+        $is_locked = !empty($default['locked']);
+        $is_visible = $is_locked || !empty($field['visible']);
+        $label = eres_checkout_limited_text($field['label'] ?? '', ERES_CHECKOUT_LABEL_MAX_LENGTH);
+
+        $fields[$key] = [
+            'visible' => $is_visible,
+            'required' => $is_locked || ($is_visible && !empty($field['required'])),
+            'label' => $label !== '' ? $label : $default['label'],
+            'placeholder' => eres_checkout_limited_text($field['placeholder'] ?? '', ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH),
+        ];
+    }
+
+    return $fields;
+}
