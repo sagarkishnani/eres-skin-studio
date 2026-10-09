@@ -29,3 +29,5 @@ function eres_checkout_asset_version(string $path): string
 {
     return (string) filemtime(ERES_CHECKOUT_DIR . '/assets/' . $path);
 }
+
+require ERES_CHECKOUT_DIR . '/shell.php';
