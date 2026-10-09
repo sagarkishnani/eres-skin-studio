@@ -13,6 +13,7 @@ import { maintenanceCollection } from "./collections/maintenance";
 import { cookieConsentCollection } from "./collections/cookieConsent";
 import { promoPopupCollection } from "./collections/promoPopup";
 import { systemPagesCollection } from "./collections/systemPages";
+import { legalCollection } from "./collections/legal";
 
 export default defineConfig({
   // Baked into the generated client at build time; NOT read at runtime.
@@ -48,6 +49,7 @@ export default defineConfig({
       cookieConsentCollection,
       promoPopupCollection,
       systemPagesCollection,
+      legalCollection,
     ],
   },
 });
