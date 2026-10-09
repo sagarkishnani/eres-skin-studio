@@ -155,6 +155,7 @@ function eres_checkout_enqueue_assets(): void
 
     wp_enqueue_style(ERES_CHECKOUT_STYLE_HANDLE, eres_checkout_asset_url('checkout.css'), [], eres_checkout_asset_version('checkout.css'));
     wp_enqueue_script(ERES_CHECKOUT_SCRIPT_HANDLE, eres_checkout_asset_url('checkout.js'), ['jquery', 'wc-checkout'], eres_checkout_asset_version('checkout.js'), true);
+    wp_localize_script(ERES_CHECKOUT_SCRIPT_HANDLE, 'eresCheckout', apply_filters('eres_checkout_script_settings', []));
 }
 
 function eres_checkout_dequeue_foreign_styles(): void

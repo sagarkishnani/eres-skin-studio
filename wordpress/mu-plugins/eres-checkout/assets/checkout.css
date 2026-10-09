@@ -545,6 +545,11 @@ form.checkout {
   gap: 12px;
 }
 
+.eres-delivery__empty {
+  font-size: var(--body-sm);
+  color: var(--content-muted);
+}
+
 .eres-delivery__option {
   display: flex;
   align-items: center;
