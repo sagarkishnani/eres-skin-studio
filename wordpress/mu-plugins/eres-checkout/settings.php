@@ -134,3 +134,78 @@ function eres_checkout_apply_settings(array $config): array
 
     return $config;
 }
+
+const ERES_CHECKOUT_SETTINGS_TAB = 'eres_checkout';
+const ERES_CHECKOUT_SETTINGS_INPUT = 'eres_checkout';
+const ERES_CHECKOUT_SETTINGS_SECTIONS = ['fields'];
+const ERES_CHECKOUT_LABEL_MAX_LENGTH = 60;
+const ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH = 80;
+
+add_filter('woocommerce_settings_tabs_array', 'eres_checkout_settings_tab', 50);
+add_action('woocommerce_settings_' . ERES_CHECKOUT_SETTINGS_TAB, 'eres_checkout_render_settings');
+
+function eres_checkout_settings_tab(array $tabs): array
+{
+    $tabs[ERES_CHECKOUT_SETTINGS_TAB] = 'Checkout ERES';
+
+    return $tabs;
+}
+
+function eres_checkout_settings_input_name(string ...$path): string
+{
+    return ERES_CHECKOUT_SETTINGS_INPUT . '[' . implode('][', $path) . ']';
+}
+
+function eres_checkout_render_settings(): void
+{
+    $values = eres_checkout_settings_values();
+    foreach (ERES_CHECKOUT_SETTINGS_SECTIONS as $section) {
+        call_user_func('eres_checkout_render_' . $section . '_section', $values[$section]);
+    }
+}
+
+function eres_checkout_render_fields_section(array $fields): void
+{
+    $defaults = eres_checkout_default_config()['fields'];
+    ?>
+    <h2>Campos</h2>
+    <p>Qué datos pide el checkout y cuáles son obligatorios. Nombre, Apellidos y Correo electrónico siempre se piden.</p>
+    <table class="widefat striped" style="max-width: 960px;">
+        <thead>
+            <tr>
+                <th>Campo</th>
+                <th>Visible</th>
+                <th>Obligatorio</th>
+                <th>Etiqueta</th>
+                <th>Placeholder</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($fields as $key => $field) : ?>
+                <?php $is_locked = !empty($defaults[$key]['locked']); ?>
+                <tr>
+                    <td>
+                        <strong><?php echo esc_html($defaults[$key]['label']); ?></strong>
+                        <?php if (!empty($defaults[$key]['delivery_only'])) : ?>
+                            <br><span class="description">Solo con envío a domicilio</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <input type="checkbox" name="<?php echo esc_attr(eres_checkout_settings_input_name('fields', $key, 'visible')); ?>" value="1" aria-label="Visible" <?php checked($field['visible']); ?> <?php disabled($is_locked); ?>>
+                    </td>
+                    <td>
+                        <input type="checkbox" name="<?php echo esc_attr(eres_checkout_settings_input_name('fields', $key, 'required')); ?>" value="1" aria-label="Obligatorio" <?php checked($field['required']); ?> <?php disabled($is_locked); ?>>
+                    </td>
+                    <td>
+                        <input type="text" class="regular-text" style="width: 100%;" name="<?php echo esc_attr(eres_checkout_settings_input_name('fields', $key, 'label')); ?>" value="<?php echo esc_attr($field['label']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_LABEL_MAX_LENGTH); ?>" aria-label="Etiqueta">
+                    </td>
+                    <td>
+                        <input type="text" class="regular-text" style="width: 100%;" name="<?php echo esc_attr(eres_checkout_settings_input_name('fields', $key, 'placeholder')); ?>" value="<?php echo esc_attr($field['placeholder']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_PLACEHOLDER_MAX_LENGTH); ?>" aria-label="Placeholder">
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <p class="description">Si ocultas Distrito o Dirección, los pedidos con envío a domicilio llegarán sin ese dato.</p>
+    <?php
+}
