@@ -306,3 +306,33 @@ function eres_checkout_privacy_text($text, $type)
         esc_url(eres_checkout_site_link(ERES_CHECKOUT_TERMS_PATH))
     );
 }
+
+add_action('init', 'eres_checkout_replace_coupon_form', 20);
+
+function eres_checkout_replace_coupon_form(): void
+{
+    // El formulario nativo es un <form> aparte: dentro de la columna quedaría anidado en form.checkout.
+    remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+    add_action('eres_checkout_after_title', 'eres_checkout_coupon_block');
+}
+
+function eres_checkout_coupon_block(): void
+{
+    if (!wc_coupons_enabled()) {
+        return;
+    }
+    ?>
+    <div class="eres-coupon" data-eres-coupon>
+        <p class="eres-coupon__prompt">
+            ¿Tienes un código de descuento?
+            <button type="button" class="eres-coupon__toggle" aria-expanded="false" aria-controls="eres-coupon-form">Haz clic para aplicarlo</button>
+        </p>
+        <div class="eres-coupon__form" id="eres-coupon-form" hidden>
+            <label class="screen-reader-text" for="eres-coupon-code">Código de descuento</label>
+            <input type="text" id="eres-coupon-code" placeholder="Ej. BIENVENIDA10" autocomplete="off" autocapitalize="characters">
+            <button type="button" class="button eres-coupon__apply">Aplicar</button>
+        </div>
+        <p class="eres-coupon__message" role="status" hidden></p>
+    </div>
+    <?php
+}

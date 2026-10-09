@@ -406,18 +406,13 @@ form.checkout {
   min-height: var(--field-height);
 }
 
-.eres-coupon__feedback:empty {
-  display: none;
+.eres-coupon__message {
+  margin-top: 12px;
+  font-size: var(--body-xs);
 }
 
-.eres-coupon__feedback {
-  margin-top: 16px;
-}
-
-.eres-coupon__feedback .woocommerce-message,
-.eres-coupon__feedback .woocommerce-error {
-  margin-bottom: 0;
-  background: var(--surface-raised);
+.eres-coupon__message--error {
+  color: var(--error);
 }
 
 .eres-step {
