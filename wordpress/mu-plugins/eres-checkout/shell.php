@@ -102,3 +102,83 @@ function eres_checkout_page_title(): string
 
     return eres_checkout_is_order_received() ? 'Pedido recibido' : 'Checkout';
 }
+
+const ERES_CHECKOUT_STYLE_HANDLE = 'eres-checkout-page';
+const ERES_CHECKOUT_SCRIPT_HANDLE = 'eres-checkout-page';
+const ERES_CHECKOUT_FOREIGN_STYLE_SOURCES = [
+    '/themes/',
+    '/plugins/elementor',
+    '/uploads/elementor/',
+    '/jet-',
+    '/uploads/eres/',
+    '/woocommerce/assets/css/woocommerce',
+    'fonts.googleapis.com',
+];
+
+add_filter('woocommerce_enqueue_styles', 'eres_checkout_skip_woocommerce_styles');
+add_action('wp', 'eres_checkout_skip_customizer_css');
+add_action('wp_head', 'eres_checkout_preload_font', 1);
+add_action('wp_enqueue_scripts', 'eres_checkout_enqueue_assets', 20);
+add_action('wp_enqueue_scripts', 'eres_checkout_dequeue_foreign_styles', PHP_INT_MAX);
+// Elementor y los plugins Jet encolan más hojas mientras pintan el cuerpo: se imprimen en wp_footer con prioridad 20.
+add_action('wp_footer', 'eres_checkout_dequeue_foreign_styles', 1);
+
+function eres_checkout_skip_woocommerce_styles($styles)
+{
+    return eres_checkout_is_page() ? [] : $styles;
+}
+
+function eres_checkout_skip_customizer_css(): void
+{
+    if (eres_checkout_is_page()) {
+        remove_action('wp_head', 'wp_custom_css_cb', 101);
+    }
+}
+
+function eres_checkout_preload_font(): void
+{
+    if (!eres_checkout_is_page()) {
+        return;
+    }
+
+    printf(
+        '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
+        esc_url(eres_checkout_asset_url('fonts/dm-sans-latin-wght-normal.woff2'))
+    );
+}
+
+function eres_checkout_enqueue_assets(): void
+{
+    if (!eres_checkout_is_page()) {
+        return;
+    }
+
+    wp_enqueue_style(ERES_CHECKOUT_STYLE_HANDLE, eres_checkout_asset_url('checkout.css'), [], eres_checkout_asset_version('checkout.css'));
+    wp_enqueue_script(ERES_CHECKOUT_SCRIPT_HANDLE, eres_checkout_asset_url('checkout.js'), ['jquery', 'wc-checkout'], eres_checkout_asset_version('checkout.js'), true);
+}
+
+function eres_checkout_dequeue_foreign_styles(): void
+{
+    if (!eres_checkout_is_page()) {
+        return;
+    }
+
+    $styles = wp_styles();
+    foreach ($styles->queue as $handle) {
+        $source = (string) ($styles->registered[$handle]->src ?? '');
+        if (eres_checkout_is_foreign_style($source)) {
+            wp_dequeue_style($handle);
+        }
+    }
+}
+
+function eres_checkout_is_foreign_style(string $source): bool
+{
+    foreach (ERES_CHECKOUT_FOREIGN_STYLE_SOURCES as $fragment) {
+        if (str_contains($source, $fragment)) {
+            return true;
+        }
+    }
+
+    return false;
+}
