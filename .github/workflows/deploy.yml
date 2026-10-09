@@ -96,3 +96,39 @@ jobs:
             if [ "$name" = "data" ]; then continue; fi
             rsync -az --delete -e "$RSYNC_SSH" "dist/$name/" "$REMOTE/$name/"
           done
+
+      # Astro y WordPress comparten la raíz: cada petición comprueba que una ruta la sigue sirviendo quien debe.
+      - name: Prueba de humo
+        env:
+          SITE_URL: https://eresskinstudio.com
+        working-directory: ${{ runner.temp }}
+        run: |
+          failed=0
+          probe() {
+            curl -sS --retry 2 --max-time 30 -o body.txt -D headers.txt -w '%{http_code}' "$SITE_URL$1" || true
+          }
+          expect() {
+            if [ "$2" = "ok" ]; then echo "ok    $1"; else echo "::error::Prueba de humo: $1"; failed=1; fi
+          }
+          status_is() { [ "$1" = "$2" ] && echo ok || echo fail; }
+
+          code="$(probe /)"
+          expect "/ responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "/ es la home de Astro" "$(grep -q '/_astro/' body.txt && echo ok || echo fail)"
+
+          code="$(probe '/?wc-ajax=get_refreshed_fragments')"
+          expect "/?wc-ajax= responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "/?wc-ajax= llega a WooCommerce" "$(grep -qi '^content-type: application/json' headers.txt && echo ok || echo fail)"
+
+          code="$(probe /wp-json/wc/store/v1/cart)"
+          expect "la Store API responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "la Store API entrega el Cart-Token" "$(grep -qi '^cart-token:' headers.txt && echo ok || echo fail)"
+
+          code="$(probe '/woo-api.php?resource=categories')"
+          expect "woo-api.php responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "woo-api.php lee el catálogo" "$(grep -q '"ok":true' body.txt && echo ok || echo fail)"
+
+          code="$(probe /ruta-que-no-existe-eres/)"
+          expect "una ruta inexistente responde 404 ($code)" "$(status_is "$code" 404)"
+
+          exit "$failed"
