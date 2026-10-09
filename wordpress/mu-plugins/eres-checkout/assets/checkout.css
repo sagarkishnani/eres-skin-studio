@@ -253,6 +253,13 @@ body.eres-checkout-page {
   border-top-color: var(--error);
 }
 
+/* El CSS global de WordPress pinta un ícono con !important en los avisos hasta que se limpie (README §13). */
+.eres-checkout-page .woocommerce-message::before,
+.eres-checkout-page .woocommerce-info::before,
+.eres-checkout-page .woocommerce-error::before {
+  display: none !important;
+}
+
 .woocommerce-error li + li {
   margin-top: 6px;
 }
