@@ -9,6 +9,7 @@ const ERES_CHECKOUT_DOCUMENT_RULES = [
     'RUC' => ['pattern' => '^\d{11}$', 'message' => 'El RUC debe tener 11 dígitos.'],
 ];
 const ERES_CHECKOUT_DEFAULT_DOCUMENT_RULE = ['pattern' => '^[A-Za-z0-9]{5,12}$', 'message' => 'El número de documento debe tener entre 5 y 12 letras o números.'];
+const ERES_CHECKOUT_EMAIL_RULE = ['pattern' => '^[^\s@]+@[^\s@]+\.[^\s@]+$', 'message' => 'Ingresa un correo electrónico válido.'];
 const ERES_CHECKOUT_ADDRESS_RULE = ['minLength' => 5, 'message' => 'La dirección debe tener al menos 5 caracteres.'];
 const ERES_CHECKOUT_ORDER_META_FIELDS = [
     '_billing_tipo_documento' => 'billing_tipo_documento',
@@ -93,9 +94,26 @@ function eres_checkout_validate(array $data, WP_Error $errors): void
     }
 }
 
+function eres_checkout_required_text(string $label): string
+{
+    return sprintf('%s es un campo obligatorio.', $label);
+}
+
 function eres_checkout_required_message(string $label): string
 {
-    return sprintf('<strong>%s</strong> es un campo obligatorio.', esc_html($label));
+    return eres_checkout_required_text('<strong>' . esc_html($label) . '</strong>');
+}
+
+function eres_checkout_required_texts(): array
+{
+    $texts = [];
+    foreach (eres_checkout_visible_fields() as $key => $settings) {
+        if (eres_checkout_is_field_required($settings)) {
+            $texts[$key] = eres_checkout_required_text($settings['label']);
+        }
+    }
+
+    return $texts;
 }
 
 function eres_checkout_required_field_notice($notice, $field_label, $key)
@@ -145,6 +163,8 @@ function eres_checkout_admin_order_meta(WC_Order $order): void
 function eres_checkout_validation_script_settings(array $settings): array
 {
     $settings['validation'] = [
+        'required' => eres_checkout_required_texts(),
+        'email' => ERES_CHECKOUT_EMAIL_RULE,
         'phone' => ERES_CHECKOUT_PHONE_RULE,
         'documents' => ERES_CHECKOUT_DOCUMENT_RULES,
         'defaultDocument' => ERES_CHECKOUT_DEFAULT_DOCUMENT_RULE,

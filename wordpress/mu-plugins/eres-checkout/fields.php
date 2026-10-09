@@ -6,7 +6,7 @@ const ERES_CHECKOUT_COUNTRY = 'PE';
 const ERES_CHECKOUT_STATE = 'LMA';
 const ERES_CHECKOUT_DEFAULT_CITY = 'Lima';
 const ERES_CHECKOUT_PICKUP_METHOD = 'local_pickup';
-const ERES_CHECKOUT_FULL_WIDTH_FIELDS = ['billing_address_1', 'billing_address_2'];
+const ERES_CHECKOUT_FULL_WIDTH_FIELDS = ['billing_distrito', 'billing_address_1', 'billing_address_2'];
 
 add_filter('woocommerce_checkout_fields', 'eres_checkout_fields', 1000);
 add_filter('woocommerce_enable_order_notes_field', '__return_false');

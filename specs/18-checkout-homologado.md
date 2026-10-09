@@ -88,7 +88,7 @@ Cortes: **móvil** `< 768px`, **tablet** `768–1023px`, **desktop** `≥ 1024px
    - "Recojo en el local" / "Calle Libertad 176, of. 413 · Miraflores".
    - "Envío a domicilio · S/12.00" / "Envío en 48h · Distritos seleccionados de Lima".
    - La tarjeta elegida lleva borde `ink` y fondo `surface`.
-   - Con "Envío a domicilio" aparecen debajo: Distrito (media columna), Dirección (ancho completo) y Referencia (ancho completo, opcional).
+   - Con "Envío a domicilio" aparecen debajo: Distrito, Dirección y Referencia (opcional), los tres a ancho completo.
 5. **Paso 3 de 3 · Pago** — "¿Cómo prefieres pagar?". Método de pago con borde `ink`, texto de privacidad y botón.
 6. Botón: fondo `ink`, texto `content-inverse`, 64px de alto, candado y "Realizar pedido · S/209.00".
 
@@ -356,6 +356,9 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 - **Sí:** ocultar CookieYes en el checkout con CSS. El usuario pidió quitarlo ahí. Desinstalarlo es otra decisión.
 - **Sí:** pase directo en producción con reversa. El usuario descartó armar un staging de WordPress.
 - **Sí:** `eres_buy_now` se queda en un snippet aparte. La tienda de WordPress lo usa hasta la migración.
+- **Sí:** Distrito a ancho completo. Pedido del usuario tras el primer pase.
+- **Sí:** validar todos los campos en el navegador antes de enviar. El script de Culqi escucha `checkout_place_order`, envía el pedido por su cuenta y ante un rechazo solo muestra `alert('Order creation failed')`: sin este freno, un campo vacío terminaba en esa alerta.
+- **Sí:** interceptar la respuesta de `wc-ajax=checkout`. Si el servidor rechaza el pedido, se silencia esa alerta y se pintan sus mensajes arriba del formulario y bajo cada campo.
 - **Definición rápida:** el usuario confirmó el encabezado y pidió asumir el resto y guardar. Son propuestas no revisadas: la división en dos specs, el orden de los campos, el resumen debajo del formulario en móvil, los tamaños de la referencia de diseño, el texto "¡Tienes envío gratuito!" y las reglas de validación (celular de 9 dígitos, DNI de 8, RUC de 11, CE y Pasaporte de 5 a 12 caracteres, dirección de 5 o más).
 
 ## Riesgos
@@ -372,6 +375,7 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 | Un método de envío nuevo no tiene entrada en `delivery` | Muestra su título de WooCommerce sin subtítulo y se trata como envío a domicilio. |
 | Otro plugin engancha contenido en hooks del checkout que ya no se pintan donde espera | Se usan los hooks estándar de WooCommerce. Solo cambian de lugar el pago y la fila de envío. |
 | Con `?cart-token=` inválido, `eres-cart-handoff` redirige a `/checkout/` y este a `/productos` | Es el comportamiento buscado con la constante definida. Sin ella, sigue como en SPEC 14. |
+| Un snippet viejo sigue validando en el servidor y rechaza pedidos de recojo ("La dirección debe tener al menos 5 caracteres.") | Sus mensajes llegan sin `data-id`. Se busca ese texto en Code Snippets y se desactiva el snippet que lo contiene. |
 | Un pedido de prueba real en producción | Monto bajo y reembolso desde Culqi. Lo decide el usuario al hacer el pase. |
 
 ## Lo que **no** entra en esta spec
