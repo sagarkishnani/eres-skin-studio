@@ -10,14 +10,19 @@ defined('ABSPATH') || exit;
 
 const ERES_CHECKOUT_DIR = __DIR__ . '/eres-checkout';
 
-function eres_checkout_config(): array
+function eres_checkout_default_config(): array
 {
     static $config = null;
     if ($config === null) {
         $config = require ERES_CHECKOUT_DIR . '/config.php';
     }
 
-    return apply_filters('eres_checkout_config', $config);
+    return $config;
+}
+
+function eres_checkout_config(): array
+{
+    return apply_filters('eres_checkout_config', eres_checkout_default_config());
 }
 
 function eres_checkout_asset_url(string $path): string
@@ -34,3 +39,4 @@ require ERES_CHECKOUT_DIR . '/shell.php';
 require ERES_CHECKOUT_DIR . '/fields.php';
 require ERES_CHECKOUT_DIR . '/layout.php';
 require ERES_CHECKOUT_DIR . '/validation.php';
+require ERES_CHECKOUT_DIR . '/settings.php';
