@@ -1,6 +1,6 @@
 # SPEC 21 — Pase a producción en la raíz compartida con WordPress
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 02, SPEC 13, SPEC 14, SPEC 18, SPEC 20
 > **Fecha:** 2026-10-09
 > **Objetivo:** Publicar el sitio Astro en `eresskinstudio.com`, en la misma carpeta que WordPress, con deploy automático en cada push a `main` y un inventario de qué se queda y qué se retira en WordPress y en el servidor.
