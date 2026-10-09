@@ -142,6 +142,7 @@ try {
 
     $replyEmail = $input['email'] ?? $input['correo'] ?? '';
     $replyName  = trim(($input['nombre'] ?? '') . ' ' . ($input['apellido'] ?? ''));
+    if ($replyName === '') $replyName = trim($input['nombreCompleto'] ?? '');
     if ($replyEmail && filter_var($replyEmail, FILTER_VALIDATE_EMAIL)) {
         $mail->addReplyTo($replyEmail, $replyName);
     }
@@ -177,7 +178,11 @@ try {
                 $confirm->isHTML(true);
 
                 $richTypes = ['contacto'];
-                if (in_array($formType, $richTypes, true)) {
+                if ($formType === 'libro-de-reclamaciones') {
+                    $confirm->Subject = "Constancia de tu reclamo [$correlativo] — ERES Skin Studio";
+                    $confirm->Body    = buildClaimReceipt($leadName, $correlativo, getFieldRows($formType, $input));
+                    $confirm->AltBody = buildClaimReceiptText($leadName, $correlativo, getFieldRows($formType, $input));
+                } elseif (in_array($formType, $richTypes, true)) {
                     $confirm->Subject = 'Gracias por contactarnos — ERES Skin Studio';
                     $confirm->Body    = buildConfirmRich($leadName, $ASSET_BASE);
                     $confirm->AltBody = 'Hola' . ($leadName ? " $leadName" : '') . ', hemos recibido tus datos. Nos comunicaremos contigo muy pronto. — ERES Skin Studio';
@@ -240,7 +245,7 @@ function generateCorrelative(string $type): string {
     $dir = dirname($COUNTER_FILE);
     if (!is_dir($dir)) mkdir($dir, 0755, true);
     $counters = file_exists($COUNTER_FILE) ? json_decode(file_get_contents($COUNTER_FILE), true) ?: [] : [];
-    $prefixes = ['contacto'=>'CON'];
+    $prefixes = ['contacto'=>'CON', 'libro-de-reclamaciones'=>'LDR'];
     $prefix = $prefixes[$type] ?? 'GEN';
     $current = ($counters[$type] ?? 0) + 1;
     $counters[$type] = $current;
@@ -289,7 +294,7 @@ function verifyTurnstile(string $secret, string $token, string $remoteIp): bool 
 }
 
 function getSubjectPrefix(string $type): string {
-    $map = ['contacto' => 'Nuevo contacto web'];
+    $map = ['contacto' => 'Nuevo contacto web', 'libro-de-reclamaciones' => 'Nuevo reclamo en el libro de reclamaciones'];
     return $map[$type] ?? 'Nuevo formulario web';
 }
 
@@ -346,6 +351,21 @@ function getFieldRows(string $type, array $data): array {
                 'Email'    => $data['correo'] ?? $data['email'] ?? '',
                 'Mensaje'  => $data['mensaje'] ?? $data['comentario'] ?? '',
             ];
+        case 'libro-de-reclamaciones':
+            return [
+                'Nombre completo'       => $data['nombreCompleto'] ?? '',
+                'Dirección'             => $data['direccion'] ?? '',
+                'Tipo de documento'     => $data['tipoDocumento'] ?? '',
+                'Número de documento'   => $data['numeroDocumento'] ?? '',
+                'Correo electrónico'    => $data['correo'] ?? '',
+                'Teléfono'              => $data['telefono'] ?? '',
+                'Tipo de bien'          => $data['tipoBien'] ?? '',
+                'Monto reclamado'       => ($data['montoReclamado'] ?? '') !== '' ? 'S/ ' . $data['montoReclamado'] : '',
+                'Descripción del bien'  => $data['descripcionBien'] ?? '',
+                'Tipo de solicitud'     => $data['tipoSolicitud'] ?? '',
+                'Detalle'               => $data['detalle'] ?? '',
+                'Pedido'                => $data['pedido'] ?? '',
+            ];
         default:
             $rows = [];
             foreach ($data as $k => $v) {
@@ -371,6 +391,33 @@ function buildConfirmSimple(string $leadName, string $correlativo, string $asset
         . '<p style="color:#aaa;font-size:12px;margin:0;">Este es un mensaje automático, por favor no respondas a este correo.</p></td></tr>'
         . '<tr><td style="padding:16px 32px;background:#f9fafb;border-top:1px solid #eee;text-align:center;"><p style="margin:0;color:#aaa;font-size:11px;">© ' . $year . ' ERES Skin Studio</p></td></tr>'
         . '</table></td></tr></table></body></html>';
+}
+
+function buildClaimReceipt(string $leadName, string $correlativo, array $rows): string {
+    $name = $leadName !== '' ? ' <strong>' . h($leadName) . '</strong>' : '';
+    $tableRows = '';
+    foreach (['Número de reclamo' => $correlativo, 'Fecha de registro' => date('d/m/Y H:i')] + $rows as $label => $value) {
+        if ($value === '') continue;
+        $tableRows .= '<tr><td style="padding:8px 0;color:#888;width:180px;vertical-align:top;font-size:13px;">' . h($label) . '</td><td style="padding:8px 0;font-weight:500;font-size:14px;color:#333;">' . nl2br(h($value)) . '</td></tr>';
+    }
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;">'
+        . '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;"><tr><td align="center">'
+        . '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">'
+        . '<tr><td style="background:#171D1A;padding:24px 32px;"><p style="margin:0;color:#fff;font-size:18px;font-weight:700;">ERES Skin Studio</p>'
+        . '<p style="margin:6px 0 0;color:#ffffffaa;font-size:13px;">Libro de reclamaciones</p></td></tr>'
+        . '<tr><td style="padding:32px 32px 8px;">'
+        . '<p style="color:#333;font-size:15px;margin:0 0 16px;">Hola' . $name . ',</p>'
+        . '<p style="color:#555;font-size:14px;line-height:1.7;margin:0;">Registramos tu solicitud en nuestro libro de reclamaciones. Esta es la constancia de lo que presentaste. La respuesta llegará a este correo.</p></td></tr>'
+        . '<tr><td style="padding:16px 32px 32px;"><table width="100%" cellpadding="0" cellspacing="0">' . $tableRows . '</table></td></tr>'
+        . '<tr><td style="padding:16px 32px;background:#f9fafb;border-top:1px solid #eee;text-align:center;"><p style="margin:0;color:#aaa;font-size:11px;">© ' . date('Y') . ' ERES Skin Studio</p></td></tr>'
+        . '</table></td></tr></table></body></html>';
+}
+
+function buildClaimReceiptText(string $leadName, string $correlativo, array $rows): string {
+    $text = 'Hola' . ($leadName !== '' ? " $leadName" : '') . ", registramos tu solicitud en nuestro libro de reclamaciones.\n\n";
+    $text .= "Número de reclamo: $correlativo\nFecha de registro: " . date('d/m/Y H:i') . "\n";
+    foreach ($rows as $label => $value) { if ($value !== '') $text .= "$label: $value\n"; }
+    return $text;
 }
 
 function buildConfirmRich(string $leadName, string $assetBase): string {
