@@ -42,6 +42,21 @@ jobs:
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
         run: npm run build
 
+      # La raíz se comparte con WordPress: un nombre suyo en dist/ acabaría en el rsync --delete de esa carpeta.
+      - name: Verificar nombres protegidos
+        working-directory: dist
+        run: |
+          shopt -s nullglob
+          protected=(wp-admin wp-content wp-includes .private index.php xmlrpc.php wp-*.php)
+          found=()
+          for name in "${protected[@]}"; do
+            if [ -e "$name" ]; then found+=("$name"); fi
+          done
+          if [ "${#found[@]}" -gt 0 ]; then
+            echo "::error::dist/ contiene nombres reservados para WordPress: ${found[*]}"
+            exit 1
+          fi
+
       - name: Configurar SSH
         env:
           SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
