@@ -123,8 +123,11 @@ Colecciones:
   de "quedan pocas", estilo de la etiqueta de descuento (`discountBadgeStyle`),
   ajustes del catálogo (`catalog`) y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
-- `systemPages` — textos y SEO del 404 (`notFound`, con enlaces rápidos) y de
-  `/gracias` (`thankYou`).
+- `systemPages` — textos y SEO del 404 (`notFound`, con enlaces rápidos), de
+  `/gracias` (`thankYou`) y de `/libro-de-reclamaciones` (`legalClaims`, con
+  los datos del proveedor).
+- `legal` — páginas legales en MDX (`src/content/legal/`): el nombre del
+  archivo es la URL.
 
 ### Formularios (definidos en el CMS)
 
@@ -284,6 +287,23 @@ circular; la sección Journal de la home usa las mismas funciones.
   portada va entre lead y cuerpo, y cualquier `>` del MDX se muestra como la
   cita destacada. `PostBody` da estilo con componentes de `TinaMarkdown`, sin
   `prose`. "Compartir" usa `useShareLink`, el mismo hook de la ficha.
+
+### Páginas legales
+
+Spec: `specs/20-paginas-legales.md`. `src/pages/[legal].astro` publica una
+página por documento de la colección `legal` (`/terminos-y-condiciones`,
+`/cambios-y-devoluciones`); una política nueva es un MDX nuevo, sin código.
+
+- **Secciones** — cada `##` del cuerpo abre una sección y `LegalPageReact` la
+  numera con un contador CSS (`01`, `02`…): el número no se escribe en el MDX.
+  Un `>` se muestra como aviso destacado.
+- **Libro de reclamaciones** — `/libro-de-reclamaciones` junta la cabecera de
+  `systemPages.legalClaims` con el formulario `libro-de-reclamaciones` de
+  `dynamicForms`. `send-email.php` numera cada reclamo como `LDR-000001` y le
+  envía a la consumidora una constancia con los datos que presentó; el reclamo
+  queda además en `data/submissions/`.
+- Las dos islas usan `client:tina`: en producción estas páginas no cargan React
+  salvo por el formulario.
 
 ### Popup promocional
 
