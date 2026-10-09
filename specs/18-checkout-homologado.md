@@ -215,8 +215,8 @@ define('ERES_STOREFRONT_URL', 'https://eresskinstudio.com');
 | Enlace | Constante vacía o sin definir | Constante con valor |
 |---|---|---|
 | "← Volver" y logo | Página de la tienda de WooCommerce | `<url>/productos` |
-| "Editar" | `/cart/` de WooCommerce | `<url>/productos?carrito=abierto` |
-| Checkout con carrito vacío | Comportamiento de WooCommerce | Redirige a `<url>/productos` |
+| "Editar" | Página de la tienda de WooCommerce | `<url>/productos?carrito=abierto` |
+| Checkout con carrito vacío | Redirige a la página de la tienda | Redirige a `<url>/productos` |
 | Enlaces legales y de privacidad | Rutas en el mismo WordPress | `<url>` + ruta |
 
 Mientras WordPress siga en `eresskinstudio.com`, la constante queda sin definir. Se completa en la migración.
@@ -315,7 +315,7 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 
 **Enlaces y Astro**
 
-- [ ] Sin `ERES_STOREFRONT_URL`, "Volver" va a la tienda de WooCommerce y "Editar" a `/cart/`.
+- [ ] Sin `ERES_STOREFRONT_URL`, "Volver" y "Editar" van a la tienda de WooCommerce, y el checkout con carrito vacío redirige ahí.
 - [ ] Con `ERES_STOREFRONT_URL` definida, "Volver" va a `<url>/productos` y "Editar" a `<url>/productos?carrito=abierto`.
 - [ ] Con `ERES_STOREFRONT_URL` definida, abrir `/checkout/` con el carrito vacío redirige a `<url>/productos`.
 - [ ] En el sitio Astro, `/productos?carrito=abierto` abre el carrito y la URL queda en `/productos`.
@@ -359,6 +359,7 @@ Si algo falla en el paso 12: borrar `eres-checkout.php` de `mu-plugins/`, reacti
 - **Sí:** Distrito a ancho completo. Pedido del usuario tras el primer pase.
 - **Sí:** validar todos los campos en el navegador antes de enviar. El script de Culqi escucha `checkout_place_order`, envía el pedido por su cuenta y ante un rechazo solo muestra `alert('Order creation failed')`: sin este freno, un campo vacío terminaba en esa alerta.
 - **Sí:** interceptar la respuesta de `wc-ajax=checkout`. Si el servidor rechaza el pedido, se silencia esa alerta y se pintan sus mensajes arriba del formulario y bajo cada campo.
+- **Sí:** ningún enlace del checkout apunta a `/cart/`. Pedido del usuario tras el pase: así no hay que mantener la página del carrito de WordPress.
 - **Definición rápida:** el usuario confirmó el encabezado y pidió asumir el resto y guardar. Son propuestas no revisadas: la división en dos specs, el orden de los campos, el resumen debajo del formulario en móvil, los tamaños de la referencia de diseño, el texto "¡Tienes envío gratuito!" y las reglas de validación (celular de 9 dígitos, DNI de 8, RUC de 11, CE y Pasaporte de 5 a 12 caracteres, dirección de 5 o más).
 
 ## Riesgos

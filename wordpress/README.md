@@ -314,8 +314,8 @@ define('ERES_STOREFRONT_URL', 'https://eresskinstudio.com');
 | Enlace | Sin la constante (o vacía) | Con la constante |
 |---|---|---|
 | "Volver" y logo | Tienda de WooCommerce | `<url>/productos` |
-| "Editar" del resumen | `/cart/` | `<url>/productos?carrito=abierto` |
-| Checkout con carrito vacío | Redirige a `/cart/` | Redirige a `<url>/productos` |
+| "Editar" del resumen | Tienda de WooCommerce | `<url>/productos?carrito=abierto` |
+| Checkout con carrito vacío | Redirige a la tienda de WooCommerce | Redirige a `<url>/productos` |
 | Enlaces legales y de privacidad | Páginas de este WordPress | `<url>` + ruta |
 
 **Mientras WordPress siga en `eresskinstudio.com`, no la definas.** Antes de definirla, el sitio Astro tiene que tener `/terminos-y-condiciones/`, `/cambios-y-devoluciones/` y `/libro-de-reclamaciones/`: hoy no existen y los enlaces darían 404.

@@ -17,7 +17,7 @@ const ERES_CHECKOUT_WHATSAPP_ICON = '<svg viewBox="0 0 448 512" width="26" heigh
 
 add_filter('template_include', 'eres_checkout_template', PHP_INT_MAX);
 // eres-cart-handoff carga el carrito del token en template_redirect con prioridad 10: sin el token en la URL ya se puede decidir.
-add_action('template_redirect', 'eres_checkout_redirect_empty_cart_to_storefront', 5);
+add_action('template_redirect', 'eres_checkout_redirect_empty_cart_to_shop', 5);
 
 function eres_checkout_is_page(): bool
 {
@@ -62,7 +62,7 @@ function eres_checkout_edit_cart_url(): string
 
     return $storefront !== ''
         ? $storefront . ERES_CHECKOUT_STOREFRONT_SHOP_PATH . '?' . ERES_CHECKOUT_STOREFRONT_OPEN_CART_QUERY
-        : wc_get_cart_url();
+        : eres_checkout_back_url();
 }
 
 function eres_checkout_site_link(string $path): string
@@ -72,9 +72,9 @@ function eres_checkout_site_link(string $path): string
     return $storefront !== '' ? $storefront . $path : home_url($path);
 }
 
-function eres_checkout_redirect_empty_cart_to_storefront(): void
+function eres_checkout_redirect_empty_cart_to_shop(): void
 {
-    if (eres_checkout_storefront_url() === '' || !eres_checkout_is_form() || !empty($_GET[ERES_CHECKOUT_CART_TOKEN_PARAM])) {
+    if (!eres_checkout_is_form() || !empty($_GET[ERES_CHECKOUT_CART_TOKEN_PARAM])) {
         return;
     }
     if (!WC()->cart || !WC()->cart->is_empty()) {
