@@ -1,12 +1,16 @@
 <?php
 // Recibe los webhooks de productos de WooCommerce y dispara el rebuild en GitHub Actions.
 // Woo no permite mandar el header Authorization que pide GitHub, por eso existe este relevo.
+// Un cambio que solo toca existencias no redespliega: el navegador ya lo lee de woo-api.php.
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
 const GITHUB_EVENT_TYPE = 'woo-catalog-changed';
 const MAX_BODY_BYTES = 262144;
+const UPDATED_TOPIC = 'product.updated';
+// El precio y el estado de stock sí cuentan: el build los usa en filtros, orden y etiqueta de descuento.
+const FIELDS_SERVED_LIVE = ['stock_quantity', 'total_sales', 'date_modified', 'date_modified_gmt', '_links'];
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') respond(405, 'Método no permitido.');
 
@@ -34,9 +38,19 @@ if (!isValidSignature($body, $_SERVER['HTTP_X_WC_WEBHOOK_SIGNATURE'] ?? '', $sec
 if (!str_starts_with($topic, 'product.')) respond(200, 'Tema ignorado.');
 
 $product = json_decode($body, true);
+if (!is_array($product)) $product = [];
+$productId = (int)($product['id'] ?? 0);
+
+purgeProxyCache();
+
+$fingerprint = buildFingerprint($product);
+if ($topic === UPDATED_TOPIC && $productId > 0 && readFingerprint($productId) === $fingerprint) {
+    respond(200, 'Sin cambios que requieran rebuild.');
+}
+
 $payload = [
     'event_type'     => GITHUB_EVENT_TYPE,
-    'client_payload' => ['topic' => $topic, 'id' => (int)($product['id'] ?? 0)],
+    'client_payload' => ['topic' => $topic, 'id' => $productId],
 ];
 
 $status = dispatchToGithub($repo, $token, $payload);
@@ -47,7 +61,39 @@ if ($status !== 204) {
     respond(200, 'Rebuild no disparado.');
 }
 
+if ($productId > 0) writeFingerprint($productId, $fingerprint);
+
 respond(200, 'Rebuild disparado.');
+
+function buildFingerprint(array $product): string
+{
+    $relevant = array_diff_key($product, array_flip(FIELDS_SERVED_LIVE));
+    ksort($relevant);
+    return sha1(json_encode($relevant));
+}
+
+function fingerprintPath(int $productId): string
+{
+    $dir = __DIR__ . '/data/woo-rebuild';
+    if (!is_dir($dir)) @mkdir($dir, 0775, true);
+    return "$dir/$productId.txt";
+}
+
+function readFingerprint(int $productId): string
+{
+    $stored = @file_get_contents(fingerprintPath($productId));
+    return $stored === false ? '' : trim($stored);
+}
+
+function writeFingerprint(int $productId, string $fingerprint): void
+{
+    @file_put_contents(fingerprintPath($productId), $fingerprint, LOCK_EX);
+}
+
+function purgeProxyCache(): void
+{
+    foreach (glob(__DIR__ . '/data/woo-cache/*.json') ?: [] as $cached) @unlink($cached);
+}
 
 function isValidSignature(string $body, string $signature, string $secret): bool
 {
