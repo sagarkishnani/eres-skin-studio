@@ -807,10 +807,6 @@ form.checkout {
   vertical-align: middle;
 }
 
-.woocommerce-checkout-review-order-table .product-quantity {
-  display: none;
-}
-
 .woocommerce-checkout-review-order-table .variation {
   margin-top: 4px;
   padding-left: 80px;

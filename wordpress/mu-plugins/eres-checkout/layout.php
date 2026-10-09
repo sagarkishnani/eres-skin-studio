@@ -197,3 +197,112 @@ function eres_checkout_delivery_script_settings(array $settings): array
 
     return $settings;
 }
+
+const ERES_CHECKOUT_TERMS_PATH = '/terminos-y-condiciones/';
+
+// WooCommerce registra sus hooks de plantilla después de cargar los mu-plugins.
+add_action('init', 'eres_checkout_move_payment_out_of_summary', 20);
+add_action('woocommerce_checkout_before_customer_details', 'eres_checkout_open_form_column', 1);
+add_action('woocommerce_checkout_after_customer_details', 'eres_checkout_payment_step', 30);
+add_action('woocommerce_checkout_after_customer_details', 'eres_checkout_close_form_column', 40);
+add_action('woocommerce_checkout_before_order_review_heading', 'eres_checkout_open_summary', 5);
+add_action('woocommerce_checkout_order_review', 'eres_checkout_summary_footer', 15);
+add_action('woocommerce_checkout_after_order_review', 'eres_checkout_close_summary', 999);
+add_filter('woocommerce_cart_item_name', 'eres_checkout_summary_item', 10, 2);
+add_filter('woocommerce_checkout_cart_item_quantity', 'eres_checkout_summary_item_quantity');
+add_filter('woocommerce_get_privacy_policy_text', 'eres_checkout_privacy_text', 10, 2);
+
+function eres_checkout_move_payment_out_of_summary(): void
+{
+    remove_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20);
+}
+
+function eres_checkout_open_form_column(): void
+{
+    echo '<div class="eres-col-left">';
+    echo '<h1 class="eres-title">' . esc_html(eres_checkout_page_title()) . '</h1>';
+    do_action('eres_checkout_after_title');
+    eres_checkout_step_heading(1, 'Datos personales', '¿Quién recibe el pedido?');
+}
+
+function eres_checkout_payment_step(): void
+{
+    eres_checkout_step_heading(eres_checkout_step_count(), 'Pago', '¿Cómo prefieres pagar?');
+    woocommerce_checkout_payment();
+}
+
+function eres_checkout_close_form_column(): void
+{
+    echo '</div>';
+}
+
+function eres_checkout_open_summary(): void
+{
+    printf(
+        '<aside class="eres-summary"><div class="eres-summary__head"><h2 class="eres-summary__title">Resumen de compra</h2><a class="eres-summary__edit" href="%s">Editar</a></div>',
+        esc_url(eres_checkout_edit_cart_url())
+    );
+}
+
+function eres_checkout_close_summary(): void
+{
+    echo '</aside>';
+}
+
+function eres_checkout_summary_footer(): void
+{
+    echo '<p class="eres-summary__note">Impuestos incluidos. Pago en soles peruanos (PEN).</p>';
+    echo '<ul class="eres-trust">';
+    foreach (eres_checkout_config()['trust'] as $item) {
+        printf(
+            '<li class="eres-trust__item">%s<span><strong>%s</strong> · %s</span></li>',
+            eres_checkout_icon($item['icon']),
+            esc_html($item['title']),
+            esc_html($item['text'])
+        );
+    }
+    echo '</ul>';
+}
+
+function eres_checkout_product_category(WC_Product $product): string
+{
+    $catalog_product_id = $product->is_type('variation') ? $product->get_parent_id() : $product->get_id();
+    $categories = get_the_terms($catalog_product_id, 'product_cat');
+
+    return is_array($categories) && $categories ? $categories[0]->name : '';
+}
+
+function eres_checkout_summary_item($name, $cart_item)
+{
+    $product = $cart_item['data'] ?? null;
+    if (!is_checkout() || !$product instanceof WC_Product) {
+        return $name;
+    }
+
+    $category = eres_checkout_product_category($product);
+
+    return sprintf(
+        '<div class="eres-item"><div class="eres-item__thumb">%s<span class="eres-item__qty">%d</span></div><div class="eres-item__meta">%s<span class="eres-item__name">%s</span></div></div>',
+        $product->get_image('woocommerce_gallery_thumbnail'),
+        (int) ($cart_item['quantity'] ?? 1),
+        $category !== '' ? '<span class="eres-item__category">' . esc_html($category) . '</span>' : '',
+        esc_html($product->get_name())
+    );
+}
+
+function eres_checkout_summary_item_quantity(): string
+{
+    return '';
+}
+
+function eres_checkout_privacy_text($text, $type)
+{
+    if ($type !== 'checkout') {
+        return $text;
+    }
+
+    return sprintf(
+        'Tus datos personales se utilizarán para procesar tu pedido y mejorar tu experiencia en este sitio web, según lo descrito en nuestros <a href="%s" target="_blank" rel="noopener">términos y condiciones</a>.',
+        esc_url(eres_checkout_site_link(ERES_CHECKOUT_TERMS_PATH))
+    );
+}
