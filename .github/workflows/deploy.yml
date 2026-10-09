@@ -83,6 +83,7 @@ jobs:
 
           rsync -az \
             --exclude '/.htaccess' \
+            --exclude '/*.example.php' \
             --exclude 'site-config.php' \
             --exclude 'woo-config.php' \
             --include 'data/.htaccess' \
