@@ -21,10 +21,10 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta (`public_ht
 Una carpeta real de Astro (`nosotras/`) gana sola a la página de WordPress del mismo nombre. El reparto lo hace el bloque `wordpress/htaccess-astro.conf`, pegado a mano en el `.htaccess` del servidor (paso 10).
 
 - **Catálogo:** se compila en el build con la API REST v3 de Woo (claves de solo lectura).
-- **Precio y stock:** el navegador los refresca a través de `woo-api.php`.
+- **Precio y stock:** el navegador los refresca a través de `woo-api.php`, sin redeploy. Un cambio se ve al recargar la página.
 - **Carrito:** vive en la Store API de Woo. `woo-api.php` lo proxea y el navegador guarda el `Cart-Token`.
 - **Checkout:** "Finalizar compra" abre `/checkout/?cart-token=…` en WordPress. El mu-plugin `eres-cart-handoff` carga ese carrito.
-- **Rebuild:** los webhooks de producto llaman a `rebuild-hook.php`, que dispara `.github/workflows/deploy.yml`. Además hay un rebuild diario a las 04:00 de Lima.
+- **Rebuild:** los webhooks de producto llaman a `rebuild-hook.php`, que vacía la caché de `woo-api.php` y dispara `.github/workflows/deploy.yml`, salvo que el cambio sea solo de existencias. Además hay un rebuild diario a las 04:00 de Lima.
 
 ## 1. Requisitos
 
@@ -130,6 +130,17 @@ WooCommerce → Ajustes → Avanzado → Webhooks → **Añadir webhook**, cuatr
 
 Al guardar, Woo manda un ping. `rebuild-hook.php` lo responde con `200` sin disparar nada.
 
+Qué pasa con cada cambio:
+
+| Cambio en WooCommerce | Se ve en el sitio | ¿Redeploy? |
+|---|---|---|
+| Cantidad en stock (una venta o un ajuste manual) | Al recargar la página | No |
+| Precio, oferta, o pasar de "hay existencias" a "agotado" y viceversa | Al recargar la página; el redeploy actualiza después los filtros, el orden y la etiqueta de descuento | Sí |
+| Nombre, fotos, descripción, categorías, etiquetas, campos de la ficha | Cuando termina el redeploy (unos minutos) | Sí |
+| Producto creado, eliminado o restaurado | Cuando termina el redeploy | Sí |
+
+`rebuild-hook.php` guarda una huella de cada producto en `data/woo-rebuild/` y la compara con la del webhook, sin contar la cantidad en stock ni el total de ventas. Si la huella no cambió, responde `200` con "Sin cambios que requieran rebuild." y no llama a GitHub. La primera actualización de cada producto siempre redespliega, porque todavía no hay huella. El orden "Más vendidos" se recalcula en el rebuild diario.
+
 Si un webhook aparece **Desactivado**, Woo tuvo varias entregas fallidas seguidas. Revisa los registros (WooCommerce → Estado → Registros, fuente `webhooks-delivery`), corrige y vuelve a activarlo. Mientras tanto, el rebuild diario mantiene el catálogo al día.
 
 ## 7. GitHub Actions
@@ -174,7 +185,8 @@ En el repo → Settings → Secrets and variables → Actions.
 4. Recarga la página. El carrito sigue ahí.
 5. "Finalizar compra" abre el checkout de WooCommerce con los mismos productos y cantidades.
 6. Cambia el precio de un producto en WooCommerce. En GitHub → Actions aparece una ejecución de "Deploy a producción" con evento `repository_dispatch`. Cuando termina, la ficha muestra el precio nuevo.
-7. `curl -X POST -H 'X-WC-Webhook-Topic: product.updated' -H 'X-WC-Webhook-Signature: falsa' -d '{}' https://eresskinstudio.com/rebuild-hook.php` responde `401` y no crea ninguna ejecución en GitHub.
+7. Cambia solo la cantidad en stock de ese mismo producto. No aparece ninguna ejecución nueva en GitHub → Actions y, al recargar la ficha, el stock es el nuevo.
+8. `curl -X POST -H 'X-WC-Webhook-Topic: product.updated' -H 'X-WC-Webhook-Signature: falsa' -d '{}' https://eresskinstudio.com/rebuild-hook.php` responde `401` y no crea ninguna ejecución en GitHub.
 
 ## 10. Pase a producción
 

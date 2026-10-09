@@ -232,6 +232,7 @@ Se queda el tema activo (Hello Elementor funciona sin Elementor) y un tema por d
 5. En `deploy.yml`, agregar el paso "Prueba de humo" al final.
 6. Reescribir `wordpress/README.md`: tabla de dominios, sección 10 como "Pase a producción" con las fases de esta spec, y las menciones al subdominio en las secciones 3, 11, 12 y 13.
 7. Actualizar `CLAUDE.md` y el comentario de `PUBLIC_WOO_CHECKOUT_URL` en `.env.example`.
+8. En `rebuild-hook.php`, vaciar la caché de `woo-api.php` con cada webhook y no redesplegar cuando el cambio es solo de existencias. Agregar `rebuild-hook.php` a la prueba de humo.
 
 ### Parte B — Preparación (días antes, sin efecto visible)
 
@@ -294,6 +295,7 @@ Solo es posible antes de la Parte D.
 - [ ] `/robots.txt` es el de Astro y apunta a `sitemap-index.xml`.
 - [ ] El formulario de contacto envía el correo y devuelve un correlativo.
 - [ ] Cambiar el precio de un producto en WooCommerce dispara "Deploy a producción" con evento `repository_dispatch`.
+- [ ] Cambiar solo la cantidad en stock de un producto ya actualizado antes no dispara ningún deploy, y la ficha muestra el stock nuevo al recargar.
 - [ ] Un push a `main` dispara "Deploy a producción" y la prueba de humo pasa.
 - [ ] Después de dos deploys seguidos, `woo-config.php`, `site-config.php`, el `.htaccess` de la raíz y `data/counter.json` conservan su contenido.
 - [ ] Después de un deploy, `wp-admin/`, `wp-content/` y `wp-includes/` conservan su número de archivos.
@@ -316,6 +318,8 @@ Solo es posible antes de la Parte D.
 - **Sí:** conservar las páginas `cart` y `my-account` y redirigirlas. WooCommerce las espera asignadas y no cuestan nada.
 - **Sí:** desactivar todos los fragmentos de WPCode. Decisión del cliente; la medición se comprueba con un pedido de prueba.
 - **Sí:** conservar Google Analytics for WooCommerce y Meta for WooCommerce. Decisión del cliente.
+- **Sí:** un cambio de solo existencias no redespliega. Cada venta dispararía un build completo para un dato que el navegador ya lee del proxy.
+- **No:** saltarse el redeploy también en los cambios de precio. El build usa el precio en el filtro, el orden y la etiqueta de descuento; quedarían desfasados hasta el rebuild diario.
 - **Sí:** prueba de humo sin reversa automática. Avisa en minutos; deshacer un deploy sobre una raíz compartida a ciegas es más riesgoso que el fallo.
 
 ## Riesgos

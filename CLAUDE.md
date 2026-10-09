@@ -254,7 +254,12 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
 - **Rebuild** — los webhooks de producto de Woo llaman a
   `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
   (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
-  corre en cada push a `main` y todos los días a las 04:00 de Lima.
+  corre en cada push a `main` y todos los días a las 04:00 de Lima. Cada
+  webhook vacía además la caché de `woo-api.php`. Un `product.updated` no
+  redespliega si la huella del producto (en `data/woo-rebuild/`) no cambió;
+  la huella ignora `FIELDS_SERVED_LIVE` (cantidad en stock, total de ventas),
+  que el navegador lee del proxy. Precio y `stock_status` sí redespliegan: el
+  build los usa en filtros, orden y etiqueta de descuento.
 - **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
   sitio aparte (environment `staging` de GitHub, carpeta en
   `STAGING_DEPLOY_PATH`: el workflow falla si falta o coincide con la de
