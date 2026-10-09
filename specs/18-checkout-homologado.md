@@ -71,10 +71,10 @@ Cortes: **móvil** `< 768px`, **tablet** `768–1023px`, **desktop** `≥ 1024px
 ### Tipografía
 
 - Todo en DM Sans. Títulos en peso 400 con tracking negativo, sin itálicas.
-- "Checkout": `heading-sm`, con una línea `ink` debajo.
+- "Checkout": 24–44px, con una línea `ink` debajo.
 - Título de paso: `heading-xs` ampliado a 28–34px. Eyebrow "— Paso 1 de 3 · Datos personales" en `caption-xs`, color `content-subtle`.
 - Etiquetas de campo: `caption-xs`, mayúsculas, peso 500, tracking `.18em`. Asterisco en `semantics.error`.
-- Total: 40px en desktop y 32px en móvil, peso 400.
+- Total: 34px en desktop y 28px en móvil, peso 400.
 
 ### Columna izquierda, de arriba a abajo
 
