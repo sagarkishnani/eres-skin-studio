@@ -5,6 +5,12 @@
       "label": "Formulario de contacto",
       "enabled": true,
       "recipients": ["hola@eresskinstudio.com"]
+    },
+    {
+      "formType": "libro-de-reclamaciones",
+      "label": "Libro de reclamaciones",
+      "enabled": true,
+      "recipients": ["hola@eresskinstudio.com"]
     }
   ]
 }
