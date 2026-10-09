@@ -15,3 +15,17 @@ export function formatShortDate(iso: string | null | undefined): string {
   const parts = Object.fromEntries(limaDateParts.formatToParts(date).map((part) => [part.type, part.value]));
   return `${parts.day} ${SHORT_MONTHS[Number(parts.month) - 1]} ${parts.year}`;
 }
+
+const limaLongDate = new Intl.DateTimeFormat("es-PE", {
+  timeZone: "America/Lima",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+
+export function formatLongDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return limaLongDate.format(date);
+}
