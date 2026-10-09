@@ -23,5 +23,19 @@
     "primaryCtaUrl": "/productos",
     "whatsappLabel": "Escríbenos por WhatsApp",
     "seo": { "title": "Gracias por tu compra — ERES Skin Studio" }
+  },
+  "legalClaims": {
+    "eyebrow": "Atención al cliente",
+    "title": "Libro de reclamaciones",
+    "intro": "Conforme al Código de Protección y Defensa del Consumidor, ponemos a tu disposición nuestro Libro de Reclamaciones virtual.",
+    "provider": {
+      "name": "Eres Skin Studio S.A.C.",
+      "ruc": "20600123456",
+      "address": "Calle Libertad 176, Oficina 413, Miraflores, Lima, Perú"
+    },
+    "seo": {
+      "title": "Libro de reclamaciones — ERES Skin Studio",
+      "description": "Registra un reclamo o una queja sobre un producto o servicio de ERES Skin Studio."
+    }
   }
 }

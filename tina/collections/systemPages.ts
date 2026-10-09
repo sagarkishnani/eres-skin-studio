@@ -61,5 +61,28 @@ export const systemPagesCollection: Collection = {
         seoField("SEO"),
       ],
     },
+    {
+      type: "object",
+      name: "legalClaims",
+      label: "Libro de reclamaciones",
+      description: "Se previsualiza en /libro-de-reclamaciones. Los campos del formulario están en Formularios Dinámicos.",
+      fields: [
+        eyebrowField,
+        { name: "title", label: "Título", type: "string", required: true },
+        { name: "intro", label: "Bajada", type: "string", ui: textarea },
+        {
+          type: "object",
+          name: "provider",
+          label: "Datos del proveedor",
+          description: "Se muestran sobre el formulario. Un dato vacío no aparece.",
+          fields: [
+            { name: "name", label: "Razón social", type: "string" },
+            { name: "ruc", label: "RUC", type: "string" },
+            { name: "address", label: "Domicilio", type: "string" },
+          ],
+        },
+        seoField("SEO"),
+      ],
+    },
   ],
 };
