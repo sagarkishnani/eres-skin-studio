@@ -7,7 +7,7 @@ import type { Locale } from "../../i18n/config";
 import SearchOverlay from "./SearchOverlay";
 import { CartButton, CartDrawer } from "../shop/CartReact";
 import { useCart } from "../../hooks/useCart";
-import { CART_OPEN_REQUEST } from "../../utils/wooClient";
+import { CART_OPEN_REQUEST, consumeCartOpenQuery } from "../../utils/wooClient";
 import AnnouncementBar from "./AnnouncementBar";
 import { useHeaderScroll } from "../../hooks/useHeaderScroll";
 import MegaMenu, { MEGA_MENU_ID } from "./MegaMenu";
@@ -87,6 +87,7 @@ export default function HeaderReact({ query, variables, data: initialData, local
       setOpenPanel("cart");
     };
     window.addEventListener(CART_OPEN_REQUEST, openCart);
+    if (consumeCartOpenQuery()) openCart();
     return () => window.removeEventListener(CART_OPEN_REQUEST, openCart);
   }, []);
 

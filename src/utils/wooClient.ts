@@ -87,9 +87,20 @@ function cartHeaders(): Record<string, string> {
 
 export const CART_UPDATED = "eres-skin-studio:cart-updated";
 export const CART_OPEN_REQUEST = "eres-skin-studio:cart-open";
+export const CART_OPEN_QUERY_PARAM = "carrito";
+export const CART_OPEN_QUERY_VALUE = "abierto";
 
 export function requestCartOpen(): void {
   window.dispatchEvent(new Event(CART_OPEN_REQUEST));
+}
+
+export function consumeCartOpenQuery(): boolean {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(CART_OPEN_QUERY_PARAM) !== CART_OPEN_QUERY_VALUE) return false;
+
+  url.searchParams.delete(CART_OPEN_QUERY_PARAM);
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  return true;
 }
 
 function announce(cart: WooCart | null) {
