@@ -336,3 +336,67 @@ function eres_checkout_coupon_block(): void
     </div>
     <?php
 }
+
+const ERES_CHECKOUT_FREE_SHIPPING_FRAGMENT = '.eres-free-shipping';
+
+add_action('woocommerce_before_checkout_form', 'eres_checkout_free_shipping_bar', 20);
+add_filter('woocommerce_update_order_review_fragments', 'eres_checkout_free_shipping_fragment');
+add_filter('woocommerce_order_button_text', 'eres_checkout_order_button_text');
+
+function eres_checkout_free_shipping_basis(): float
+{
+    $cart = WC()->cart;
+    $discount = (float) $cart->get_discount_total();
+    if ($cart->display_prices_including_tax()) {
+        $discount += (float) $cart->get_discount_tax();
+    }
+
+    return max(0.0, (float) $cart->get_displayed_subtotal() - $discount);
+}
+
+function eres_checkout_free_shipping_html(): string
+{
+    $threshold = (float) eres_checkout_config()['free_shipping_threshold'];
+    if ($threshold <= 0 || !WC()->cart->needs_shipping()) {
+        return '';
+    }
+
+    $amount = eres_checkout_free_shipping_basis();
+    $remaining = $threshold - $amount;
+    $progress = (int) min(100, round($amount / $threshold * 100));
+    $message = $remaining > 0
+        ? sprintf('Te faltan %s para obtener envío gratuito', wc_price($remaining))
+        : '¡Tienes envío gratuito!';
+
+    return sprintf(
+        '<div class="eres-free-shipping"><p class="eres-free-shipping__message">%s</p><div class="eres-free-shipping__bar" role="progressbar" aria-label="Progreso hacia el envío gratuito" aria-valuemin="0" aria-valuemax="100" aria-valuenow="%2$d"><div class="eres-free-shipping__fill" style="width: %2$d%%;"></div></div></div>',
+        wp_kses_post($message),
+        $progress
+    );
+}
+
+function eres_checkout_free_shipping_bar(): void
+{
+    echo eres_checkout_free_shipping_html();
+}
+
+function eres_checkout_free_shipping_fragment(array $fragments): array
+{
+    $bar = eres_checkout_free_shipping_html();
+    if ($bar !== '') {
+        $fragments[ERES_CHECKOUT_FREE_SHIPPING_FRAGMENT] = $bar;
+    }
+
+    return $fragments;
+}
+
+function eres_checkout_order_button_text(): string
+{
+    $label = 'Realizar pedido';
+    if (!WC()->cart) {
+        return $label;
+    }
+
+    // checkout.js reescribe el botón con su data-value en cada actualización: el total viaja en el texto y el candado va por CSS.
+    return $label . ' · ' . html_entity_decode(wp_strip_all_tags(WC()->cart->get_total()), ENT_QUOTES, 'UTF-8');
+}
