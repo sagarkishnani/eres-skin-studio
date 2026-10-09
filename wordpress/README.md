@@ -281,20 +281,25 @@ El mu-plugin `eres-checkout` pinta `/checkout/`, el pago de un pedido (`order-pa
 
 ### Configuración
 
-Todo lo editable está en `eres-checkout/config.php`:
+Se edita en WooCommerce → Ajustes → pestaña **Checkout ERES** (`specs/19-ajustes-del-checkout.md`). Requiere el permiso de gestionar WooCommerce.
 
-| Clave | Qué controla |
+| Sección | Qué controla |
 |---|---|
-| `fields` | Por campo: `label`, `placeholder`, `visible` y `required`. Los que llevan `locked` siempre se muestran y son obligatorios. Los que llevan `delivery_only` solo aparecen con envío a domicilio. |
-| `document_types` | Opciones de "Tipo de documento". |
-| `districts` | Opciones de "Distrito". |
-| `delivery` | Título, subtítulo y texto del resumen por método de envío (`local_pickup`, `flat_rate`, `free_shipping`). El precio lo pone WooCommerce. |
-| `free_shipping_threshold` | Monto de la barra "Te faltan S/…". Debe coincidir con el mínimo del método "Envío gratuito" de WooCommerce: se cambian juntos. `0` oculta la barra. |
-| `trust` | Los tres textos bajo el total. |
-| `whatsapp_url` | Enlace del botón flotante. Vacío lo oculta. |
-| `legal_links` | Enlaces del footer. |
+| Campos | Por campo: Visible, Obligatorio, Etiqueta y Placeholder. Nombre, Apellidos y Correo electrónico siempre se piden; solo cambia su texto. Distrito, Dirección y Referencia solo aparecen con envío a domicilio. |
+| Tipos de documento | Activar o desactivar cada tipo y cambiar su etiqueta. Tiene que quedar al menos uno. |
+| Distritos | Uno por línea, en el orden en que se muestran. Tiene que quedar al menos uno. |
+| Entrega | Subtítulo de cada tarjeta. Vacío = tarjeta sin subtítulo. |
+| Envío gratuito | Monto de la barra "Te faltan S/…". `0` la oculta. La pestaña avisa si no coincide con el mínimo del método "Envío gratuito" de WooCommerce: se cambian juntos. |
+| Textos de confianza | Título y texto de los tres mensajes bajo el total. Uno vacío no se muestra. |
 
-Otro plugin puede cambiar estos valores con el filtro `eres_checkout_config`.
+- **Restablecer valores**, al pie de la pestaña, descarta lo guardado y vuelve a los valores originales.
+- Si ocultas Distrito o Dirección, los pedidos con envío a domicilio llegan sin ese dato.
+- Un distrito renombrado no cambia en los pedidos anteriores: cada pedido guarda el nombre como texto.
+- Si un cambio no se ve en el checkout, purga LiteSpeed.
+
+Lo guardado vive en la opción `eres_checkout_settings` de la base de datos. `eres-checkout/config.php` tiene los **valores por defecto** y lo que la pestaña no edita: título de las tarjetas de entrega, enlace de WhatsApp (`whatsapp_url`, vacío lo oculta) y enlaces del footer (`legal_links`). Ese archivo se pisa cada vez que se sube la carpeta: los cambios del cliente van por la pestaña, no ahí.
+
+Para agregar un tipo de documento nuevo hay que sumarlo a `document_types` en `config.php` y, si tiene un formato propio, a las reglas de `eres-checkout/validation.php`.
 
 Las reglas de formato (celular de 9 dígitos, DNI de 8, RUC de 11, otros documentos de 5 a 12 letras o números, dirección de 5 caracteres o más) están en `eres-checkout/validation.php`.
 

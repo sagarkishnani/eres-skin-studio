@@ -227,9 +227,13 @@ muestra y arma el carrito. El pago es 100% WooCommerce. Spec:
   `specs/18-checkout-homologado.md`, guía `wordpress/README.md` §13) con
   plantilla propia, sin Elementor ni el CSS de WooCommerce: los tokens de este
   sitio están copiados como variables en `eres-checkout/assets/checkout.css`,
-  así que un cambio de token se replica ahí a mano. Campos, distritos, textos
-  de entrega y umbral de envío gratuito viven en `eres-checkout/config.php`
-  (filtro `eres_checkout_config`). El maquetado sale de hooks y fragmentos de
+  así que un cambio de token se replica ahí a mano. Campos, distritos, tipos
+  de documento, textos de entrega y umbral de envío gratuito se editan en
+  WooCommerce → Ajustes → "Checkout ERES" (`eres-checkout/settings.php`, spec
+  `specs/19-ajustes-del-checkout.md`): se guardan en la opción
+  `eres_checkout_settings` y pisan los valores por defecto de
+  `eres-checkout/config.php` a través del filtro `eres_checkout_config`. El
+  código lee siempre `eres_checkout_config()`, nunca el archivo. El maquetado sale de hooks y fragmentos de
   WooCommerce; el JS no mueve nodos. `ERES_STOREFRONT_URL` (`wp-config.php`)
   apunta "Volver" y "Editar" a este sitio; "Editar" usa `?carrito=abierto`,
   que `HeaderReact` consume con `consumeCartOpenQuery()` para abrir el carrito.
