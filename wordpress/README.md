@@ -42,6 +42,17 @@ Nunca uses claves con permiso de escritura. Si una clave se filtra, revócala en
 2. Plugins → **Imprescindibles**: debe aparecer "ERES · Traspaso de carrito". Los mu-plugins no se activan: se cargan solos.
 3. Comprobación rápida: abre `https://<wordpress>/checkout/?cart-token=invalido`. Debe redirigir a `/checkout/` sin errores.
 
+### mu-plugin del carrito sin caché
+
+LiteSpeed Cache guarda las respuestas de la API REST sin distinguir el `Cart-Token`: el carrito de una clienta se le sirve a todas las demás, con su token incluido. Este plugin marca la Store API (`/wp-json/wc/store/…`) como no cacheable.
+
+1. Copia `wordpress/mu-plugins/eres-store-api-no-cache.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Carrito sin caché".
+3. LiteSpeed Cache → Caja de herramientas → **Purgar todo**, para botar los carritos ya guardados.
+4. Comprobación: `curl -sI https://<wordpress>/wp-json/wc/store/v1/cart | grep -i x-litespeed-cache` no debe decir `hit`, ni la primera vez ni la segunda.
+
+`woo-api.php` además agrega un parámetro único a cada llamada a la Store API, así que el carrito del sitio no depende de este plugin; el plugin evita que el caché se llene de entradas inútiles y protege cualquier otro consumidor de la Store API.
+
 ### mu-plugin de detalle de producto
 
 El acordeón de la ficha (`specs/10-ficha-de-producto.md`) lee tres campos por producto.

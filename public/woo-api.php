@@ -144,8 +144,10 @@ if ($route['api'] === 'v3') {
     $url = $STORE_URL . '/wp-json/wc/v3' . $route['path'] . '?' . http_build_query($query);
     $headers = ['Authorization: Basic ' . base64_encode("$CK:$CS")];
 } else {
-    $url = $STORE_URL . '/wp-json/wc/store/v1' . $route['path'];
-    if (!empty($query)) $url .= '?' . http_build_query($query);
+    // Un caché de página en el WordPress (LiteSpeed) ignora Cart-Token y serviría el carrito de otra sesión: la URL única lo esquiva.
+    $query['_'] = bin2hex(random_bytes(8));
+    $url = $STORE_URL . '/wp-json/wc/store/v1' . $route['path'] . '?' . http_build_query($query);
+    header('Cache-Control: no-store');
     $headers = [];
     // Sin reenviar Cart-Token cada petición abriría un carrito nuevo.
     foreach (['HTTP_CART_TOKEN' => 'Cart-Token', 'HTTP_NONCE' => 'Nonce'] as $srv => $h) {
