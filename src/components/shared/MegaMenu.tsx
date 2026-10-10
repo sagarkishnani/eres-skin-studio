@@ -46,7 +46,7 @@ export default function MegaMenu({ link, open, locale, onNavigate }: Props) {
       }`}
     >
       <div className="mx-auto grid max-w-container grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)] px-gutter pb-14 pt-12">
-        <div className="flex flex-col gap-[18px] pr-10">
+        <div className="flex flex-col gap-3 pr-10">
           {featured.map((item, index) => (
             <MenuLink key={index} link={item} locale={locale} onNavigate={onNavigate} className="text-heading-xs text-content" />
           ))}
@@ -55,7 +55,7 @@ export default function MegaMenu({ link, open, locale, onNavigate }: Props) {
         {[0, 1].map((slot) => {
           const column = columns[slot];
           return (
-            <div key={slot} className={`flex flex-col gap-3.5 px-10 ${column ? "border-l border-stone-150" : ""}`}>
+            <div key={slot} className={`flex flex-col gap-2 px-10 ${column ? "border-l border-stone-150" : ""}`}>
               {column && (
                 <>
                   <p className="mb-1.5 text-caption-sm uppercase tracking-[.16em] text-content-subtle" data-tina-field={tinaField(column as any, "title")}>

@@ -182,7 +182,7 @@ export default function MobileDrawer({ open, onClose, links, activeIndex, cta, c
                 </a>
 
                 {presentLinks(submenuLink.menu?.featured).map((item, index) => (
-                  <a key={index} href={localizeHref(item.url, locale)} onClick={onClose} className="py-2.5 text-[19px] text-content active:opacity-55">
+                  <a key={index} href={localizeHref(item.url, locale)} onClick={onClose} className="py-2 text-[19px] text-content active:opacity-55">
                     {tField(item, "label", locale)}
                   </a>
                 ))}
@@ -195,7 +195,7 @@ export default function MobileDrawer({ open, onClose, links, activeIndex, cta, c
                       </p>
                     )}
                     {presentLinks(column?.links).map((item, linkIndex) => (
-                      <a key={linkIndex} href={localizeHref(item.url, locale)} onClick={onClose} className="py-[9px] text-body-md text-content active:opacity-55">
+                      <a key={linkIndex} href={localizeHref(item.url, locale)} onClick={onClose} className="py-1.5 text-body-md text-content active:opacity-55">
                         {tField(item, "label", locale)}
                       </a>
                     ))}

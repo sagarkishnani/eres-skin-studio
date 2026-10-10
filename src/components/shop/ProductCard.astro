@@ -1,6 +1,6 @@
 ---
 import type { WooProduct } from "../../lib/woo/types";
-import { formatPrice, discountPercent, stockLabel, isBuyable } from "../../lib/woo/format";
+import { formatPrice, discountPercent, stockLabel, isBuyable, isSoldOut, DEFAULT_LOW_STOCK_THRESHOLD } from "../../lib/woo/format";
 import { localizeHref } from "../../utils/i18n";
 import { productCardImage } from "../../lib/woo/productImage";
 import { resolveDiscountBadgeStyle } from "../../utils/discountBadge";
@@ -15,7 +15,7 @@ interface Props {
   discountBadgeStyle?: string | null;
 }
 
-const { product, locale, lowStockThreshold = 5, isNew = false, discountBadgeStyle } = Astro.props;
+const { product, locale, lowStockThreshold = DEFAULT_LOW_STOCK_THRESHOLD, isNew = false, discountBadgeStyle } = Astro.props;
 
 const [primaryImage, hoverImage] = product.images;
 const [primarySource, hoverSource] = await Promise.all(
@@ -25,7 +25,7 @@ const imageSizes = "(min-width: 1024px) 360px, 50vw";
 const discount = discountPercent(product);
 const badgeStyle = resolveDiscountBadgeStyle(discountBadgeStyle);
 const stock = stockLabel(product, lowStockThreshold);
-const soldOut = product.stock_status === "outofstock";
+const soldOut = isSoldOut(product);
 const quickAdd = product.type === "simple" && isBuyable(product);
 const category = product.categories[0]?.name;
 const brand = product.brands?.[0]?.name;

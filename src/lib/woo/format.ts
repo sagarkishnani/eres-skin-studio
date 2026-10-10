@@ -1,6 +1,6 @@
 // Puede viajar al navegador: no toca credenciales.
 
-import type { WooProduct, WooStock, StockStatus } from "./types";
+import type { WooProduct, StockStatus } from "./types";
 
 const CURRENCY = "PEN";
 const LOCALE = "es-PE";
@@ -29,20 +29,29 @@ export interface StockLabel {
   tone: "ok" | "low" | "out";
 }
 
-export function stockLabel(
-  s: Pick<WooStock, "stock_status" | "stock_quantity">,
-  lowThreshold = 5
-): StockLabel {
-  if (s.stock_status === "outofstock") return { text: "Agotado", tone: "out" };
+export const DEFAULT_LOW_STOCK_THRESHOLD = 1;
+export const LOW_STOCK_TEXT = "Quedan pocas unidades";
+
+type StockLevel = { stock_status: StockStatus; stock_quantity: number | null };
+
+export function isSoldOut(s: StockLevel): boolean {
+  if (s.stock_status === "outofstock") return true;
+  return s.stock_status === "instock" && typeof s.stock_quantity === "number" && s.stock_quantity <= 0;
+}
+
+export function isLowStock(s: StockLevel, lowThreshold = DEFAULT_LOW_STOCK_THRESHOLD): boolean {
+  return s.stock_status === "instock" && typeof s.stock_quantity === "number" && s.stock_quantity > 0 && s.stock_quantity <= lowThreshold;
+}
+
+export function stockLabel(s: StockLevel, lowThreshold = DEFAULT_LOW_STOCK_THRESHOLD): StockLabel {
+  if (isSoldOut(s)) return { text: "Agotado", tone: "out" };
   if (s.stock_status === "onbackorder") return { text: "Bajo pedido", tone: "low" };
-  if (typeof s.stock_quantity === "number" && s.stock_quantity <= lowThreshold) {
-    return { text: `Quedan ${s.stock_quantity}`, tone: "low" };
-  }
+  if (isLowStock(s, lowThreshold)) return { text: LOW_STOCK_TEXT, tone: "low" };
   return { text: "Disponible", tone: "ok" };
 }
 
-export function isBuyable(p: { purchasable: boolean; stock_status: StockStatus }): boolean {
-  return p.purchasable && p.stock_status !== "outofstock";
+export function isBuyable(p: StockLevel & { purchasable: boolean }): boolean {
+  return p.purchasable && !isSoldOut(p);
 }
 
 export function stripHtml(html: string, max = 160): string {
