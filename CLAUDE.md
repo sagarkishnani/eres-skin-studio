@@ -263,7 +263,7 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
 - **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
   sitio aparte (environment `staging` de GitHub, carpeta en
   `STAGING_DEPLOY_PATH`: el workflow falla si falta o coincide con la de
-  producción) contra el WooCommerce real, en cada push o a mano.
+  producción) contra el WooCommerce real, solo a mano desde Actions.
   Compila con `SITE_ENV=staging` (`src/utils/siteEnv.ts`): `noindex` en todo el
   sitio y `robots.txt` (`src/pages/robots.txt.ts`) con `Disallow: /`. Con
   `STAGING_HTPASSWD_PATH` agrega Basic Auth al `.htaccess`. Su `woo-config.php`
