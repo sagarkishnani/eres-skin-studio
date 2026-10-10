@@ -318,7 +318,7 @@ Solo antes de la limpieza.
 
 ## 11. Sitio de prueba
 
-La rama `staging` se publica en un sitio aparte para probar el carrito contra el WooCommerce real (`specs/14-sitio-de-prueba-carrito.md`). Lo publica `.github/workflows/deploy-staging.yml` en cada push a `staging`, o a mano desde Actions. Siempre lleva `noindex` y un `robots.txt` con `Disallow: /`.
+La rama `staging` se publica en un sitio aparte para probar el carrito contra el WooCommerce real (`specs/14-sitio-de-prueba-carrito.md`). Lo publica `.github/workflows/deploy-staging.yml`, que solo corre a mano desde Actions (Run workflow). Siempre lleva `noindex` y un `robots.txt` con `Disallow: /`.
 
 En el sitio de prueba no se paga, `/gracias` no recibe redirecciones y los formularios no envían correos.
 
