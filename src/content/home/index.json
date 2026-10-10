@@ -10,7 +10,10 @@
         "focus": "50% 50%",
         "title": "Tu ritual, en casa",
         "text": "Eres Skin Studio te ofrece productos seleccionados. Marcas honestas, ingredientes que cumplen, y productos que se integran a tu rutina real.",
-        "cta": { "label": "Ver tienda", "url": "/productos" },
+        "cta": {
+          "label": "Ver tienda",
+          "url": "/productos"
+        },
         "scrim": 15
       },
       {
@@ -20,7 +23,10 @@
         "focus": "50% 50%",
         "title": "Eres única,\ntu piel también",
         "text": "Tratamientos faciales avanzados y depilación láser, diseñados a la medida de cada piel. Tecnología, ciencia y un acompañamiento experto para transformar tu piel desde adentro hacia afuera.",
-        "cta": { "label": "Ver servicios", "url": "/servicios" }
+        "cta": {
+          "label": "Ver servicios",
+          "url": "/servicios"
+        }
       },
       {
         "image": "/uploads/home/hero-3.webp",
@@ -29,26 +35,44 @@
         "focus": "50% 50%",
         "title": "Conoce más\nde nosotras",
         "text": "Detrás de Eres está Adriana Paradisi y un equipo de skin coaches expertas que acompañan a cada clienta con honestidad, ciencia y cariño. Nuestra promesa: nunca venderte algo que no necesites.",
-        "cta": { "label": "Conoce más", "url": "/nosotras" }
+        "cta": {
+          "label": "Conoce más",
+          "url": "/nosotras"
+        }
       }
     ]
   },
   "marquee": {
     "enabled": true,
     "items": [
-      { "label": "Tecnología avanzada" },
-      { "label": "Cuidado personalizado" },
-      { "label": "Resultados visibles" },
-      { "label": "No invasivo" },
-      { "label": "Skin coach experta" },
-      { "label": "Beauty + wellness" }
+      {
+        "label": "Tecnología avanzada"
+      },
+      {
+        "label": "Cuidado personalizado"
+      },
+      {
+        "label": "Resultados visibles"
+      },
+      {
+        "label": "No invasivo"
+      },
+      {
+        "label": "Skin coach experta"
+      },
+      {
+        "label": "Beauty + wellness"
+      }
     ]
   },
   "products": {
     "enabled": true,
     "eyebrow": "",
-    "title": "Productos para llevar el cuidado de tu piel a casa.",
-    "cta": { "label": "Ver todos", "url": "/productos" }
+    "title": "Productos para llevar el cuidado de tu piel a ",
+    "cta": {
+      "label": "Ver todos",
+      "url": "/productos"
+    }
   },
   "services": {
     "enabled": true,
@@ -82,22 +106,43 @@
     "eyebrow": "— Nuestra esencia",
     "title": "Cuidar tu piel\nes volver a ti.",
     "paragraphs": [
-      { "text": "En Eres Skin Studio creemos que ninguna piel se parece a otra. Por eso, antes de tratarla, la escuchamos: observamos sus cambios, entendemos tus hábitos y reconocemos lo que necesita en este momento." },
-      { "text": "Acompañamos tu piel con tecnología, dermocosmética profesional y una atención cercana, para que el cuidado facial se sienta claro, consciente y profundamente tuyo." }
+      {
+        "text": "En Eres Skin Studio creemos que ninguna piel se parece a otra. Por eso, antes de tratarla, la escuchamos: observamos sus cambios, entendemos tus hábitos y reconocemos lo que necesita en este momento."
+      },
+      {
+        "text": "Acompañamos tu piel con tecnología, dermocosmética profesional y una atención cercana, para que el cuidado facial se sienta claro, consciente y profundamente tuyo."
+      }
     ],
-    "cta": { "label": "Conoce nuestra esencia", "url": "/nosotras" }
+    "cta": {
+      "label": "Conoce nuestra esencia",
+      "url": "/nosotras"
+    }
   },
   "results": {
     "enabled": true,
     "eyebrow": "",
     "title": "Resultados que se ven, cuidado que se siente.",
     "paragraphs": [
-      { "text": "Cada piel responde a su propio ritmo. Por eso en Eres Skin Studio trabajamos con diagnóstico, técnica y seguimiento, ajustando cada tratamiento según la respuesta real de tu piel." },
-      { "text": "Buscamos mejoras visibles en luminosidad, textura, hidratación y equilibrio, sin cambios forzados ni promesas exageradas. Solo una piel mejor cuidada, más saludable y más tuya." }
+      {
+        "text": "Cada piel responde a su propio ritmo. Por eso en Eres Skin Studio trabajamos con diagnóstico, técnica y seguimiento, ajustando cada tratamiento según la respuesta real de tu piel."
+      },
+      {
+        "text": "Buscamos mejoras visibles en luminosidad, textura, hidratación y equilibrio, sin cambios forzados ni promesas exageradas. Solo una piel mejor cuidada, más saludable y más tuya."
+      }
     ],
     "stats": [
-      { "value": 2400, "prefix": "+", "suffix": "", "label": "Clientas atendidas" },
-      { "value": 97, "prefix": "", "suffix": "%", "label": "Satisfacción real" }
+      {
+        "value": 2400,
+        "prefix": "+",
+        "suffix": "",
+        "label": "Clientas atendidas"
+      },
+      {
+        "value": 97,
+        "prefix": "",
+        "suffix": "%",
+        "label": "Satisfacción real"
+      }
     ],
     "beforeImage": "/uploads/home/resultados-antes.webp",
     "afterImage": "/uploads/home/resultados-despues.webp",
@@ -116,10 +161,22 @@
     "enabled": true,
     "title": "Nuestra forma de cuidar tu piel",
     "items": [
-      { "title": "Escucha real", "text": "Antes de tratar tu piel, la observamos y entendemos lo que necesita hoy." },
-      { "title": "Transparencia", "text": "Te orientamos con honestidad, sin sobre promesas y con recomendaciones claras para tu piel." },
-      { "title": "Innovación con criterio", "text": "Usamos tecnología y dermocosmética profesional cuando aportan valor real a tu tratamiento." },
-      { "title": "Acompañamiento cercano", "text": "Te guiamos con claridad, honestidad y una atención que se siente personal." }
+      {
+        "title": "Escucha real",
+        "text": "Antes de tratar tu piel, la observamos y entendemos lo que necesita hoy."
+      },
+      {
+        "title": "Transparencia",
+        "text": "Te orientamos con honestidad, sin sobre promesas y con recomendaciones claras para tu piel."
+      },
+      {
+        "title": "Innovación con criterio",
+        "text": "Usamos tecnología y dermocosmética profesional cuando aportan valor real a tu tratamiento."
+      },
+      {
+        "title": "Acompañamiento cercano",
+        "text": "Te guiamos con claridad, honestidad y una atención que se siente personal."
+      }
     ]
   },
   "booking": {
