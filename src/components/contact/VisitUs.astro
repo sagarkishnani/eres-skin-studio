@@ -1,0 +1,21 @@
+---
+import VisitUsReact from "./VisitUsReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const visible = data?.contact?.visit && data.contact.visit.enabled !== false;
+---
+
+{visible && <VisitUsReact query={query} variables={variables} data={data} client:tina />}
+
+<script>
+  import { startConsentMap } from "../../scripts/consentMap";
+
+  startConsentMap();
+  document.addEventListener("astro:after-swap", startConsentMap);
+</script>

@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LegalClaims from "../components/legal/LegalClaims.astro";
+import DynamicForm from "../components/dynamic-form/DynamicForm.astro";
+import client from "../../tina/__generated__/client";
+
+const { query, variables, data } = await client.queries.systemPages({ relativePath: "index.json" });
+const legalClaims = data?.systemPages?.legalClaims;
+---
+
+<BaseLayout
+  title={legalClaims?.seo?.title || "Libro de reclamaciones — ERES Skin Studio"}
+  description={legalClaims?.seo?.description || legalClaims?.intro || undefined}
+>
+  <section class="bg-surface py-section">
+    <div class="container-text">
+      <LegalClaims query={query} variables={variables} data={data} />
+      <div class="mt-section-sm">
+        <DynamicForm formSlug="libro-de-reclamaciones" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

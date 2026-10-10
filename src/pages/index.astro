@@ -1,20 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/home/Hero.astro";
-import Features from "../components/home/Features.astro";
-import CTA from "../components/home/CTA.astro";
-import client from "../../tina/__generated__/client";
+import Marquee from "../components/home/Marquee.astro";
+import FeaturedProducts from "../components/home/FeaturedProducts.astro";
+import Services from "../components/home/Services.astro";
+import Essence from "../components/home/Essence.astro";
+import Pillars from "../components/home/Pillars.astro";
+import Results from "../components/home/Results.astro";
+import Journal from "../components/home/Journal.astro";
+import Booking from "../components/home/Booking.astro";
 import { getLocale } from "../utils/i18n";
 import { isLocale } from "../i18n/config";
+import client from "../../tina/__generated__/client";
 
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
-const result = await client.queries.home({ relativePath: "index.json" });
-const { query, variables, data } = result;
+const { query, variables, data } = await client.queries.home({ relativePath: "index.json" });
 const seo = data?.home?.seo;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const whatsappUrl =
+  (globalResult.data?.global?.footer?.social || []).find((social) => social?.network === "whatsapp")?.url || "";
 ---
 
 <BaseLayout title={seo?.title} description={seo?.description}>
-  <Hero query={query} variables={variables} data={data} locale={locale} />
-  <Features query={query} variables={variables} data={data} locale={locale} />
-  <CTA query={query} variables={variables} data={data} locale={locale} />
+  <Hero query={query} variables={variables} data={data} />
+  <Marquee data={data} />
+  <FeaturedProducts query={query} variables={variables} data={data} locale={locale} />
+  <Services query={query} variables={variables} data={data} />
+  <Essence query={query} variables={variables} data={data} />
+  <Results query={query} variables={variables} data={data} />
+  <Journal query={query} variables={variables} data={data} />
+  <Pillars query={query} variables={variables} data={data} />
+  <Booking query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} />
 </BaseLayout>

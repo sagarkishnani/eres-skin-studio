@@ -1,0 +1,29 @@
+---
+import { PiCaretRight } from "react-icons/pi";
+import { JOURNAL_PATH } from "../../utils/journal";
+import { hoverUnderline } from "./underline";
+
+interface Props {
+  linkJournal?: boolean;
+}
+
+const { linkJournal = false } = Astro.props;
+---
+
+<nav aria-label="Migas de pan" class="text-caption-md text-content-muted">
+  <ol class="flex flex-wrap items-center justify-center gap-2.5">
+    <li class="flex items-center gap-2.5">
+      <a href="/" class={hoverUnderline}>Home</a>
+      <PiCaretRight size={12} aria-hidden="true" />
+    </li>
+    {
+      linkJournal ? (
+        <li>
+          <a href={JOURNAL_PATH} class={hoverUnderline}>Skin Journal</a>
+        </li>
+      ) : (
+        <li aria-current="page" class="text-content">Skin Journal</li>
+      )
+    }
+  </ol>
+</nav>

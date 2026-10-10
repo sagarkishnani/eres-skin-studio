@@ -1,0 +1,109 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ShopBanner from "./ShopBanner.astro";
+import ShopBenefits from "./ShopBenefits.astro";
+import ProductCard from "./ProductCard.astro";
+import CatalogReact from "./catalog/CatalogReact";
+import StockRefresher from "./StockRefresher.astro";
+import DiscountBadgePreviewReact from "./DiscountBadgePreviewReact";
+import client from "../../../tina/__generated__/client";
+import { getAllProducts, getAllCategories, getAllBrands, getAllTags, wooConfigured } from "../../lib/woo/rest";
+import { buildCatalog, DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
+import { sortItems } from "../../utils/catalog/applyFilters";
+import { resolveMobileSortKeys, resolveVisibleFilters } from "../../utils/catalog/settings";
+import { CATALOG_PAGE_SIZE, CATALOG_PARAM_KEYS, DEFAULT_SORT } from "../../utils/catalog/types";
+import { getLocale } from "../../utils/i18n";
+import { isLocale } from "../../i18n/config";
+import type { WooCategory } from "../../lib/woo/types";
+
+interface Props {
+  category?: WooCategory;
+}
+
+const { category } = Astro.props;
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
+
+const { query, variables, data } = await client.queries.shop({ relativePath: "index.json" });
+const shop = data?.shop;
+const lowStock = shop?.lowStockThreshold ?? 5;
+const visibleFilters = resolveVisibleFilters(shop?.catalog?.visibleFilters);
+const mobileSortKeys = resolveMobileSortKeys(shop?.catalog?.mobileSortOptions);
+
+const [products, categories, brands, tags] = await Promise.all([getAllProducts(), getAllCategories(), getAllBrands(), getAllTags()]);
+const { items, facets } = buildCatalog(products, {
+  categories,
+  brands,
+  tags,
+  newProductDays: shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_DAYS,
+});
+
+const productsById = new Map(products.map((product) => [product.id, product]));
+const initialItems = sortItems(
+  category ? items.filter((item) => item.categories.includes(category.slug)) : items,
+  DEFAULT_SORT,
+);
+const initialIds = new Set(initialItems.slice(0, CATALOG_PAGE_SIZE).map((item) => item.id));
+const orderedItems = sortItems(items, DEFAULT_SORT);
+
+const title = category ? `${category.name} — ERES Skin Studio` : shop?.seo?.title;
+const description = category ? `Productos de la categoría ${category.name}.` : shop?.seo?.description;
+---
+
+<BaseLayout title={title} description={description} viewTransitions={false}>
+  <ShopBanner query={query} variables={variables} data={data} categoryName={category?.name} />
+
+  <script is:inline define:vars={{ catalogParamKeys: CATALOG_PARAM_KEYS }}>
+    // Oculta la grilla antes del primer pintado si la URL trae filtros: el HTML estático muestra la vista por defecto.
+    var params = new URLSearchParams(window.location.search);
+    if (catalogParamKeys.some(function (key) { return params.has(key); })) {
+      document.documentElement.dataset.catalogPending = "";
+      setTimeout(function () { delete document.documentElement.dataset.catalogPending; }, 1500);
+    }
+  </script>
+
+  <section class="bg-surface pb-[clamp(64px,8vw,112px)] pt-[clamp(20px,5vw,64px)]">
+    <div class="container-xl">
+      {items.length > 0 ? (
+        <CatalogReact
+          items={items}
+          facets={facets}
+          implicitCategory={category?.slug}
+          visibleFilters={visibleFilters}
+          mobileSortKeys={mobileSortKeys}
+          client:load
+        >
+          {orderedItems.map((item, index) => {
+            const product = productsById.get(item.id)!;
+            return (
+              <div data-catalog-item={item.id} data-reveal={(index % 3) * 90} hidden={!initialIds.has(item.id)}>
+                <ProductCard
+                  product={product}
+                  locale={locale}
+                  lowStockThreshold={lowStock}
+                  isNew={item.isNew}
+                  discountBadgeStyle={shop?.discountBadgeStyle}
+                />
+              </div>
+            );
+          })}
+        </CatalogReact>
+      ) : (
+        <div class="border border-dashed border-line px-6 py-20 text-center">
+          <p class="text-body-lg text-content-muted">
+            {wooConfigured ? "Todavía no hay productos publicados." : "La tienda aún no está conectada a WooCommerce."}
+          </p>
+          {!wooConfigured && (
+            <p class="mt-2 text-body-xs text-content-subtle">
+              Completa WOO_STORE_URL, WOO_CONSUMER_KEY y WOO_CONSUMER_SECRET en .env y vuelve a compilar.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <ShopBenefits query={query} variables={variables} data={data} />
+
+  <StockRefresher lowStockThreshold={lowStock} />
+  <DiscountBadgePreviewReact query={query} variables={variables} data={data} client:tina />
+</BaseLayout>

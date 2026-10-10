@@ -101,15 +101,33 @@ contenido; cada colección vive en su propio archivo en `tina/collections/`.
 Los tipos, las queries y el cliente se generan en `tina/__generated__/`
 (**no editar a mano**).
 
+**Toda imagen que venga del CMS pasa por `mediaUrl()`** (`src/utils/mediaUrl.ts`).
+Con TinaCloud los campos de imagen llegan con el prefijo `assets.tina.io`, que
+da 404 para la media guardada en git; `mediaUrl` los devuelve a `/uploads/…`.
+
 Colecciones:
 
 - `global` — navegación, footer, SEO por defecto, código inyectado.
-- `home` — contenido de la portada.
-- `post` — artículos del blog en MDX (`src/content/blog/`).
+- `home` — contenido de la portada. Cada slide del hero admite `imageMobile`
+  (se sirve bajo `md` con `<picture>`); sin ella se usa `image`. En móvil el
+  encuadre siempre es centrado; `focus` solo aplica desde `md`.
+- `post` — artículos del Skin Journal en MDX (`src/content/blog/`): una
+  `category` fija (Cuidado, Rutina, Ingredientes, Tratamientos) y `tags` libres.
 - `formConfig` — por formulario: `formType`, `label`, `enabled`, `recipients[]`.
 - `dynamicForms` — definición completa de cada formulario (un JSON por formulario).
 - `maintenance` — modo mantenimiento del sitio.
 - `cookieConsent` — textos del banner de cookies.
+- `promoPopup` — popup promocional: disparadores, frecuencia, rutas excluidas y
+  campañas (cupón y/o CTA, con vigencia).
+- `shop` — cabecera (con `hero.titleMobile` para el título bajo `md`), umbral
+  de "quedan pocas", estilo de la etiqueta de descuento (`discountBadgeStyle`),
+  ajustes del catálogo (`catalog`) y SEO de `/productos`.
+- `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
+- `systemPages` — textos y SEO del 404 (`notFound`, con enlaces rápidos), de
+  `/gracias` (`thankYou`) y de `/libro-de-reclamaciones` (`legalClaims`, con
+  los datos del proveedor).
+- `legal` — páginas legales en MDX (`src/content/legal/`): el nombre del
+  archivo es la URL.
 
 ### Formularios (definidos en el CMS)
 
@@ -137,6 +155,203 @@ Los formularios no están hardcodeados:
 `siteverify` inalcanzable ⇒ no se envía correo), solo mientras el secreto esté
 configurado.
 
+### Tienda (WooCommerce)
+
+Los productos viven en un WordPress + WooCommerce; el sitio solo los muestra y
+arma el carrito. El pago es 100% WooCommerce. Spec:
+`specs/02-integracion-woocommerce.md`; guía de configuración: `wordpress/README.md`.
+
+Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
+(`public_html`); el plan de mover WordPress a un subdominio quedó descartado
+(spec `specs/21-pase-a-produccion.md`).
+
+| Ruta | Quién la sirve |
+|---|---|
+| Páginas, `/admin/` (Tina), `woo-api.php`, `send-email.php`, `rebuild-hook.php` | Astro |
+| `/checkout/…`, `/wp-admin/`, `/wp-json/…`, `/wp-content/…`, `/wc-api/…`, `/?wc-ajax=…`, `/?wc-api=…` | WordPress |
+| Cualquier otra URL que no exista | `404.html` de Astro |
+
+- **Build time** — `src/lib/woo/rest.ts` lee la API REST v3 con claves de solo
+  lectura (`WOO_STORE_URL`, `WOO_CONSUMER_KEY`, `WOO_CONSUMER_SECRET`, sin
+  `PUBLIC_`). Genera `/productos`, `/productos/<slug>` y
+  `/productos/categoria/<slug>`. **Solo desde frontmatter**: importarlo en un
+  `.tsx` metería las claves en el bundle.
+- **Navegador** — `src/utils/wooClient.ts` solo habla con `public/woo-api.php`,
+  un proxy con allowlist de rutas que proyecta campo a campo. `StockRefresher`
+  refresca precio y stock; el carrito usa la Store API y guarda el `Cart-Token`
+  en `localStorage`. Un recurso nuevo se agrega primero a `$ROUTES` del proxy.
+  Con `PUBLIC_WOO_API_URL` el cliente llama a un proxy en otro dominio (el
+  staging de Amplify no ejecuta PHP y usa el del hosting de producción); vacía,
+  usa `/woo-api.php` del mismo sitio. Ese origen va en `allowed_origins`.
+- **Catálogo** — `/productos` y `/productos/categoria/<slug>` comparten
+  `CatalogPage.astro`: renderiza todas las tarjetas y la isla `CatalogReact`
+  las filtra, ordena y pagina en el navegador (spec
+  `specs/09-catalogo-con-filtros.md`). El estado vive en la query:
+  `categoria`, `marca`, `piel` (tags de Woo; `todo-tipo-de-piel` pasa
+  cualquier filtro de piel), `disponibilidad` (`en-stock`, `agotado`),
+  `precio=min-max`, `orden` (`destacados`, `mas-vendidos`, `precio-asc`,
+  `precio-desc`, `descuento`, `a-z`) y `pagina`. Así el mega-menú
+  puede enlazar a vistas filtradas (`/productos?marca=ovaco`). Esas páginas no
+  usan `ClientRouter` para que su `pushState` no choque con el del router.
+  `shop.catalog.visibleFilters` decide qué grupos de filtros se muestran (por
+  defecto Categoría, Marca y Tipo de piel) y `shop.catalog.mobileSortOptions`
+  qué órdenes ofrece el drawer bajo `lg`; `src/utils/catalog/settings.ts`
+  aplica los valores por defecto si la lista llega vacía. Un filtro oculto sigue
+  funcionando por URL y muestra su chip. `CatalogReact` recibe ambas listas
+  como props, sin `useTina`: un cambio se ve tras el rebuild, no en la vista
+  previa. El panel de desktop abre todos los grupos; el drawer, solo Categoría.
+- **Etiqueta de descuento** — `shop.discountBadgeStyle` (`horizontal` |
+  `diagonal`) llega a `ProductCard` como prop desde el catálogo, los destacados
+  de la home y los relacionados, y a `ProductGalleryReact` en la ficha. Con `diagonal` (el valor por defecto) es una
+  cinta en la esquina superior izquierda y "Nuevo" pasa a la derecha. La
+  tarjeta y la galería pintan las dos variantes y las alternan con
+  `data-discount-badge` en su contenedor `group`; la isla `DiscountBadgePreviewReact` (`client:tina`, en catálogo
+  y ficha) actualiza ese atributo en el editor para que el selector se vea al
+  instante.
+- **Banner** — el texto de `ShopBannerReact` va oscuro sobre la foto desde `md`,
+  con un velo crema: la foto tiene que ser clara.
+- **Imágenes** — `ProductCard` optimiza las fotos en build con
+  `productCardImage()` (`src/lib/woo/productImage.ts`): WebP en cuatro anchos
+  con `srcset`. El host de `WOO_STORE_URL` se autoriza en `image.domains` de
+  `astro.config.mjs`; si una imagen falla, se sirve el original.
+- **Ficha** — `/productos/<slug>` (spec `specs/10-ficha-de-producto.md`). El
+  acordeón lee los meta `eres_beneficios`, `eres_ingredientes` y
+  `eres_modo_uso`, que se editan con `wordpress/mu-plugins/eres-product-fields.php`;
+  sin ninguno, muestra la descripción larga. `src/lib/woo/productPage.ts` los
+  resuelve en build junto con los relacionados (cross-sells → categoría →
+  destacados). Desde `lg` y con mouse, la foto principal de
+  `ProductGalleryReact` se amplía 2x siguiendo al puntero (`data-magnifying` y
+  `--magnifier-origin` en su contenedor); `ProductZoom` se cierra con la X,
+  `Esc` o un clic fuera de la foto. `ProductPurchaseReact` refresca precio y stock por su cuenta
+  (la columna no lleva `data-woo-id`) y su barra fija escribe
+  `<html data-buy-bar>`, que sube el botón de WhatsApp. Cualquier isla abre el
+  carrito con `requestCartOpen()` (evento `eres-skin-studio:cart-open`). Los
+  textos fijos viven en `shop.productPage`; "Hacer una pregunta" usa
+  `global.contact.phone` porque el enlace `wa.link` descarta el `?text=`.
+- **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
+  (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
+  copia ese carrito a la sesión del navegador. El checkout, `order-pay` y
+  "pedido recibido" los pinta `wordpress/mu-plugins/eres-checkout.php` (spec
+  `specs/18-checkout-homologado.md`, guía `wordpress/README.md` §13) con
+  plantilla propia, sin Elementor ni el CSS de WooCommerce: los tokens de este
+  sitio están copiados como variables en `eres-checkout/assets/checkout.css`,
+  así que un cambio de token se replica ahí a mano. Campos, distritos, tipos
+  de documento, textos de entrega y umbral de envío gratuito se editan en
+  WooCommerce → Ajustes → "Checkout ERES" (`eres-checkout/settings.php`, spec
+  `specs/19-ajustes-del-checkout.md`): se guardan en la opción
+  `eres_checkout_settings` y pisan los valores por defecto de
+  `eres-checkout/config.php` a través del filtro `eres_checkout_config`. El
+  código lee siempre `eres_checkout_config()`, nunca el archivo. El maquetado sale de hooks y fragmentos de
+  WooCommerce; el JS no mueve nodos. `ERES_STOREFRONT_URL` (`wp-config.php`)
+  apunta "Volver" y "Editar" a este sitio; "Editar" usa `?carrito=abierto`,
+  que `HeaderReact` consume con `consumeCartOpenQuery()` para abrir el carrito.
+- **Gracias** — tras el pago, `wordpress/mu-plugins/eres-thank-you-redirect.php`
+  manda la página "pedido recibido" a `ERES_THANK_YOU_URL` (`wp-config.php`;
+  vacía ⇒ sin redirección) con `?pedido=<número>`. `/gracias` (con `noindex`)
+  muestra el número si cumple `^[A-Za-z0-9-]{1,32}$` y entonces llama a
+  `forgetCart()`, que borra el `Cart-Token` y emite `CART_UPDATED` con `null`.
+  Sin `?pedido=` el carrito no se toca. Spec: `specs/13-paginas-404-y-gracias.md`.
+- **Rebuild** — los webhooks de producto de Woo llaman a
+  `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
+  (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
+  corre en cada push a `main` y todos los días a las 04:00 de Lima. Cada
+  webhook vacía además la caché de `woo-api.php`. Un `product.updated` no
+  redespliega si la huella del producto (en `data/woo-rebuild/`) no cambió;
+  la huella ignora `FIELDS_SERVED_LIVE` (cantidad en stock, total de ventas),
+  que el navegador lee del proxy. Precio y `stock_status` sí redespliegan: el
+  build los usa en filtros, orden y etiqueta de descuento.
+- **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
+  sitio aparte (environment `staging` de GitHub, carpeta en
+  `STAGING_DEPLOY_PATH`: el workflow falla si falta o coincide con la de
+  producción) contra el WooCommerce real, en cada push o a mano.
+  Compila con `SITE_ENV=staging` (`src/utils/siteEnv.ts`): `noindex` en todo el
+  sitio y `robots.txt` (`src/pages/robots.txt.ts`) con `Disallow: /`. Con
+  `STAGING_HTPASSWD_PATH` agrega Basic Auth al `.htaccess`. Su `woo-config.php`
+  necesita el origen de prueba en `allowed_origins`, o el carrito responde
+  `403`. Spec: `specs/14-sitio-de-prueba-carrito.md`; guía: `wordpress/README.md` §11.
+- **Redirecciones** — `public/.htaccess` manda `/product/<slug>/` y
+  `/product-category/<slug>/` (URLs heredadas de WordPress) a `/productos/…`.
+  Ese archivo solo llega al sitio de prueba: en producción las mismas reglas
+  viven en el bloque de la raíz compartida.
+- **Raíz compartida** — el `.htaccess` de producción se edita a mano en el
+  servidor. `wordpress/htaccess-astro.conf` es el bloque que reparte las rutas
+  (va arriba de `# BEGIN LSCACHE`): fija `DirectoryIndex`, manda a `index.php`
+  las llamadas a `/` con `wc-ajax=` o `wc-api=`, redirige las URLs heredadas y
+  responde el 404 de Astro para todo lo que no exista fuera de la lista de
+  rutas de WordPress. Una ruta nueva de WordPress se agrega a esa lista, en el
+  servidor y en el repo. `wordpress/htaccess-reversa.conf` devuelve el sitio
+  de WordPress sin borrar archivos. Una página de Astro no puede llamarse como
+  una carpeta o archivo de WordPress: `deploy.yml` se detiene si `dist/` trae
+  `wp-admin`, `wp-content`, `wp-includes`, `.private`, `index.php`,
+  `xmlrpc.php` o `wp-*.php`, y al terminar corre una prueba de humo contra el
+  sitio (no revierte nada si falla).
+
+**Secretos**: `public/woo-config.php` (git-ignored, plantilla en
+`public/woo-config.example.php`), compartido por `woo-api.php` y
+`rebuild-hook.php`. El deploy no pisa `woo-config.php`, `site-config.php` ni el
+contenido de `data/`. El de producción (`deploy.yml`) comparte la raíz con
+WordPress: ahí no borra nada ni sube `.htaccess` ni las plantillas
+`*.example.php`, y solo usa `--delete` dentro de las carpetas que genera Astro.
+
+### Skin Journal (blog)
+
+Spec: `specs/11-skin-journal.md`. El listado vive en `/skin-journal` y cada
+artículo en `/skin-journal/<slug>`; `public/.htaccess` redirige las URLs viejas
+de `/blog`. `src/utils/journal.ts` concentra el orden por fecha, el destacado
+(el más reciente con `featured`, o el más reciente) y Anterior / Siguiente
+circular; la sección Journal de la home usa las mismas funciones.
+
+- **Listado** — `JournalListReact` filtra en el navegador con
+  `?categoria=<slug>` o `?etiqueta=<slug>` (`toFilterSlug`: minúsculas, sin
+  tildes, guiones) vía `history.replaceState`. Un valor desconocido equivale a
+  "Todos". En "Todos" la grilla excluye el post del hero. La página no usa
+  `ClientRouter`.
+- **Artículo** — el lead es el `excerpt` (no lo repitas en el cuerpo), la
+  portada va entre lead y cuerpo, y cualquier `>` del MDX se muestra como la
+  cita destacada. `PostBody` da estilo con componentes de `TinaMarkdown`, sin
+  `prose`. "Compartir" usa `useShareLink`, el mismo hook de la ficha.
+
+### Páginas legales
+
+Spec: `specs/20-paginas-legales.md`. `src/pages/[legal].astro` publica una
+página por documento de la colección `legal` (`/terminos-y-condiciones`,
+`/cambios-y-devoluciones`); una política nueva es un MDX nuevo, sin código.
+
+- **Secciones** — cada `##` del cuerpo abre una sección y `LegalPageReact` la
+  numera con un contador CSS (`01`, `02`…): el número no se escribe en el MDX.
+  Un `>` se muestra como aviso destacado.
+- **Libro de reclamaciones** — `/libro-de-reclamaciones` junta la cabecera de
+  `systemPages.legalClaims` con el formulario `libro-de-reclamaciones` de
+  `dynamicForms`. `send-email.php` numera cada reclamo como `LDR-000001` y le
+  envía a la consumidora una constancia con los datos que presentó; el reclamo
+  queda además en `data/submissions/`.
+- Las dos islas usan `client:tina`: en producción estas páginas no cargan React
+  salvo por el formulario.
+
+### Popup promocional
+
+Spec: `specs/12-popup-promocional.md`. `PromoPopup.astro` monta la isla
+`PromoPopupReact` en `BaseLayout`: con `client:idle` si `promoPopup.enabled` y
+con `client:tina` si no. Así el formulario existe en el editor aunque el popup
+esté apagado; sin la isla, Tina no tiene qué editar.
+
+- **Campaña** — se muestra una sola: la primera con `enabled` cuya vigencia
+  (`startsAt`/`endsAt`) se cumple **en el navegador**, así vence a su hora sin
+  rebuild. El cupón es solo texto: hay que crearlo antes en Woo.
+- **Disparadores** — segundos en la página, % de scroll e intención de salida
+  (solo con puntero fino); abre con el primero que ocurra, contado por página.
+  Con los tres apagados no aparece. No arranca hasta que la persona responde el
+  banner de cookies (`CONSENT_CHANGE_EVENT`), ni en rutas de `excludedPaths`
+  (por prefijo).
+- **Frecuencia** — `localStorage` `eres-skin-studio-promo-popup:v1`, por `id`
+  de campaña: `daysAfterDismiss` tras cerrar y `daysAfterConvert` tras copiar
+  el cupón o usar el CTA. Cambiar el `id` reinicia la campaña para todos.
+- **Editor** — dentro de Tina aparece al instante con la primera campaña
+  habilitada (o la primera de la lista), sin mirar `enabled`, fechas ni
+  frecuencia y sin escribir en `localStorage`. Se puede cerrar y reaparece al
+  editar un campo del popup.
+- Las redes son las de `global.footer.social`, con iconos Phosphor Light.
+
 ### Modo mantenimiento
 
 `BaseLayout.astro` consulta la colección `maintenance` en build time; con
@@ -145,42 +360,87 @@ configurado.
 ### Estilos
 
 Tailwind CSS 3 con tokens propios en `tailwind.config.mjs`. Las clases
-reutilizables (`btn-primary`, `btn-secondary`, `card`, `section`, `container-xl`,
-`container-lg`) están en `src/styles/global.css`, que **BaseLayout importa** —
-un CSS que nadie importa no se bundlea y no llega al sitio.
+reutilizables (`container-xl`, `container-lg`, `container-text`, `section`,
+`section-alt`, `eyebrow`, `btn`, `btn-primary`, `btn-secondary`, `btn-link`,
+`card`) están en `src/styles/global.css`, que **BaseLayout importa** — un CSS
+que nadie importa no se bundlea y no llega al sitio.
 
-Iconos: `react-icons` (Font Awesome 6, `react-icons/fa6`).
+Iconos: `react-icons`. El header, el drawer, la búsqueda y el carrito usan
+Phosphor en peso Light (`react-icons/pi`, p. ej. `PiHandbagLight`) porque su
+trazo fino encaja con el diseño; elige el set que mejor encaje en cada pieza.
 
-**Tema: light.** Los componentes NO escriben colores: piden tokens
+El origen de los valores es `specs/01-tokens-y-estilos-base.md`.
+
+**Tema: light, cálido.** Los componentes NO escriben colores: piden tokens
 semánticos, y por eso el tema se puede cambiar sin tocar una sola clase.
 
 | Token | Para qué | Valor |
 |---|---|---|
-| `surface` | Fondo de la página | `#FFFFFF` |
-| `surface-raised` | Tarjetas, footer | `#F7F8FA` |
-| `content` | Texto principal | `#16181D` |
-| `content-muted` | Texto secundario | `#4B5563` |
-| `content-subtle` | Metadatos | `#6B7280` |
-| `line` / `line-strong` | Bordes | `#E5E7EB` / `#CBD1D9` |
-| `accent` | Marca legible sobre el fondo | `#232C26` |
+| `surface` | Fondo de la página (crema) | `#FAFAF5` |
+| `surface-raised` | Tarjetas, inputs | `#FFFFFF` |
+| `surface-sunken` | Secciones alternas (`section-alt`) | `#EEEAE3` |
+| `content` | Texto principal | `#1D1D1B` |
+| `content-muted` | Texto secundario | `#3A3A36` |
+| `content-subtle` | Metadatos | `#6B6A66` |
+| `content-inverse` | Texto sobre `bg-ink` / `bg-accent` | `#FAFAF5` |
+| `line` / `line-strong` | Bordes | `#E4E0D8` / `#D9D6CF` |
+| `accent` | Marca legible sobre el fondo | `#2E3A33` |
 
-Los tonos de texto cumplen 4.5:1 sobre su fondo. Si cambias uno, vuelve a medir.
+Los tonos de texto cumplen 4.5:1 sobre las tres superficies (`content-subtle`
+sobre `surface-sunken` queda justo en 4.52:1: no oscurezcas ese fondo). Si
+cambias uno, vuelve a medir.
 
 **Nunca escribas `text-white/65` ni `bg-white/5`**: asumen fondo oscuro y rompen
 el tema. Las únicas excepciones legítimas son los bloques con fondo oscuro fijo
 (el scrim del hero sobre una foto, el degradado de marca del CTA) y el texto
-sobre `bg-brand-primary`.
+sobre `bg-ink` o `bg-accent`, que usa `text-content-inverse`.
 
-Para "texto en color de marca" usa `text-accent`, **no** `text-brand-primary-light`:
-sobre fondo claro ese tono es ilegible.
+Para "texto en color de marca" usa `text-accent`.
 
-**Rampa de marca**: `brand-primary` (`#2E3A33`), `brand-primary-dark`
-(`#232C26`), `brand-primary-darkest` (`#171D1A`).
+**Paleta cruda** (para acentos puntuales; los componentes usan los semánticos):
 
-**Tipografías**: DM Sans (títulos), DM Sans (cuerpo),
-DM Mono (acentos técnicos). La escala está como utilidades de Tailwind
-(`heading-xxl` → `caption-sm`).
+- `ink` `#1D1D1B`
+- `stone` — `800 #3A3A36`, `600 #6B6A66`, `500 #7C7B78`, `400 #B0AFAA`,
+  `300 #D9D6CF`, `200 #E4E0D8`, `150 #EEEAE3`, `100 #F0F0EC`, `50 #FAFAF5`
+- `sage` — `900 #2E3A33`, `700 #4E5E55`, `600 #556555`, `500 #718471`,
+  `300 #B0BAA8`, `100 #DCE2D5`
+- `clay` — `800 #5E4F3F`, `600 #8C7A66`, `300 #D8C9B8`, `100 #E8DDCF`
+- `blush` `#F2EDE9`
+- `semantics` — `success`, `alert`, `error` (estados de formulario)
 
+`sage-500` y `clay-600` no llegan a 4.5:1 sobre fondos claros: úsalos solo en
+fondos, líneas o texto de 24px o más.
+
+**Tipografía**: DM Sans variable autoalojada (`@fontsource-variable/dm-sans`,
+normal e itálica, importada en `BaseLayout.astro`). No hay segunda familia ni
+Google Fonts. Los títulos van en peso 400 con tracking negativo; las frases
+destacadas, en `subtitle-lg` + `italic`.
+
+| Token | Rango | Uso |
+|---|---|---|
+| `heading-xxl` | 42–80px | Hero, bloques de impacto |
+| `heading-xl` | 40–72px | H1 de página |
+| `heading-lg` | 34–60px | H2 destacado |
+| `heading-md` | 32–54px | H2 de sección |
+| `heading-sm` | 28–48px | H1 de artículo |
+| `heading-xs` | 22–26px | H3 de tarjeta |
+| `subtitle-lg` | 20–24px, peso 300 | Citas |
+| `subtitle-md` | 18–21px | Lead de artículo |
+| `subtitle-sm` | 15–18px | Bajada de hero |
+| `body-lg` / `body-md` / `body-sm` / `body-xs` | 17 / 16 / 15 / 14px | Cuerpo |
+| `caption-md` / `caption-sm` / `caption-xs` | 13 / 12 / 11px | Botones, eyebrows, metadatos |
+
+**Esquinas rectas.** La escala de radios solo tiene `rounded-none` y
+`rounded-full` (círculos y pills): `rounded-lg` y compañía no existen.
+
+**Layout**: `max-w-container` (1440px), `max-w-container-lg` (1200px),
+`max-w-container-text` (760px); `px-gutter` y `py-section` / `py-section-sm` /
+`py-section-lg` son `clamp()` fluidos.
+
+**Motion**: el easing por defecto es `ease-out-expo`
+(`cubic-bezier(.16,1,.3,1)`), con `ease-out-soft` y `ease-spring` como
+alternativas; la duración por defecto es 400ms. Sombras `shadow-sm` → `shadow-xl`
+basadas en la tinta (`rgba(29,29,27,…)`).
 
 ### Panel del CMS
 

@@ -1,0 +1,17 @@
+---
+import PillarsReact from "./PillarsReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  standalone?: boolean;
+}
+
+const { query, variables, data, standalone = false } = Astro.props;
+const pillars = data?.home?.pillars;
+const enabledHere = standalone || pillars?.enabled !== false;
+const visible = enabledHere && (pillars?.items || []).some(Boolean);
+---
+
+{visible && <PillarsReact query={query} variables={variables} data={data} client:tina />}

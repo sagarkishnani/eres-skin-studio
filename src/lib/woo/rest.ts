@@ -1,7 +1,7 @@
 // Solo build time (frontmatter .astro, getStaticPaths, Node). Nunca desde un .tsx: Astro lo metería
 // en el bundle y las claves quedarían públicas. Por eso las variables no llevan prefijo PUBLIC_.
 
-import type { WooProduct, WooCategory } from "./types";
+import type { WooProduct, WooProductWithStats, WooCategory, WooTerm } from "./types";
 
 if (typeof window !== "undefined") {
   throw new Error(
@@ -59,12 +59,20 @@ async function wooFetchAll<T>(path: string, params: Record<string, string | numb
   return out;
 }
 
-export function getAllProducts(): Promise<WooProduct[]> {
-  return wooFetchAll<WooProduct>("/products", { orderby: "menu_order", order: "asc" });
+export function getAllProducts(): Promise<WooProductWithStats[]> {
+  return wooFetchAll<WooProductWithStats>("/products", { orderby: "menu_order", order: "asc" });
 }
 
 export function getAllCategories(): Promise<WooCategory[]> {
-  return wooFetchAll<WooCategory>("/products/categories", { hide_empty: "true", orderby: "menu_order" });
+  return wooFetchAll<WooCategory>("/products/categories", { hide_empty: "true", orderby: "name" });
+}
+
+export function getAllBrands(): Promise<WooTerm[]> {
+  return wooFetchAll<WooTerm>("/products/brands", { hide_empty: "true", orderby: "name" });
+}
+
+export function getAllTags(): Promise<WooTerm[]> {
+  return wooFetchAll<WooTerm>("/products/tags", { hide_empty: "true", orderby: "name" });
 }
 
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {
@@ -77,6 +85,6 @@ export async function getProductsByIds(ids: number[]): Promise<WooProduct[]> {
   return wooFetch<WooProduct>("/products", { include: ids.join(","), per_page: 100 });
 }
 
-export async function getFeaturedProducts(limit = 8): Promise<WooProduct[]> {
-  return wooFetch<WooProduct>("/products", { featured: "true", per_page: limit });
+export async function getFeaturedProducts(limit = 8): Promise<WooProductWithStats[]> {
+  return wooFetch<WooProductWithStats>("/products", { featured: "true", per_page: limit });
 }

@@ -10,3 +10,7 @@ public/site-config.php
 public/woo-config.php
 public/data/woo-cache/
 public/data/woo-rate/
+public/data/woo-rebuild/
+
+# Archivos con secretos listos para subir a mano al hosting.
+servidor/

@@ -1,0 +1,16 @@
+---
+import InstagramGridReact from "./InstagramGridReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  instagramUrl: string;
+}
+
+const { query, variables, data, instagramUrl } = Astro.props;
+const instagram = data?.about?.instagram;
+const visible = Boolean(instagramUrl) && instagram && instagram.enabled !== false;
+---
+
+{visible && <InstagramGridReact query={query} variables={variables} data={data} instagramUrl={instagramUrl} client:tina />}

@@ -144,8 +144,10 @@ if ($route['api'] === 'v3') {
     $url = $STORE_URL . '/wp-json/wc/v3' . $route['path'] . '?' . http_build_query($query);
     $headers = ['Authorization: Basic ' . base64_encode("$CK:$CS")];
 } else {
-    $url = $STORE_URL . '/wp-json/wc/store/v1' . $route['path'];
-    if (!empty($query)) $url .= '?' . http_build_query($query);
+    // Un caché de página en el WordPress (LiteSpeed) ignora Cart-Token y serviría el carrito de otra sesión: la URL única lo esquiva.
+    $query['_'] = bin2hex(random_bytes(8));
+    $url = $STORE_URL . '/wp-json/wc/store/v1' . $route['path'] . '?' . http_build_query($query);
+    header('Cache-Control: no-store');
     $headers = [];
     // Sin reenviar Cart-Token cada petición abriría un carrito nuevo.
     foreach (['HTTP_CART_TOKEN' => 'Cart-Token', 'HTTP_NONCE' => 'Nonce'] as $srv => $h) {
@@ -202,9 +204,9 @@ function projectProduct($p) {
         'stock_quantity' => $p['stock_quantity'] ?? null,
         'average_rating' => $p['average_rating'] ?? '0',
         'rating_count'   => (int)($p['rating_count'] ?? 0),
-        'categories'     => array_map(fn($c) => [
-            'id' => (int)($c['id'] ?? 0), 'name' => $c['name'] ?? '', 'slug' => $c['slug'] ?? '',
-        ], $p['categories'] ?? []),
+        'categories'     => projectTermRefs($p['categories'] ?? []),
+        'brands'         => projectTermRefs($p['brands'] ?? []),
+        'tags'           => projectTermRefs($p['tags'] ?? []),
         'images'         => array_map(fn($i) => [
             'src' => $i['src'] ?? '', 'alt' => $i['alt'] ?? '',
         ], array_slice($p['images'] ?? [], 0, 8)),
@@ -212,6 +214,12 @@ function projectProduct($p) {
             'name' => $atx['name'] ?? '', 'options' => $atx['options'] ?? [],
         ], $p['attributes'] ?? []),
     ];
+}
+
+function projectTermRefs($terms) {
+    return array_map(fn($t) => [
+        'id' => (int)($t['id'] ?? 0), 'name' => $t['name'] ?? '', 'slug' => $t['slug'] ?? '',
+    ], $terms);
 }
 
 function projectCategory($c) {

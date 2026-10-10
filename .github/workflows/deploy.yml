@@ -1,0 +1,137 @@
+name: Deploy a producción
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [woo-catalog-changed]
+  schedule:
+    # 04:00 en Lima (UTC-5): red de seguridad por si se pierde algún webhook de WooCommerce.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build
+        env:
+          TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: main
+          WOO_STORE_URL: ${{ secrets.WOO_STORE_URL }}
+          WOO_CONSUMER_KEY: ${{ secrets.WOO_CONSUMER_KEY }}
+          WOO_CONSUMER_SECRET: ${{ secrets.WOO_CONSUMER_SECRET }}
+          PUBLIC_WOO_CHECKOUT_URL: ${{ vars.PUBLIC_WOO_CHECKOUT_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+        run: npm run build
+
+      # La raíz se comparte con WordPress: un nombre suyo en dist/ acabaría en el rsync --delete de esa carpeta.
+      - name: Verificar nombres protegidos
+        working-directory: dist
+        run: |
+          shopt -s nullglob
+          protected=(wp-admin wp-content wp-includes .private index.php xmlrpc.php wp-*.php)
+          found=()
+          for name in "${protected[@]}"; do
+            if [ -e "$name" ]; then found+=("$name"); fi
+          done
+          if [ "${#found[@]}" -gt 0 ]; then
+            echo "::error::dist/ contiene nombres reservados para WordPress: ${found[*]}"
+            exit 1
+          fi
+
+      - name: Configurar SSH
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      # La raíz se comparte con WordPress: ahí no se borra nada y su .htaccess se mantiene a mano en el servidor.
+      # --delete solo corre dentro de las carpetas que genera Astro, para retirar las páginas que ya no existen.
+      # De data/ solo se sube el .htaccess que la protege; el resto (contador, envíos, caché de Woo) lo escribe PHP.
+      - name: Subir a Hostinger
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          REMOTE="$SSH_USER@$SSH_HOST:$DEPLOY_PATH"
+          RSYNC_SSH="ssh -i ~/.ssh/deploy_key -p $SSH_PORT"
+
+          rsync -az \
+            --exclude '/.htaccess' \
+            --exclude '/*.example.php' \
+            --exclude 'site-config.php' \
+            --exclude 'woo-config.php' \
+            --include 'data/.htaccess' \
+            --exclude 'data/*' \
+            -e "$RSYNC_SSH" \
+            dist/ "$REMOTE/"
+
+          for astro_dir in dist/*/; do
+            name="$(basename "$astro_dir")"
+            if [ "$name" = "data" ]; then continue; fi
+            rsync -az --delete -e "$RSYNC_SSH" "dist/$name/" "$REMOTE/$name/"
+          done
+
+      # Astro y WordPress comparten la raíz: cada petición comprueba que una ruta la sigue sirviendo quien debe.
+      - name: Prueba de humo
+        env:
+          SITE_URL: https://eresskinstudio.com
+        working-directory: ${{ runner.temp }}
+        run: |
+          failed=0
+          probe() {
+            curl -sS --retry 2 --max-time 30 -o body.txt -D headers.txt -w '%{http_code}' "$SITE_URL$1" || true
+          }
+          expect() {
+            if [ "$2" = "ok" ]; then echo "ok    $1"; else echo "::error::Prueba de humo: $1"; failed=1; fi
+          }
+          status_is() { [ "$1" = "$2" ] && echo ok || echo fail; }
+
+          code="$(probe /)"
+          expect "/ responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "/ es la home de Astro" "$(grep -q '/_astro/' body.txt && echo ok || echo fail)"
+
+          code="$(probe '/?wc-ajax=get_refreshed_fragments')"
+          expect "/?wc-ajax= responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "/?wc-ajax= llega a WooCommerce" "$(grep -qi '^content-type: application/json' headers.txt && echo ok || echo fail)"
+
+          code="$(probe /wp-json/wc/store/v1/cart)"
+          expect "la Store API responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "la Store API entrega el Cart-Token" "$(grep -qi '^cart-token:' headers.txt && echo ok || echo fail)"
+
+          code="$(probe '/woo-api.php?resource=categories')"
+          expect "woo-api.php responde 200 ($code)" "$(status_is "$code" 200)"
+          expect "woo-api.php lee el catálogo" "$(grep -q '"ok":true' body.txt && echo ok || echo fail)"
+
+          code="$(probe /rebuild-hook.php)"
+          expect "rebuild-hook.php está publicado ($code)" "$(status_is "$code" 405)"
+
+          code="$(probe /ruta-que-no-existe-eres/)"
+          expect "una ruta inexistente responde 404 ($code)" "$(status_is "$code" 404)"
+
+          exit "$failed"

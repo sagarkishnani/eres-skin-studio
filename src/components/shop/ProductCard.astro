@@ -1,69 +1,123 @@
 ---
 import type { WooProduct } from "../../lib/woo/types";
-import { formatPrice, discountPercent, stockLabel, stripHtml } from "../../lib/woo/format";
+import { formatPrice, discountPercent, stockLabel, isBuyable } from "../../lib/woo/format";
 import { localizeHref } from "../../utils/i18n";
+import { productCardImage } from "../../lib/woo/productImage";
+import { resolveDiscountBadgeStyle } from "../../utils/discountBadge";
 import type { Locale } from "../../i18n/config";
+import QuickAddReact from "./QuickAddReact";
 
 interface Props {
   product: WooProduct;
   locale: Locale;
   lowStockThreshold?: number;
+  isNew?: boolean;
+  discountBadgeStyle?: string | null;
 }
 
-const { product, locale, lowStockThreshold = 5 } = Astro.props;
+const { product, locale, lowStockThreshold = 5, isNew = false, discountBadgeStyle } = Astro.props;
 
-const image = product.images[0];
+const [primaryImage, hoverImage] = product.images;
+const [primarySource, hoverSource] = await Promise.all(
+  [primaryImage, hoverImage].map((image) => (image ? productCardImage(image.src) : null))
+);
+const imageSizes = "(min-width: 1024px) 360px, 50vw";
 const discount = discountPercent(product);
+const badgeStyle = resolveDiscountBadgeStyle(discountBadgeStyle);
 const stock = stockLabel(product, lowStockThreshold);
-const href = localizeHref(`/tienda/${product.slug}`, locale, false);
+const soldOut = product.stock_status === "outofstock";
+const quickAdd = product.type === "simple" && isBuyable(product);
+const category = product.categories[0]?.name;
+const brand = product.brands?.[0]?.name;
+const href = localizeHref(`/productos/${product.slug}`, locale, false);
 
-const TONE = {
-  ok: "text-emerald-400",
-  low: "text-amber-400",
-  out: "text-content-subtle",
-};
+const imageClass = "absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-[700ms,1400ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)]";
+const priceClass = "text-body-xs font-semibold md:text-body-sm";
+const regularPriceClass = "text-caption-sm text-content-subtle line-through md:text-caption-md";
+const badgeClass = "px-2 py-[5px] text-caption-xs font-semibold leading-none tracking-[.04em]";
+const ribbonClass = "pointer-events-none absolute left-0 top-0 hidden h-6 w-[140px] place-items-center bg-accent text-caption-xs font-semibold leading-none tracking-[.04em] text-content-inverse [transform:translate(21px,21px)_translate(-50%,-50%)_rotate(-45deg)] group-data-[discount-badge=diagonal]:grid";
 ---
 
-<article class="card group relative flex flex-col overflow-hidden" data-woo-id={product.id}>
-  <a href={href} class="block aspect-square overflow-hidden bg-surface-raised">
-    {image ? (
+<article class="group relative flex flex-col gap-3 md:gap-[18px]" data-woo-id={product.id} data-discount-badge={badgeStyle}>
+  <div class="relative aspect-square overflow-hidden bg-stone-100">
+    {primaryImage ? (
       <img
-        src={image.src}
-        alt={image.alt || product.name}
+        src={primarySource!.src}
+        srcset={primarySource!.srcset}
+        sizes={imageSizes}
+        alt={primaryImage.alt || product.name}
         loading="lazy"
         decoding="async"
         width="600"
         height="600"
-        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        class={`${imageClass} lg:group-hover:scale-105`}
       />
     ) : (
-      <div class="flex h-full w-full items-center justify-center text-content-subtle">Sin imagen</div>
+      <div class="flex h-full w-full items-center justify-center text-caption-sm text-content-subtle">Sin imagen</div>
     )}
-  </a>
-
-  {discount !== null && (
-    <span class="absolute left-3 top-3 rounded-full bg-brand-primary px-2.5 py-1 text-xs font-semibold text-white">
-      -{discount}%
-    </span>
-  )}
-
-  <div class="flex flex-1 flex-col p-4">
-    <h3 class="text-body font-medium leading-snug">
-      <a href={href} class="after:absolute after:inset-0">{product.name}</a>
-    </h3>
-
-    {product.short_description && (
-      <p class="mt-1.5 line-clamp-2 text-sm text-content-subtle">{stripHtml(product.short_description, 90)}</p>
+    {hoverSource && (
+      <img
+        src={hoverSource.src}
+        srcset={hoverSource.srcset}
+        sizes={imageSizes}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="600"
+        height="600"
+        class={`${imageClass} scale-[1.06] opacity-0 max-lg:hidden lg:group-hover:scale-100 lg:group-hover:opacity-100`}
+      />
     )}
 
-    <div class="mt-auto pt-4">
-      <div class="flex items-baseline gap-2" data-woo-price>
-        <span class="text-body-lg font-semibold">{formatPrice(product.price)}</span>
+    {discount !== null && <span class={ribbonClass}>-{discount}%</span>}
+
+    {(discount !== null || isNew) && (
+      <div class="absolute left-2.5 top-2.5 flex gap-1.5 group-data-[discount-badge=diagonal]:left-auto group-data-[discount-badge=diagonal]:right-2.5">
         {discount !== null && (
-          <span class="text-sm text-content-subtle line-through">{formatPrice(product.regular_price)}</span>
+          <span class={`${badgeClass} bg-accent text-content-inverse group-data-[discount-badge=diagonal]:hidden`}>-{discount}%</span>
         )}
+        {isNew && <span class={`${badgeClass} bg-surface-raised text-content`}>Nuevo</span>}
       </div>
-      <p class={`mt-1 text-xs ${TONE[stock.tone]}`} data-woo-stock>{stock.text}</p>
+    )}
+
+    {soldOut && (
+      <span class="absolute inset-x-0 bottom-0 grid h-[42px] place-items-center bg-surface/95 text-caption-xs font-medium uppercase tracking-[.18em] text-content-muted">
+        Agotado
+      </span>
+    )}
+
+    {quickAdd && <QuickAddReact productId={product.id} productName={product.name} client:visible />}
+  </div>
+
+  <div class="flex min-w-0 flex-col gap-1 md:gap-1.5">
+    {(brand || category) && (
+      <span class="truncate text-[10px] font-medium uppercase tracking-[.1em] text-content-subtle md:text-caption-xs">
+        {brand ? (
+          <>
+            {brand}
+            {category && <span class="max-md:hidden"> · {category}</span>}
+          </>
+        ) : (
+          category
+        )}
+      </span>
+    )}
+    <h3 class="line-clamp-2 text-body-xs font-medium leading-[1.35] tracking-[-.005em] md:text-body-md md:leading-[1.35]">
+      <a href={href} class="after:absolute after:inset-0">
+        <span class="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-right-bottom bg-no-repeat transition-[background-size] duration-[600ms] ease-out-expo lg:group-hover:bg-[length:100%_1px] lg:group-hover:bg-left-bottom">
+          {product.name}
+        </span>
+      </a>
+    </h3>
+    <div
+      class="mt-0.5 flex flex-wrap items-baseline gap-2"
+      data-woo-price
+      data-price-class={priceClass}
+      data-regular-class={regularPriceClass}
+    >
+      <span class={priceClass}>{formatPrice(product.price)}</span>
+      {discount !== null && <span class={regularPriceClass}>{formatPrice(product.regular_price)}</span>}
     </div>
+    <span class="sr-only" data-woo-stock data-woo-stock-plain>{stock.text}</span>
   </div>
 </article>

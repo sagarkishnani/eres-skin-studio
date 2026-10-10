@@ -10,6 +10,7 @@ interface Props {
 const { locale } = Astro.props;
 
 const result = await client.queries.global({ relativePath: "index.json" });
+const year = new Date().getFullYear();
 ---
 
 <FooterReact
@@ -17,5 +18,6 @@ const result = await client.queries.global({ relativePath: "index.json" });
   variables={result.variables}
   data={result.data}
   locale={locale}
+  year={year}
   client:visible
 />

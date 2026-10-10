@@ -1,0 +1,18 @@
+---
+import CatalogPage from "../../../components/shop/CatalogPage.astro";
+import { getAllCategories } from "../../../lib/woo/rest";
+import type { WooCategory } from "../../../lib/woo/types";
+
+export async function getStaticPaths() {
+  const categories = await getAllCategories();
+  return categories.map((category) => ({ params: { slug: category.slug }, props: { category } }));
+}
+
+interface Props {
+  category: WooCategory;
+}
+
+const { category } = Astro.props;
+---
+
+<CatalogPage category={category} />

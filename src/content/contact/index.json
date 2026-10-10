@@ -1,0 +1,42 @@
+{
+  "details": {
+    "enabled": true,
+    "breadcrumb": "Contacto",
+    "title": "Hablemos.",
+    "support": {
+      "eyebrow": "— Atención al cliente",
+      "phoneLabel": "Teléfono · WhatsApp",
+      "emailLabel": "Correo"
+    },
+    "studio": {
+      "eyebrow": "— Estudio",
+      "copyLabel": "Copiar dirección",
+      "copiedLabel": "Dirección copiada"
+    },
+    "hours": {
+      "eyebrow": "— Horarios",
+      "openNowLabel": "Abierto ahora",
+      "closedNowLabel": "Cerrado ahora",
+      "todayLabel": "Hoy",
+      "closedLabel": "Cerrado"
+    },
+    "image": "/uploads/contacto/cabina.webp",
+    "imageAlt": "Cabina de tratamiento de Eres Skin Studio"
+  },
+  "visit": {
+    "enabled": true,
+    "eyebrow": "— Visítanos",
+    "title": "Te esperamos\nen Miraflores.",
+    "text": "Nuestro estudio está en pleno corazón de Miraflores. Un espacio íntimo, pensado para que cada visita se sienta como un ritual de cuidado y desconexión.",
+    "ctaLabel": "Ver en Google Maps",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=ERES+Skin+Studio+Calle+Libertad+176+Miraflores",
+    "embedUrl": "https://maps.google.com/maps?q=Calle%20Libertad%20176%2C%20Miraflores%2C%20Lima&z=16&output=embed",
+    "mapTitle": "Mapa Eres Skin Studio",
+    "consentText": "Activa las cookies funcionales para ver el mapa.",
+    "consentCtaLabel": "Activar mapa"
+  },
+  "seo": {
+    "title": "Contacto — ERES Skin Studio",
+    "description": "Escríbenos por WhatsApp o correo, o visítanos en Calle Libertad 176, Miraflores. Horarios de atención de lunes a sábado."
+  }
+}

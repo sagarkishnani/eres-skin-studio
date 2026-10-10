@@ -1,0 +1,45 @@
+---
+import JournalReact, { type JournalPost } from "./JournalReact";
+import { mediaUrl } from "../../utils/mediaUrl";
+import { formatShortDate } from "../../utils/formatDate";
+import { getSortedPosts, journalPostHref, pickFeatured, type JournalPostNode } from "../../utils/journal";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const SIDE_POSTS = 2;
+
+const { query, variables, data } = Astro.props;
+const enabled = data?.home?.journal?.enabled !== false;
+
+function toJournalPost(post: JournalPostNode): JournalPost {
+  return {
+    title: post.title || "",
+    href: journalPostHref(post),
+    image: mediaUrl(post.coverImage),
+    date: formatShortDate(post.date),
+    tag: post.category || "",
+    author: post.author || "",
+  };
+}
+
+const posts = enabled ? await getSortedPosts() : [];
+const featured = pickFeatured(posts);
+const side = posts.filter((post) => post !== featured).slice(0, SIDE_POSTS);
+---
+
+{
+  featured && (
+    <JournalReact
+      query={query}
+      variables={variables}
+      data={data}
+      featured={toJournalPost(featured)}
+      side={side.map(toJournalPost)}
+      client:tina
+    />
+  )
+}

@@ -32,8 +32,31 @@ export interface WooProduct {
   average_rating: string;
   rating_count: number;
   categories: WooTermRef[];
+  brands: WooTermRef[];
+  tags: WooTermRef[];
   images: WooImage[];
   attributes: { name: string; options: string[] }[];
+}
+
+export interface WooMeta {
+  key: string;
+  value: unknown;
+}
+
+export interface WooProductWithStats extends WooProduct {
+  total_sales: number;
+  date_created: string;
+  featured: boolean;
+  cross_sell_ids: number[];
+  upsell_ids: number[];
+  meta_data: WooMeta[];
+}
+
+export interface WooTerm {
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
 }
 
 export interface WooCategory {

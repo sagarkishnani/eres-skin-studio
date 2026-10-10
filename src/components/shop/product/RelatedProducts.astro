@@ -1,0 +1,47 @@
+---
+import ProductCard from "../ProductCard.astro";
+import { isNewProduct } from "../../../lib/woo/catalog";
+import type { WooProductWithStats } from "../../../lib/woo/types";
+import type { Locale } from "../../../i18n/config";
+
+interface Props {
+  products: WooProductWithStats[];
+  eyebrow?: string | null;
+  title?: string | null;
+  locale: Locale;
+  lowStockThreshold: number;
+  newProductDays: number;
+  discountBadgeStyle?: string | null;
+}
+
+const { products, eyebrow, title, locale, lowStockThreshold, newProductDays, discountBadgeStyle } = Astro.props;
+---
+
+{
+  products.length > 0 && (
+    <section class="bg-surface py-[clamp(64px,8vw,112px)]" aria-labelledby="related-products-title">
+      <div class="container-xl">
+        <div data-reveal="0" class="flex flex-col gap-4">
+          {eyebrow && <span class="eyebrow">— {eyebrow}</span>}
+          <h2 id="related-products-title" class="text-heading-md [text-wrap:balance]">
+            {title || "Te puede gustar"}
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-3 gap-y-7 pt-[clamp(28px,4vw,48px)] md:grid-cols-4 md:gap-x-6 md:gap-y-12">
+          {products.map((product, index) => (
+            <div data-reveal={(index % 4) * 90}>
+              <ProductCard
+                product={product}
+                locale={locale}
+                lowStockThreshold={lowStockThreshold}
+                isNew={isNewProduct(product, newProductDays)}
+                discountBadgeStyle={discountBadgeStyle}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

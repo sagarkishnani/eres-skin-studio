@@ -6,35 +6,122 @@
   html {
     scroll-behavior: smooth;
   }
+  [id] {
+    scroll-margin-top: 72px;
+  }
   body {
     @apply bg-surface text-content font-sans antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-medium;
+    @apply font-heading font-normal;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-primary ring-offset-2 ring-offset-surface;
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface;
   }
 }
 
 @layer components {
-  .container-xl { @apply mx-auto w-full max-w-[1280px] px-5 md:px-8; }
-  .container-lg { @apply mx-auto w-full max-w-[1024px] px-5 md:px-8; }
+  .container-xl   { @apply mx-auto w-full max-w-container px-gutter; }
+  .container-lg   { @apply mx-auto w-full max-w-container-lg px-gutter; }
+  .container-text { @apply mx-auto w-full max-w-container-text px-gutter; }
 
-  .section      { @apply py-16 md:py-24; }
-  .section-alt  { @apply bg-surface-raised; }
+  .section      { @apply py-section; }
+  .section-alt  { @apply bg-surface-sunken; }
+
+  .eyebrow {
+    @apply text-caption-sm font-medium uppercase tracking-[.22em] text-content-muted;
+  }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3
-           text-body-md font-medium transition-colors duration-200;
+    @apply inline-flex h-[52px] items-center justify-center gap-3 px-[30px]
+           text-caption-md font-medium uppercase tracking-[.14em]
+           bg-bottom bg-no-repeat bg-[length:100%_0%] hover:bg-[length:100%_100%]
+           transition-[background-size,color,border-color] duration-400 ease-out-expo;
   }
-  /* text-white is intentional: the brand color is dark in both themes. */
-  .btn-primary   { @apply btn bg-brand-primary text-white hover:bg-brand-primary-dark; }
-  .btn-secondary { @apply btn border border-line-strong text-content hover:border-brand-primary hover:bg-surface-raised; }
+  .btn-primary {
+    @apply btn bg-ink text-content-inverse;
+    background-image: linear-gradient(theme('colors.sage.900'), theme('colors.sage.900'));
+  }
+  .btn-secondary {
+    @apply btn border border-ink bg-surface-raised text-ink hover:text-content-inverse;
+    background-image: linear-gradient(theme('colors.ink'), theme('colors.ink'));
+  }
+  .btn-link {
+    @apply inline-flex items-center gap-2.5 py-1.5
+           text-caption-md font-medium uppercase tracking-[.14em]
+           bg-left-bottom bg-no-repeat bg-[length:0%_1px] hover:bg-[length:100%_1px]
+           transition-[background-size] duration-400 ease-out-expo;
+    background-image: linear-gradient(currentColor, currentColor);
+  }
+
+  .btn-fill {
+    @apply btn hover:gap-[18px] hover:pr-6 focus-visible:gap-[18px] focus-visible:pr-6;
+    transition:
+      background-size 550ms theme('transitionTimingFunction.out-expo'),
+      color 400ms ease,
+      gap 450ms theme('transitionTimingFunction.out-expo'),
+      padding 450ms theme('transitionTimingFunction.out-expo');
+  }
+  .btn-fill-dark {
+    @apply btn-fill bg-ink text-content-inverse;
+    background-image: linear-gradient(theme('colors.sage.900'), theme('colors.sage.900'));
+  }
+  .btn-fill-light {
+    @apply btn-fill bg-surface-raised text-ink hover:text-content-inverse focus-visible:text-content-inverse;
+    background-image: linear-gradient(theme('colors.ink'), theme('colors.ink'));
+  }
+  .btn-outline-light {
+    @apply btn-fill border border-content-inverse text-content-inverse hover:text-ink focus-visible:text-ink;
+    background-image: linear-gradient(theme('colors.surface.raised'), theme('colors.surface.raised'));
+  }
+
+  .link-underline {
+    @apply inline-flex items-center gap-2.5 self-start py-1.5
+           text-caption-sm font-medium uppercase tracking-[.16em]
+           bg-right-bottom bg-no-repeat bg-[length:0%_1px]
+           hover:gap-4 hover:bg-left-bottom hover:bg-[length:100%_1px]
+           focus-visible:gap-4 focus-visible:bg-left-bottom focus-visible:bg-[length:100%_1px]
+           max-lg:bg-[length:100%_1px];
+    background-image: linear-gradient(currentColor, currentColor);
+    transition:
+      background-size 500ms theme('transitionTimingFunction.out-expo'),
+      gap 450ms theme('transitionTimingFunction.out-expo');
+  }
+
+  .faq-item {
+    interpolate-size: allow-keywords;
+  }
+  .faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 550ms theme('transitionTimingFunction.out-expo'),
+      content-visibility 550ms allow-discrete;
+  }
+  .faq-item[open]::details-content {
+    block-size: auto;
+  }
 
   .card {
-    @apply rounded-xl border border-line bg-surface-raised p-6
-           transition-colors duration-200 hover:border-brand-primary/50;
+    @apply border border-line bg-surface-raised p-6
+           transition-colors hover:border-line-strong;
+  }
+}
+
+@layer utilities {
+  .reveal-ready [data-reveal] {
+    transition:
+      opacity 1.1s cubic-bezier(.22,.61,.36,1),
+      transform 1.3s cubic-bezier(.16,1,.3,1);
+  }
+  .reveal-ready [data-reveal]:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(32px);
   }
 }
 

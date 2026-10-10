@@ -1,0 +1,15 @@
+---
+import DifferentiatorsReact from "./DifferentiatorsReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const differentiators = data?.about?.differentiators;
+const visible = differentiators && differentiators.enabled !== false && (differentiators.items || []).some(Boolean);
+---
+
+{visible && <DifferentiatorsReact query={query} variables={variables} data={data} client:tina />}

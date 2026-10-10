@@ -1,0 +1,41 @@
+{
+  "notFound": {
+    "eyebrow": "404",
+    "title": "Esta página no existe",
+    "intro": "Puede que el enlace esté roto o que la página se haya movido.",
+    "primaryCtaLabel": "Volver al inicio",
+    "primaryCtaUrl": "/",
+    "quickLinksTitle": "O explora",
+    "quickLinks": [
+      { "label": "Productos", "url": "/productos" },
+      { "label": "Servicios", "url": "/servicios" },
+      { "label": "Skin Journal", "url": "/skin-journal" }
+    ],
+    "seo": { "title": "Página no encontrada — ERES Skin Studio" }
+  },
+  "thankYou": {
+    "eyebrow": "Pedido confirmado",
+    "title": "Gracias por tu compra",
+    "intro": "Ya estamos preparando tu pedido con mucho cuidado.",
+    "orderLabel": "Tu número de pedido es {numero}",
+    "emailNote": "Te enviamos la confirmación y el detalle a tu correo.",
+    "primaryCtaLabel": "Seguir comprando",
+    "primaryCtaUrl": "/productos",
+    "whatsappLabel": "Escríbenos por WhatsApp",
+    "seo": { "title": "Gracias por tu compra — ERES Skin Studio" }
+  },
+  "legalClaims": {
+    "eyebrow": "Atención al cliente",
+    "title": "Libro de reclamaciones",
+    "intro": "Conforme al Código de Protección y Defensa del Consumidor, ponemos a tu disposición nuestro Libro de Reclamaciones virtual.",
+    "provider": {
+      "name": "Eres Skin Studio S.A.C.",
+      "ruc": "20600123456",
+      "address": "Calle Libertad 176, Oficina 413, Miraflores, Lima, Perú"
+    },
+    "seo": {
+      "title": "Libro de reclamaciones — ERES Skin Studio",
+      "description": "Registra un reclamo o una queja sobre un producto o servicio de ERES Skin Studio."
+    }
+  }
+}

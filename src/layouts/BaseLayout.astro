@@ -5,16 +5,22 @@ import client from "../../tina/__generated__/client";
 import { ClientRouter } from "astro:transitions";
 import { getLocale, tField } from "../utils/i18n";
 import { isLocale } from "../i18n/config";
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/dm-sans/wght-italic.css";
 import "../styles/global.css";
 import CookieConsent from "../components/cookies/CookieConsent.astro";
+import WhatsAppButton from "../components/shared/WhatsAppButton.astro";
+import PromoPopup from "../components/promo-popup/PromoPopup.astro";
+import { isStagingSite } from "../utils/siteEnv";
 
 interface Props {
   title?: string;
   description?: string;
-  headerTheme?: "light" | "dark";
+  viewTransitions?: boolean;
+  noindex?: boolean;
 }
 
-const { title, description, headerTheme = "dark" } = Astro.props;
+const { title, description, viewTransitions = true, noindex = false } = Astro.props;
 
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
 
@@ -31,6 +37,9 @@ const ogImage = globalData?.seo?.ogImage || "";
 const injectHead = globalData?.codeInjection?.head || "";
 const injectBodyEnd = globalData?.codeInjection?.bodyEnd || "";
 
+const smoothScroll = globalData?.motion?.smoothScroll !== false;
+const revealAnimations = globalData?.motion?.revealAnimations !== false;
+
 const canonical = new URL(Astro.url.pathname, Astro.site || "https://eresskinstudio.com").href;
 
 const orgSocials = (globalData?.footer?.social || [])
@@ -43,7 +52,7 @@ const jsonLd = {
   name: "ERES Skin Studio",
   url: Astro.site?.href || "https://eresskinstudio.com",
   description: seoDescription,
-  email: "hola@eresskinstudio.com",
+  ...(globalData?.contact?.email ? { email: globalData.contact.email } : {}),
   ...(globalData?.nav?.logo ? { logo: new URL(globalData.nav.logo, Astro.site || "https://eresskinstudio.com").href } : {}),
   ...(orgSocials.length ? { sameAs: orgSocials } : {}),
 };
@@ -56,14 +65,19 @@ try {
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html
+  lang={locale}
+  data-smooth-scroll={String(smoothScroll)}
+  data-reveal-animations={String(revealAnimations)}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}favicon.png`} />
     <title>{seoTitle}</title>
     <meta name="description" content={seoDescription} />
     <link rel="canonical" href={canonical} />
+    {(noindex || isStagingSite) && <meta name="robots" content="noindex" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={seoTitle} />
@@ -73,11 +87,22 @@ try {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500;600;700&display=swap" />
+    <script is:inline>
+      // Se marca antes del primer pintado: si lo hiciera el módulo diferido, el contenido aparecería y luego se ocultaría.
+      (function () {
+        var root = document.documentElement;
+        var inEditor = false;
+        try { inEditor = window.frameElement && window.frameElement.id === "tina-iframe"; } catch (e) {}
+        if (
+          root.dataset.revealAnimations !== "false" &&
+          "IntersectionObserver" in window &&
+          !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+          !inEditor
+        ) root.classList.add("reveal-ready");
+      })();
+    </script>
 
-    <ClientRouter />
+    {viewTransitions && <ClientRouter />}
     <Fragment set:html={injectHead} />
   </head>
   <body>
@@ -97,26 +122,37 @@ try {
       </main>
     ) : (
       <>
-        <Header locale={locale} theme={headerTheme} />
+        <Header locale={locale} />
         <main>
           <slot />
         </main>
         <Footer locale={locale} />
+        <WhatsAppButton />
         <CookieConsent />
+        <PromoPopup />
       </>
     )}
     <Fragment set:html={injectBodyEnd} />
     <script>
       import Lenis from "lenis";
+      import { startReveal } from "../utils/reveal";
 
-      let lenis: any = null;
+      function smoothScrollDisabled() {
+        return (
+          document.documentElement.dataset.smoothScroll === "false" ||
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        );
+      }
 
       function startLenis() {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        lenis?.destroy();
-        lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        window.lenisInstance?.destroy();
+        window.lenisInstance = undefined;
+        if (smoothScrollDisabled()) return;
+        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        window.lenisInstance = lenis;
         const raf = (time: number) => {
-          lenis?.raf(time);
+          if (window.lenisInstance !== lenis) return;
+          lenis.raf(time);
           requestAnimationFrame(raf);
         };
         requestAnimationFrame(raf);
@@ -124,6 +160,8 @@ try {
 
       startLenis();
       document.addEventListener("astro:after-swap", startLenis);
+      startReveal();
+      document.addEventListener("astro:after-swap", startReveal);
     </script>
   </body>
 </html>

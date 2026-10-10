@@ -2,11 +2,18 @@ import type { Collection } from "tinacms";
 
 export const cookieConsentCollection: Collection = {
   name: "cookieConsent",
-  label: "Consentimiento de cookies (modal)",
+  label: "Consentimiento de cookies",
   path: "src/content/cookie-consent",
   format: "json",
   ui: { allowedActions: { create: false, delete: false } },
   fields: [
+    {
+      name: "bannerText",
+      label: "Texto del aviso compacto",
+      type: "string",
+      ui: { component: "textarea" },
+    },
+    { name: "btnConfigure", label: "Texto botón configurar", type: "string" },
     { name: "title", label: "Título del modal", type: "string" },
     { name: "intro", label: "Texto introductorio", type: "rich-text" },
     {

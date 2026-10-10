@@ -4,6 +4,8 @@ import type { WooProduct, WooStock, WooCategory } from "../lib/woo/types";
 import type { WooCart } from "../lib/woo/types";
 
 function endpoint(): string {
+  const external = import.meta.env.PUBLIC_WOO_API_URL;
+  if (external) return external;
   const base = import.meta.env.BASE_URL || "/";
   return `${base}woo-api.php`.replace(/([^:])\/\//g, "$1/");
 }
@@ -20,6 +22,7 @@ async function call<T>(
     Object.entries(params).map(([k, v]) => [k, String(v)])
   ) });
 
+  const generation = cartGeneration;
   try {
     const res = await fetch(`${endpoint()}?${qs}`, {
       ...init,
@@ -30,6 +33,8 @@ async function call<T>(
       console.warn(`[woo] ${resource}: ${body.error}`);
       return null;
     }
+    // Una respuesta pedida antes de forgetCart() traería el carrito ya comprado y volvería a guardar su token.
+    if (generation !== cartGeneration) return null;
     rememberCartToken(res);
     return body.data;
   } catch (err) {
@@ -63,6 +68,7 @@ export async function fetchCategories(): Promise<WooCategory[]> {
 
 // Cart-Token solo apunta a un carrito anónimo, no autentica a nadie: puede vivir en localStorage.
 const TOKEN_KEY = "eres-skin-studio:cart-token";
+let cartGeneration = 0;
 
 function cartToken(): string | null {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -80,10 +86,32 @@ function cartHeaders(): Record<string, string> {
 }
 
 export const CART_UPDATED = "eres-skin-studio:cart-updated";
+export const CART_OPEN_REQUEST = "eres-skin-studio:cart-open";
+export const CART_OPEN_QUERY_PARAM = "carrito";
+export const CART_OPEN_QUERY_VALUE = "abierto";
+
+export function requestCartOpen(): void {
+  window.dispatchEvent(new Event(CART_OPEN_REQUEST));
+}
+
+export function consumeCartOpenQuery(): boolean {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(CART_OPEN_QUERY_PARAM) !== CART_OPEN_QUERY_VALUE) return false;
+
+  url.searchParams.delete(CART_OPEN_QUERY_PARAM);
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  return true;
+}
 
 function announce(cart: WooCart | null) {
   if (cart) window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: cart }));
   return cart;
+}
+
+export function forgetCart(): void {
+  cartGeneration += 1;
+  try { localStorage.removeItem(TOKEN_KEY); } catch {}
+  window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: null }));
 }
 
 export async function getCart(): Promise<WooCart | null> {
@@ -120,9 +148,13 @@ export async function removeCartItem(key: string): Promise<WooCart | null> {
   );
 }
 
-// ?cart-token permite a Woo recuperar la sesión si el navegador bloquea cookies de terceros.
-export function checkoutUrl(): string {
-  const store = "https://eresskinstudio.com".replace(/\/$/, "");
+// El carrito vive en la sesión de la Store API, no en la cookie de WordPress: wordpress/mu-plugins/eres-cart-handoff.php lo traspasa con ?cart-token.
+export function checkoutUrl(): string | null {
+  const checkout = import.meta.env.PUBLIC_WOO_CHECKOUT_URL;
+  if (!checkout) return null;
   const token = cartToken();
-  return token ? `${store}/checkout/?cart-token=${encodeURIComponent(token)}` : `${store}/checkout/`;
+  if (!token) return checkout;
+  const url = new URL(checkout);
+  url.searchParams.set("cart-token", token);
+  return url.toString();
 }

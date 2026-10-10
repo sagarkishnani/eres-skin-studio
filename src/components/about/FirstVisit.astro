@@ -1,0 +1,15 @@
+---
+import FirstVisitReact from "./FirstVisitReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  whatsappUrl: string;
+}
+
+const { query, variables, data, whatsappUrl } = Astro.props;
+const visible = data?.about?.firstVisit && data.about.firstVisit.enabled !== false;
+---
+
+{visible && <FirstVisitReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:tina />}

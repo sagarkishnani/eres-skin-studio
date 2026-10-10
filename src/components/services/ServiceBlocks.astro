@@ -1,0 +1,16 @@
+---
+import ServiceBlocksReact from "./ServiceBlocksReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  whatsappUrl: string;
+}
+
+const { query, variables, data, whatsappUrl } = Astro.props;
+const blocks = data?.services?.blocks;
+const visible = blocks && blocks.enabled !== false && (blocks.items || []).some(Boolean);
+---
+
+{visible && <ServiceBlocksReact query={query} variables={variables} data={data} whatsappUrl={whatsappUrl} client:tina />}

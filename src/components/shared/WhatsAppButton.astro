@@ -1,0 +1,25 @@
+---
+import { FaWhatsapp } from "react-icons/fa6";
+import client from "../../../tina/__generated__/client";
+
+const result = await client.queries.global({ relativePath: "index.json" });
+const global = result.data?.global;
+const whatsappUrl = (global?.footer?.social || []).find((social) => social?.network === "whatsapp")?.url;
+const visible = Boolean(global?.whatsappButton?.enabled && whatsappUrl);
+---
+
+{
+  visible && (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Escríbenos por WhatsApp"
+      class="fixed bottom-5 right-5 z-[46] grid h-14 w-14 place-items-center rounded-full bg-whatsapp text-white shadow-lg [transition:transform_500ms_cubic-bezier(.34,1.56,.64,1),bottom_600ms_cubic-bezier(.16,1,.3,1)] hover:scale-[1.08] motion-reduce:transition-none [html[data-buy-bar]_&]:bottom-[84px] md:[html[data-buy-bar]_&]:bottom-[100px] [html[data-scroll-locked]_&]:scale-0 max-md:[html[data-cookie-banner]_&]:scale-0"
+    >
+      <span aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 rounded-full bg-whatsapp animate-whatsapp-pulse motion-reduce:hidden" />
+      <span aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 rounded-full bg-whatsapp animate-whatsapp-pulse motion-reduce:hidden [animation-delay:1.2s]" />
+      <FaWhatsapp size={26} aria-hidden="true" />
+    </a>
+  )
+}

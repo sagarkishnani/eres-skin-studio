@@ -1,0 +1,78 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import JournalBreadcrumb from "../../components/blog/JournalBreadcrumb.astro";
+import JournalHero from "../../components/blog/JournalHero.astro";
+import JournalListReact from "../../components/blog/JournalListReact";
+import type { JournalCardData } from "../../components/blog/JournalCard";
+import client from "../../../tina/__generated__/client";
+import { JOURNAL_CATEGORIES } from "../../../tina/collections/post";
+import { formatShortDate } from "../../utils/formatDate";
+import { mediaUrl } from "../../utils/mediaUrl";
+import {
+  getSortedPosts,
+  journalPostHref,
+  pickFeatured,
+  postTags,
+  toFilterSlug,
+  type JournalPostNode,
+} from "../../utils/journal";
+
+const journalResult = await client.queries.journal({ relativePath: "index.json" });
+const journal = journalResult.data?.journal;
+
+const posts = await getSortedPosts();
+const featured = pickFeatured(posts);
+
+function toCard(post: JournalPostNode): JournalCardData {
+  return {
+    slug: post._sys.filename,
+    href: journalPostHref(post),
+    title: post.title || "",
+    excerpt: post.excerpt || "",
+    image: mediaUrl(post.coverImage),
+    date: formatShortDate(post.date),
+    category: post.category || "",
+    categorySlug: toFilterSlug(post.category || ""),
+    tagSlugs: postTags(post).map(toFilterSlug),
+  };
+}
+
+const categories = JOURNAL_CATEGORIES.map((label) => ({ label, slug: toFilterSlug(label) }));
+
+const tagLabels: Record<string, string> = {};
+for (const tag of posts.flatMap(postTags)) tagLabels[toFilterSlug(tag)] ??= tag;
+
+const title = journal?.title || "Skin Journal";
+---
+
+<BaseLayout
+  title={journal?.seo?.title || `${title} — ERES Skin Studio`}
+  description={journal?.seo?.description || journal?.intro || undefined}
+  viewTransitions={false}
+>
+  <section class="bg-surface-raised pt-[clamp(24px,4vw,48px)]">
+    <div class="container-xl flex flex-col items-center gap-4 text-center">
+      <JournalBreadcrumb />
+      <h1 data-reveal="0" class="mt-[clamp(16px,3vw,40px)] text-[length:clamp(44px,6vw,88px)] leading-none tracking-[-.045em]">
+        {title}
+      </h1>
+      {journal?.intro && (
+        <p data-reveal="80" class="max-w-[520px] text-body-md text-content-muted">{journal.intro}</p>
+      )}
+    </div>
+    {featured && <JournalHero post={featured} />}
+  </section>
+
+  <section class="bg-surface-raised pb-[clamp(64px,8vw,120px)] pt-[clamp(36px,5vw,64px)]">
+    <div class="container-xl">
+      <JournalListReact
+        posts={posts.map(toCard)}
+        featuredSlug={featured?._sys.filename ?? ""}
+        categories={categories}
+        tagLabels={tagLabels}
+        emptyText={journal?.emptyText || ""}
+        client:load
+      />
+    </div>
+  </section>
+</BaseLayout>

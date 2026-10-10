@@ -1,0 +1,30 @@
+---
+import ResultsReact from "./ResultsReact";
+import BeforeAfterReact from "./BeforeAfterReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+}
+
+const { query, variables, data } = Astro.props;
+const results = data?.home?.results;
+const visible = results && results.enabled !== false;
+const hasComparison = Boolean(results?.beforeImage && results?.afterImage);
+---
+
+{
+  visible && (
+    <section class="bg-blush py-[clamp(64px,9vw,120px)]">
+      <div class="container-xl grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-x-[72px] gap-y-12">
+        <ResultsReact query={query} variables={variables} data={data} client:tina />
+        {hasComparison && (
+          <div data-reveal="150">
+            <BeforeAfterReact query={query} variables={variables} data={data} client:visible />
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}

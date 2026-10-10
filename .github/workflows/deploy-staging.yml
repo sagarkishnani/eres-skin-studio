@@ -1,0 +1,89 @@
+name: Deploy al sitio de prueba
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      # Sin carpeta propia, rsync --delete caería en la de producción, que hoy aloja el WordPress en vivo.
+      - name: Verificar la carpeta del sitio de prueba
+        env:
+          STAGING_DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+          PRODUCTION_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          if [ -z "$STAGING_DEPLOY_PATH" ]; then
+            echo "::error::Falta el secreto STAGING_DEPLOY_PATH en el environment staging."
+            exit 1
+          fi
+          if [ "${STAGING_DEPLOY_PATH%/}" = "${PRODUCTION_DEPLOY_PATH%/}" ]; then
+            echo "::error::STAGING_DEPLOY_PATH apunta a la carpeta de producción."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build
+        env:
+          TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          TINA_BRANCH: staging
+          SITE_ENV: staging
+          WOO_STORE_URL: ${{ secrets.WOO_STORE_URL }}
+          WOO_CONSUMER_KEY: ${{ secrets.WOO_CONSUMER_KEY }}
+          WOO_CONSUMER_SECRET: ${{ secrets.WOO_CONSUMER_SECRET }}
+          PUBLIC_WOO_CHECKOUT_URL: ${{ vars.PUBLIC_WOO_CHECKOUT_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+        run: npm run build
+
+      - name: Proteger con usuario y contraseña
+        if: vars.STAGING_HTPASSWD_PATH != ''
+        env:
+          HTPASSWD_PATH: ${{ vars.STAGING_HTPASSWD_PATH }}
+        run: |
+          printf '\nAuthType Basic\nAuthName "ERES · prueba"\nAuthUserFile %s\nRequire valid-user\n' "$HTPASSWD_PATH" >> dist/.htaccess
+
+      - name: Configurar SSH
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      # Los excluidos viven solo en el servidor: --delete no los toca mientras no se use --delete-excluded.
+      - name: Subir a Hostinger
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.STAGING_DEPLOY_PATH }}
+        run: |
+          rsync -az --delete \
+            --exclude 'site-config.php' \
+            --exclude 'woo-config.php' \
+            --include 'data/.htaccess' \
+            --exclude 'data/*' \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
+            dist/ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"

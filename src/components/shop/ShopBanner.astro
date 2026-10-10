@@ -1,0 +1,14 @@
+---
+import ShopBannerReact from "./ShopBannerReact";
+
+interface Props {
+  query: string;
+  variables: object;
+  data: any;
+  categoryName?: string;
+}
+
+const { query, variables, data, categoryName } = Astro.props;
+---
+
+<ShopBannerReact query={query} variables={variables} data={data} categoryName={categoryName} client:tina />

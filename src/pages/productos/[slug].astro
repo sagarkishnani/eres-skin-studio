@@ -1,0 +1,177 @@
+---
+import { PiCheckLight, PiPackageLight } from "react-icons/pi";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import StockRefresher from "../../components/shop/StockRefresher.astro";
+import DiscountBadgePreviewReact from "../../components/shop/DiscountBadgePreviewReact";
+import ProductPurchaseReact from "../../components/shop/product/ProductPurchaseReact";
+import ProductGalleryReact from "../../components/shop/product/ProductGalleryReact";
+import ProductDetailsReact from "../../components/shop/product/ProductDetailsReact";
+import ProductActionsReact from "../../components/shop/product/ProductActionsReact";
+import RelatedProducts from "../../components/shop/product/RelatedProducts.astro";
+import ShopBenefits from "../../components/shop/ShopBenefits.astro";
+import ProductBreadcrumb from "../../components/shop/product/ProductBreadcrumb.astro";
+import client from "../../../tina/__generated__/client";
+import { getAllProducts } from "../../lib/woo/rest";
+import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
+import { DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
+import { stripHtml, discountPercent } from "../../lib/woo/format";
+import { resolveDiscountBadgeStyle } from "../../utils/discountBadge";
+import { getLocale } from "../../utils/i18n";
+import { isLocale } from "../../i18n/config";
+import type { WooProduct } from "../../lib/woo/types";
+
+export async function getStaticPaths() {
+  const products = await getAllProducts();
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product, page: buildProductPage(product, products) },
+  }));
+}
+
+interface Props {
+  product: WooProduct;
+  page: ProductPageData;
+}
+
+const { product, page } = Astro.props;
+
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
+const shopResult = await client.queries.shop({ relativePath: "index.json" });
+const shop = shopResult.data?.shop;
+const lowStock = shop?.lowStockThreshold ?? 5;
+const texts = shop?.productPage;
+
+const globalResult = await client.queries.global({ relativePath: "index.json" });
+const contactPhone = globalResult.data?.global?.contact?.phone;
+
+function buildAskUrl(phone: string | null | undefined, template: string | null | undefined): string | null {
+  const digits = (phone || "").replace(/\D/g, "");
+  if (!digits || !template) return null;
+  const message = template.replaceAll("{producto}", product.name);
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
+const SCHEMA_AVAILABILITY = {
+  instock: "https://schema.org/InStock",
+  outofstock: "https://schema.org/OutOfStock",
+  onbackorder: "https://schema.org/BackOrder",
+} as const;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://eresskinstudio.com").href;
+const brandName = product.brands?.[0]?.name;
+
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  image: product.images.map((image) => image.src),
+  description: stripHtml(product.short_description || product.description, 300),
+  ...(product.sku ? { sku: product.sku } : {}),
+  ...(brandName ? { brand: { "@type": "Brand", name: brandName } } : {}),
+  offers: {
+    "@type": "Offer",
+    price: product.price,
+    priceCurrency: "PEN",
+    url: canonicalUrl,
+    availability: SCHEMA_AVAILABILITY[product.stock_status],
+  },
+};
+---
+
+<BaseLayout
+  title={`${product.name} — ERES Skin Studio`}
+  description={stripHtml(product.short_description || product.description, 155)}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
+  <section class="bg-surface-raised pb-[clamp(56px,7vw,96px)] pt-4 md:pt-8">
+    <div class="container-xl">
+      <ProductBreadcrumb productName={product.name} locale={locale} />
+
+      <div class="grid items-start gap-7 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-[clamp(40px,6vw,96px)]">
+        <ProductGalleryReact
+          images={product.images}
+          productName={product.name}
+          discount={discountPercent(product)}
+          discountBadgeStyle={resolveDiscountBadgeStyle(shop?.discountBadgeStyle)}
+          client:load
+        />
+
+        <div data-reveal="80" class="flex min-w-0 flex-col">
+          {page.eyebrow && (
+            <span class="text-caption-sm font-medium uppercase tracking-[.18em] text-sage-700">{page.eyebrow}</span>
+          )}
+          <h1 class="mb-4 mt-3 text-[clamp(32px,3.4vw,50px)] font-normal leading-[1.06] tracking-[-.03em] [text-wrap:balance]">
+            {product.name}
+          </h1>
+
+          <ProductPurchaseReact
+            id={product.id}
+            name={product.name}
+            type={product.type}
+            permalink={product.permalink}
+            thumb={product.images[0]?.src ?? null}
+            price={product.price}
+            regularPrice={product.regular_price}
+            salePrice={product.sale_price}
+            onSale={product.on_sale}
+            purchasable={product.purchasable}
+            stockStatus={product.stock_status}
+            stockQuantity={product.stock_quantity}
+            lowStockThreshold={lowStock}
+            shippingNote={texts?.shippingNote ?? ""}
+            client:load
+          >
+            {product.short_description && (
+              <div
+                slot="description"
+                class="mt-6 text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] [&_p+p]:mt-3"
+                set:html={product.short_description}
+              />
+            )}
+          </ProductPurchaseReact>
+
+          {texts?.deliveryText && (
+            <p class="mt-7 flex items-center gap-2.5 text-body-xs text-content">
+              <PiPackageLight size={20} aria-hidden="true" class="shrink-0" />
+              {texts.deliveryText}
+            </p>
+          )}
+
+          {texts?.pickupTitle && (
+            <div class="mt-[22px] flex gap-3">
+              <PiCheckLight size={20} aria-hidden="true" class="mt-px shrink-0" />
+              <div class="flex flex-col gap-1">
+                <span class="text-body-sm font-medium">{texts.pickupTitle}</span>
+                {texts.pickupText && <span class="text-caption-md text-content-subtle">{texts.pickupText}</span>}
+              </div>
+            </div>
+          )}
+
+          <ProductDetailsReact details={page.details} client:visible />
+
+          <ProductActionsReact
+            productName={product.name}
+            askUrl={buildAskUrl(contactPhone, texts?.askMessage)}
+            client:visible
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ShopBenefits query={shopResult.query} variables={shopResult.variables} data={shopResult.data} />
+
+  <RelatedProducts
+    products={page.related}
+    eyebrow={texts?.relatedEyebrow}
+    title={texts?.relatedTitle}
+    locale={locale}
+    lowStockThreshold={lowStock}
+    newProductDays={shop?.newProductDays ?? DEFAULT_NEW_PRODUCT_DAYS}
+    discountBadgeStyle={shop?.discountBadgeStyle}
+  />
+
+  <StockRefresher lowStockThreshold={lowStock} />
+  <DiscountBadgePreviewReact query={shopResult.query} variables={shopResult.variables} data={shopResult.data} client:tina />
+</BaseLayout>

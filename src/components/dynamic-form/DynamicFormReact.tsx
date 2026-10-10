@@ -190,18 +190,18 @@ function getDefaultValue(field: FormField): any {
 }
 
 const contactLabelCls =
-  "block text-caption-sm font-semibold text-greyscale-darkest tracking-wider uppercase mb-2";
+  "block text-caption-sm font-semibold text-content tracking-wider uppercase mb-2";
 const contactInputCls =
-  "w-full border rounded-xl px-4 py-3.5 text-body-sm text-greyscale-darkest placeholder:text-greyscale-medium focus:outline-none focus:ring-1 transition-all bg-greyscale-white";
-const contactInputOk = "border-greyscale-light focus:border-brand-primary focus:ring-brand-primary/20";
+  "w-full border px-4 py-3.5 text-body-sm text-content placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
+const contactInputOk = "border-line-strong focus:border-accent focus:ring-accent/20";
 const contactInputErr = "border-red-400 focus:border-red-400 focus:ring-red-400/20";
 const contactErrorCls = "text-caption-sm text-red-500 mt-1";
 
 const contactLabelDarkCls =
-  "block text-caption-sm font-medium text-greyscale-light mb-2";
+  "block text-caption-sm font-medium text-stone-300 mb-2";
 const contactInputDarkCls =
-  "w-full border rounded-xl px-4 py-3.5 text-body-sm text-greyscale-white placeholder:text-greyscale-medium focus:outline-none focus:ring-1 transition-all bg-surface-raised";
-const contactInputDarkOk = "border-line focus:border-brand-primary focus:ring-brand-primary/30";
+  "w-full border px-4 py-3.5 text-body-sm text-content-inverse placeholder:text-content-subtle focus:outline-none focus:ring-1 transition-all bg-surface-raised";
+const contactInputDarkOk = "border-line focus:border-accent focus:ring-accent/30";
 const contactInputDarkErr = "border-red-400/70 focus:border-red-400 focus:ring-red-400/20";
 
 function contactCls(dark?: boolean) {
@@ -225,7 +225,7 @@ function ContactInput({
     <div>
       {label && (
         <label className={c.label}>
-          {label} {required && <span className="text-brand-primary">*</span>}
+          {label} {required && <span className="text-accent">*</span>}
         </label>
       )}
       <input
@@ -246,7 +246,7 @@ function renderSelectOptions(options: FieldOption[]) {
   const hasGroups = options.some((o) => o.group);
   if (!hasGroups) {
     return options.map((opt, i) => (
-      <option key={i} value={opt.value} className="text-greyscale-darkest">
+      <option key={i} value={opt.value} className="text-content">
         {opt.label}
       </option>
     ));
@@ -264,12 +264,12 @@ function renderSelectOptions(options: FieldOption[]) {
   return order.map((key, gi) => {
     const groupOpts = buckets.get(key)!;
     const children = groupOpts.map((opt, i) => (
-      <option key={i} value={opt.value} className="text-greyscale-darkest">
+      <option key={i} value={opt.value} className="text-content">
         {opt.label}
       </option>
     ));
     return key ? (
-      <optgroup key={gi} label={key} className="text-greyscale-darkest">
+      <optgroup key={gi} label={key} className="text-content">
         {children}
       </optgroup>
     ) : (
@@ -290,13 +290,13 @@ function ContactSelect({
     <div>
       {label && (
         <label className={c.label}>
-          {label} {required && <span className="text-brand-primary">*</span>}
+          {label} {required && <span className="text-accent">*</span>}
         </label>
       )}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`${c.input} appearance-none ${dark && !value ? "text-greyscale-medium" : ""} ${error ? c.err : c.ok}`}
+        className={`${c.input} appearance-none ${dark && !value ? "text-content-subtle" : ""} ${error ? c.err : c.ok}`}
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${arrowColor}' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E")`,
           backgroundRepeat: "no-repeat",
@@ -325,7 +325,7 @@ function ContactTextarea({
     <div>
       {label && (
         <label className={c.label}>
-          {label} {required && <span className="text-brand-primary">*</span>}
+          {label} {required && <span className="text-accent">*</span>}
         </label>
       )}
       <textarea
@@ -339,7 +339,7 @@ function ContactTextarea({
       <div className="flex justify-between mt-1">
         {error ? <p className={contactErrorCls}>{error}</p> : <span />}
         {maxLength && (
-          <span className="text-caption-sm text-greyscale-medium">
+          <span className="text-caption-sm text-content-subtle">
             {value.length}/{maxLength}
           </span>
         )}
@@ -360,9 +360,9 @@ function ContactCheckbox({
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className={`mt-1 w-4 h-4 shrink-0 basis-4 accent-brand-primary rounded ${dark ? "border-line" : "border-greyscale-light"}`}
+          className={`mt-1 w-4 h-4 shrink-0 basis-4 accent-accent ${dark ? "border-line" : "border-line-strong"}`}
         />
-        <span className={`text-caption-sm leading-relaxed ${dark ? "text-greyscale-light" : "text-greyscale-dark"}`}>{children}</span>
+        <span className={`text-caption-sm leading-relaxed ${dark ? "text-stone-300" : "text-content-muted"}`}>{children}</span>
       </label>
       {error && <p className="text-caption-sm text-red-500 mt-1 ml-7">{error}</p>}
     </div>
@@ -379,12 +379,12 @@ function ContactSubmitButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`w-full h-12 flex items-center justify-center rounded-[8px] text-greyscale-white text-body-md font-semibold transition-all ${
+      className={`w-full h-12 flex items-center justify-center text-content-inverse text-body-md font-semibold transition-all ${
         disabled
-          ? "bg-brand-primary/60 cursor-not-allowed"
+          ? "bg-accent/60 cursor-not-allowed"
           : dark
-          ? "bg-gradient-to-r from-brand-primary to-brand-primary-dark hover:from-brand-primary-dark hover:to-brand-primary-darkest active:scale-[0.99]"
-          : "bg-brand-primary hover:bg-brand-primary-dark active:scale-[0.99]"
+          ? "bg-gradient-to-r from-accent to-ink hover:from-ink hover:to-ink active:scale-[0.99]"
+          : "bg-accent hover:bg-ink active:scale-[0.99]"
       }`}
     >
       {text}
@@ -414,7 +414,7 @@ function CheckboxLabel({
 
   const linkClass =
     variant === "contact"
-      ? "text-brand-primary underline hover:text-brand-primary-dark"
+      ? "text-accent underline hover:text-accent"
       : variant === "contact-dark"
       ? "text-[#D070B8] underline hover:text-[#E693CE]"
       : undefined;
@@ -721,7 +721,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
                 <path d="M5 13l4 4L19 7" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <p className={`text-subtitle-sm font-semibold ${isDark ? "text-greyscale-white" : "text-greyscale-darkest"}`}>
+            <p className={`text-subtitle-sm font-semibold ${isDark ? "text-content-inverse" : "text-content"}`}>
               {L(formConfig, "successMessage") || ui.contactSuccess}
             </p>
           </div>
@@ -753,7 +753,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
       return (
         <div data-tina-field={tinaField(field, "label")}>
           {isContact ? (
-            <h3 className={`text-body-md font-medium mt-4 mb-2 ${isDark ? "text-greyscale-white" : "text-greyscale-darkest"}`}>
+            <h3 className={`text-body-md font-medium mt-4 mb-2 ${isDark ? "text-content-inverse" : "text-content"}`}>
               {L(field, "label")}
             </h3>
           ) : (
@@ -765,7 +765,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
 
     if (field.fieldType === "divider") {
       return isContact ? (
-        <div className={`border-t ${isDark ? "border-line" : "border-greyscale-light"}`} />
+        <div className={`border-t ${isDark ? "border-line" : "border-line-strong"}`} />
       ) : (
         <FormDivider />
       );
@@ -775,7 +775,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
       return (
         <div data-tina-field={tinaField(field, "noteContent")}>
           {isContact ? (
-            <p className="text-caption-sm text-greyscale-medium leading-relaxed">
+            <p className="text-caption-sm text-content-subtle leading-relaxed">
               {L(field, "noteContent")}
             </p>
           ) : (
@@ -1076,7 +1076,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
         <div className="mb-8">
           {L(formConfig, "formTitle") && (
             <h2
-              className={`text-subtitle-md font-medium! ${isDark ? "text-greyscale-white mb-2" : "text-greyscale-darkest"}`}
+              className={`text-subtitle-md font-medium! ${isDark ? "text-content-inverse mb-2" : "text-content"}`}
               data-tina-field={tinaField(formConfig, "formTitle")}
             >
               {L(formConfig, "formTitle")}
@@ -1084,7 +1084,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
           )}
           {isDark && L(formConfig, "description") && (
             <p
-              className="text-body-sm text-greyscale-light"
+              className="text-body-sm text-stone-300"
               data-tina-field={tinaField(formConfig, "description")}
             >
               {L(formConfig, "description")}
@@ -1123,7 +1123,7 @@ export default function DynamicFormReact({ query, variables, data: initialData, 
                       ? undefined
                       : { fontSize: "12px", color: "#9CA3AF", marginTop: "4px", fontFamily: "Poppins, sans-serif" }
                   }
-                  className={isContact ? "text-caption-sm text-greyscale-medium mt-1" : undefined}
+                  className={isContact ? "text-caption-sm text-content-subtle mt-1" : undefined}
                 >
                   {L(field, "helpText")}
                 </p>

@@ -1,0 +1,33 @@
+---
+interface Props {
+  data: any;
+}
+
+const SECONDS_PER_ITEM = 8;
+const COPIES_PER_HALF = 2;
+
+const marquee = Astro.props.data?.home?.marquee;
+const labels: string[] = (marquee?.items || []).map((item: any) => item?.label).filter(Boolean);
+const visible = marquee?.enabled !== false && labels.length > 0;
+const half = Array.from({ length: COPIES_PER_HALF }, () => labels).flat();
+const track = [...half, ...half];
+const duration = `${half.length * SECONDS_PER_ITEM}s`;
+---
+
+{
+  visible && (
+    <div class="flex h-[46px] items-center overflow-hidden bg-ink text-content-inverse">
+      <ul class="sr-only">
+        {labels.map((label) => <li>{label}</li>)}
+      </ul>
+      <div aria-hidden="true" class="flex w-max animate-marquee motion-reduce:animate-none" style={`animation-duration: ${duration}`}>
+        {track.map((label) => (
+          <span class="flex items-center gap-7 whitespace-nowrap pr-7 text-caption-xs font-medium uppercase tracking-[.24em]">
+            {label}
+            <span class="block h-[3px] w-[3px] bg-sage-300" />
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}

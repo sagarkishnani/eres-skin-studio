@@ -1,0 +1,148 @@
+{
+  "header": {
+    "enabled": true,
+    "breadcrumb": "Servicios",
+    "title": "Donde tu piel\nse siente en casa.",
+    "text": "Cada tratamiento parte de una conversación, un análisis y un plan único. Aquí no hay protocolos en serie — solo cuidado pensado para ti."
+  },
+  "blocks": {
+    "enabled": true,
+    "ctaLabel": "Reservar",
+    "items": [
+      {
+        "name": "Limpiezas faciales",
+        "slug": "limpiezas-faciales",
+        "title": "Donde empieza\ntodo cuidado.",
+        "image": "/uploads/home/svc-limpieza.webp",
+        "paragraphs": [
+          {
+            "text": "La limpieza es la base de cualquier rutina efectiva. En Eres no aplicamos protocolos en serie: analizamos tu piel y elegimos contigo el tipo de limpieza ideal según tu tipo cutáneo, sensibilidades y objetivos."
+          },
+          {
+            "text": "Cada sesión combina técnicas manuales con dermocosmética premium para devolverle a tu piel su equilibrio natural — sin agredirla, sin dolor, sin protocolos genéricos."
+          }
+        ]
+      },
+      {
+        "name": "Tratamientos faciales",
+        "slug": "tratamientos-faciales",
+        "title": "Regenera tu piel\ndesde dentro.",
+        "image": "/uploads/home/svc-tratamiento.webp",
+        "paragraphs": [
+          {
+            "text": "Trabajamos tratamientos faciales avanzados y no invasivos para regenerar la piel y mejorar su calidad de forma progresiva: más luminosidad, hidratación, firmeza, mejor textura y un aspecto más descansado."
+          },
+          {
+            "text": "Cada protocolo se define según lo que tu piel necesita hoy. Combinamos diagnóstico, dermocosmética profesional, aparatología estética y activos avanzados, siempre con resultados reales, seguros y naturales."
+          }
+        ]
+      },
+      {
+        "name": "Depilación láser",
+        "slug": "depilacion-laser",
+        "title": "Suave, segura\ny sin dolor.",
+        "image": "/uploads/home/svc-depilacion.webp",
+        "paragraphs": [
+          {
+            "text": "Trabajamos con láser de diodo de última generación, apto para todo tipo de piel y todo tono. Sesiones rápidas, indoloras y altamente efectivas para rostro y cuerpo."
+          },
+          {
+            "text": "El proceso completo requiere varias sesiones espaciadas según el ciclo natural del folículo. Te acompañamos en cada paso con honestidad sobre tiempos, resultados y mantenimiento."
+          }
+        ]
+      }
+    ]
+  },
+  "experience": {
+    "enabled": true,
+    "eyebrow": "— Tu experiencia Eres",
+    "title": "Tu piel tiene su propio camino. Cada piel, una ruta distinta.",
+    "text": "No empezamos con un protocolo. Empezamos contigo. Antes de cualquier tratamiento, te invitamos a una sesión de diagnóstico para entender qué necesita tu piel.",
+    "steps": [
+      {
+        "title": "Reserva tu momento",
+        "text": "Escríbenos por WhatsApp y te guiamos para elegir el primer paso ideal para tu piel."
+      },
+      {
+        "title": "Primero, entendemos tu piel",
+        "text": "Conversamos contigo, analizamos tu piel y conocemos tu rutina, tu historia y lo que buscas mejorar."
+      },
+      {
+        "title": "Luego, trazamos tu ruta",
+        "text": "Definimos un plan honesto y personalizado, pensado para tu piel, tus tiempos y tus objetivos. Sin tratamientos en serie."
+      },
+      {
+        "title": "Te acompañamos después",
+        "text": "Seguimos la evolución de tu piel y ajustamos tu plan cuando lo necesites, siempre con guía y sin presión."
+      }
+    ]
+  },
+  "faq": {
+    "enabled": true,
+    "eyebrow": "— Preguntas frecuentes",
+    "title": "Resolvemos tus dudas.",
+    "helpText": "¿No encuentras lo que buscas?",
+    "ctaLabel": "Escríbenos por WhatsApp",
+    "items": [
+      {
+        "question": "¿Necesito una evaluación antes de realizarme un tratamiento?",
+        "answer": "Sí. Antes de cada tratamiento realizamos una evaluación para conocer las necesidades de tu piel y recomendarte la mejor opción para ti."
+      },
+      {
+        "question": "¿Con qué frecuencia debo realizarme una limpieza facial?",
+        "answer": "En general, cada 4 a 6 semanas, que es lo que tarda la piel en renovarse. Lo ajustamos según tu tipo de piel y tu rutina en casa."
+      },
+      {
+        "question": "¿Los tratamientos son personalizados?",
+        "answer": "Siempre. Cada protocolo se define a partir del diagnóstico y se ajusta sesión a sesión según cómo responde tu piel."
+      },
+      {
+        "question": "¿La limpieza facial duele?",
+        "answer": "No debería. Trabajamos con técnicas suaves y solo realizamos extracciones donde es necesario."
+      },
+      {
+        "question": "¿Puedo maquillarme después de una limpieza facial?",
+        "answer": "Recomendamos esperar al menos 12 horas para que la piel se recupere y aproveche los activos aplicados."
+      },
+      {
+        "question": "¿La depilación láser es segura?",
+        "answer": "Sí. Usamos láser de diodo de última generación, apto para todo tipo de piel y tono, siempre tras una evaluación previa."
+      },
+      {
+        "question": "¿Cuántas sesiones de depilación láser necesito?",
+        "answer": "La cantidad varía según la zona, el tipo de vello y factores hormonales. Generalmente se requieren varias sesiones para obtener resultados óptimos."
+      },
+      {
+        "question": "¿Los tratamientos faciales tienen tiempo de recuperación?",
+        "answer": "La mayoría no. Puedes retomar tu día con normalidad; si hiciera falta algún cuidado específico, te lo indicaremos."
+      },
+      {
+        "question": "¿Puedo realizarme tratamientos si tengo la piel sensible?",
+        "answer": "Sí. Adaptamos productos y técnicas a pieles sensibles o reactivas después de evaluarlas."
+      },
+      {
+        "question": "¿Qué debo hacer antes de mi cita?",
+        "answer": "Cuéntanos qué productos usas y evita exfoliantes fuertes o retinoides los dos días previos."
+      },
+      {
+        "question": "¿Puedo realizarme un tratamiento si estoy embarazada o dando de lactar?",
+        "answer": "Algunos tratamientos sí y otros conviene postergarlos. Lo evaluamos contigo caso por caso."
+      },
+      {
+        "question": "¿Venden productos para continuar el cuidado en casa?",
+        "answer": "Sí. En nuestra tienda encontrarás dermocosmética seleccionada, y solo te recomendamos lo que tu piel necesita."
+      },
+      {
+        "question": "¿Necesito reservar una cita previamente?",
+        "answer": "Sí. Trabajamos solo con cita para dedicarte el tiempo que mereces. Puedes reservar por WhatsApp."
+      }
+    ]
+  },
+  "booking": {
+    "enabled": true
+  },
+  "seo": {
+    "title": "Servicios — ERES Skin Studio",
+    "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima, con diagnóstico previo y un plan pensado para tu piel."
+  }
+}

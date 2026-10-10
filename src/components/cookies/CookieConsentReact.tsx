@@ -5,6 +5,12 @@ import type {
   CookieConsentQuery,
   CookieConsentQueryVariables,
 } from "../../../tina/__generated__/types";
+import {
+  CONSENT_CHANGE_EVENT,
+  CONSENT_STORAGE_KEY,
+  OPEN_CONSENT_EVENT,
+  readConsent,
+} from "../../utils/cookieConsent";
 
 interface Props {
   query: string;
@@ -19,21 +25,12 @@ interface Category {
   alwaysActive?: boolean | null;
 }
 
-const STORAGE_KEY = "eres-skin-studio-cookie-consent:v1";
-
-function readConsent(): Record<string, boolean> | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
+type ConsentView = "hidden" | "banner" | "modal";
 
 function writeConsent(prefs: Record<string, boolean>) {
   try {
     localStorage.setItem(
-      STORAGE_KEY,
+      CONSENT_STORAGE_KEY,
       JSON.stringify({ ...prefs, ts: Date.now() })
     );
   } catch {
@@ -94,8 +91,12 @@ export default function CookieConsentReact({
   const btnSave = cc?.btnSave || "Guardar mis preferencias";
   const btnAccept = cc?.btnAccept || "Aceptar todo";
   const alwaysActiveLabel = cc?.alwaysActiveLabel || "Siempre activa";
+  const bannerText =
+    cc?.bannerText ||
+    "Usamos cookies para que la web funcione y, con tu permiso, para entender cómo la usas.";
+  const btnConfigure = cc?.btnConfigure || "Configurar";
 
-  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<ConsentView>("hidden");
   const [prefs, setPrefs] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -114,11 +115,11 @@ export default function CookieConsentReact({
   useEffect(() => {
     const saved = readConsent();
     setPrefs(buildPrefs(saved));
-    if (!saved) setOpen(true);
+    if (!saved) setView("banner");
 
     const reopen = () => {
       setPrefs(buildPrefs(readConsent()));
-      setOpen(true);
+      setView("modal");
     };
     const onClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest?.(
@@ -129,19 +130,31 @@ export default function CookieConsentReact({
         reopen();
       }
     };
-    window.addEventListener("open-cookie-consent", reopen);
+    window.addEventListener(OPEN_CONSENT_EVENT, reopen);
     document.addEventListener("click", onClick);
     return () => {
-      window.removeEventListener("open-cookie-consent", reopen);
+      window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
       document.removeEventListener("click", onClick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (view === "banner") root.dataset.cookieBanner = "";
+    else delete root.dataset.cookieBanner;
+    return () => {
+      delete root.dataset.cookieBanner;
+    };
+  }, [view]);
+
   const persistAndClose = (next: Record<string, boolean>) => {
     writeConsent(next);
-    setOpen(false);
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: next }));
+    setView("hidden");
   };
+
+  const closeModal = () => setView(readConsent() ? "hidden" : "banner");
 
   const acceptAll = () => {
     const next: Record<string, boolean> = {};
@@ -160,7 +173,41 @@ export default function CookieConsentReact({
   };
 
   // Never return null from an island: Astro logs a bogus "Invalid hook call".
-  if (!open) return <div hidden aria-hidden="true" />;
+  if (view === "hidden") return <div hidden aria-hidden="true" />;
+
+  if (view === "banner") {
+    return (
+      <section
+        aria-label="Aviso de cookies"
+        className="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[60] border border-line bg-surface-raised p-4 shadow-lg md:inset-x-auto md:bottom-5 md:left-5 md:max-w-[400px] md:p-5"
+      >
+        <p className="text-body-xs leading-[1.5] text-content-muted">{bannerText}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setView("modal")}
+            className="mr-auto text-caption-md font-medium text-content underline underline-offset-4 hover:text-accent"
+          >
+            {btnConfigure}
+          </button>
+          <button
+            type="button"
+            onClick={rejectAll}
+            className="border border-accent px-3.5 py-2 text-caption-md font-semibold text-accent transition-colors hover:bg-accent/[0.04]"
+          >
+            {btnReject}
+          </button>
+          <button
+            type="button"
+            onClick={acceptAll}
+            className="bg-accent px-3.5 py-2 text-caption-md font-semibold text-content-inverse transition-colors hover:bg-sage-700"
+          >
+            {btnAccept}
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div
@@ -169,7 +216,7 @@ export default function CookieConsentReact({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="w-full max-w-[480px] max-h-[88vh] overflow-y-auto rounded-2xl bg-surface shadow-2xl">
+      <div className="w-full max-w-[480px] max-h-[88vh] overflow-y-auto bg-surface shadow-2xl">
         <div className="p-5 md:p-7">
           <div className="flex items-start justify-between gap-4 mb-3">
             <h2 className="text-[#0a0a0a] text-[17px] md:text-[19px] font-medium leading-snug">
@@ -177,7 +224,7 @@ export default function CookieConsentReact({
             </h2>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={closeModal}
               aria-label="Cerrar"
               className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[#717274] hover:bg-[#f2f3f5] transition-colors"
             >
@@ -259,21 +306,21 @@ export default function CookieConsentReact({
             <button
               type="button"
               onClick={rejectAll}
-              className="flex-1 px-4 py-2.5 rounded-[8px] border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
+              className="flex-1 px-4 py-2.5 border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
             >
               {btnReject}
             </button>
             <button
               type="button"
               onClick={savePrefs}
-              className="flex-1 px-4 py-2.5 rounded-[8px] border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
+              className="flex-1 px-4 py-2.5 border border-[#2E3A33] text-[#2E3A33] text-[13px] font-semibold hover:bg-[#2E3A33]/[0.04] transition-colors"
             >
               {btnSave}
             </button>
             <button
               type="button"
               onClick={acceptAll}
-              className="flex-1 px-4 py-2.5 rounded-[8px] bg-[#2E3A33] text-white text-[13px] font-semibold hover:bg-[#232C26] transition-colors"
+              className="flex-1 px-4 py-2.5 bg-[#2E3A33] text-white text-[13px] font-semibold hover:bg-[#232C26] transition-colors"
             >
               {btnAccept}
             </button>

@@ -1,12 +1,19 @@
 import { defineConfig } from "tinacms";
 import { globalCollection } from "./collections/global";
 import { homeCollection } from "./collections/home";
+import { aboutCollection } from "./collections/about";
+import { servicesCollection } from "./collections/services";
+import { contactCollection } from "./collections/contact";
 import { postCollection } from "./collections/post";
 import { formConfigCollection } from "./collections/formConfig";
 import { dynamicFormsCollection } from "./collections/dynamicForms";
 import { shopCollection } from "./collections/shop";
+import { journalCollection } from "./collections/journal";
 import { maintenanceCollection } from "./collections/maintenance";
 import { cookieConsentCollection } from "./collections/cookieConsent";
+import { promoPopupCollection } from "./collections/promoPopup";
+import { systemPagesCollection } from "./collections/systemPages";
+import { legalCollection } from "./collections/legal";
 
 export default defineConfig({
   // Baked into the generated client at build time; NOT read at runtime.
@@ -30,12 +37,19 @@ export default defineConfig({
     collections: [
       globalCollection,
       homeCollection,
+      aboutCollection,
+      servicesCollection,
+      contactCollection,
       postCollection,
       formConfigCollection,
       dynamicFormsCollection,
       shopCollection,
+      journalCollection,
       maintenanceCollection,
       cookieConsentCollection,
+      promoPopupCollection,
+      systemPagesCollection,
+      legalCollection,
     ],
   },
 });

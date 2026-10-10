@@ -1,0 +1,34 @@
+{
+  "enabled": false,
+  "triggers": {
+    "delaySeconds": 8,
+    "scrollPercent": 40,
+    "exitIntent": true
+  },
+  "frequency": {
+    "daysAfterDismiss": 7,
+    "daysAfterConvert": 30
+  },
+  "excludedPaths": [
+    "/contacto"
+  ],
+  "dismissLabel": "No, gracias",
+  "showSocials": true,
+  "campaigns": [
+    {
+      "id": "primera-compra-10",
+      "enabled": true,
+      "image": "/uploads/home/svc-tratamiento.webp",
+      "imageAlt": "Tratamiento facial en ERES Skin Studio",
+      "eyebrow": "Únete a ERES",
+      "title": "10% de descuento en tu primera compra",
+      "body": "Usa este código al finalizar tu compra en la tienda online.",
+      "couponCode": "ERES10",
+      "copyLabel": "Copiar código",
+      "copiedLabel": "¡Código copiado!",
+      "ctaLabel": "Ver productos",
+      "ctaUrl": "/productos",
+      "finePrint": "Válido una vez por cliente. No acumulable con otras promociones."
+    }
+  ]
+}
