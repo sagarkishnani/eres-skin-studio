@@ -1,5 +1,5 @@
 import type { WooCategory, WooProductWithStats, WooTerm } from "./types";
-import { discountPercent } from "./format";
+import { discountPercent, isSoldOut } from "./format";
 import { ALL_SKIN_TYPES_TAG, PRICE_STEP, type CatalogFacets, type CatalogItem, type FacetOption } from "../../utils/catalog/types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -54,7 +54,7 @@ export function buildCatalog(products: WooProductWithStats[], sources: CatalogSo
     brand: product.brands?.[0]?.slug ?? null,
     categories: product.categories.map((category) => category.slug),
     skins: (product.tags || []).map((tag) => tag.slug),
-    inStock: product.stock_status !== "outofstock",
+    inStock: !isSoldOut(product),
     isNew: isNewProduct(product, sources.newProductDays, now),
     rank: {
       destacados: featured.get(product.id) ?? 0,

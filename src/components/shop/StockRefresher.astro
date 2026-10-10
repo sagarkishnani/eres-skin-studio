@@ -1,23 +1,25 @@
 ---
+import { DEFAULT_LOW_STOCK_THRESHOLD } from "../../lib/woo/format";
+
 // El umbral viaja por data- y no por define:vars: un script inline no pasa por Vite y sus imports no resolverían.
 interface Props {
   lowStockThreshold?: number;
 }
-const { lowStockThreshold = 5 } = Astro.props;
+const { lowStockThreshold = DEFAULT_LOW_STOCK_THRESHOLD } = Astro.props;
 ---
 
 <div id="woo-stock-refresher" data-low-stock={String(lowStockThreshold)} hidden></div>
 
 <script>
   import { fetchStock } from "../../utils/wooClient";
-  import { formatPrice, discountPercent, stockLabel } from "../../lib/woo/format";
+  import { formatPrice, discountPercent, stockLabel, isBuyable, DEFAULT_LOW_STOCK_THRESHOLD } from "../../lib/woo/format";
 
   const TONE = { ok: "text-emerald-400", low: "text-amber-400", out: "text-content-subtle" };
 
   async function refresh() {
     const config = document.getElementById("woo-stock-refresher");
     if (!config) return;
-    const lowStock = Number(config.dataset.lowStock || 5);
+    const lowStock = Number(config.dataset.lowStock || DEFAULT_LOW_STOCK_THRESHOLD);
 
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-woo-id]"));
     const ids = nodes.map((n) => Number(n.dataset.wooId)).filter(Boolean);
@@ -48,7 +50,7 @@ const { lowStockThreshold = 5 } = Astro.props;
       }
 
       node.querySelectorAll("[data-woo-buy]").forEach((btn) => {
-        const unavailable = data.stock_status === "outofstock" || !data.purchasable;
+        const unavailable = !isBuyable(data);
         btn.toggleAttribute("disabled", unavailable);
         btn.classList.toggle("opacity-40", unavailable);
         btn.classList.toggle("pointer-events-none", unavailable);

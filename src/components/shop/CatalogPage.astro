@@ -15,6 +15,7 @@ import { CATALOG_PAGE_SIZE, CATALOG_PARAM_KEYS, DEFAULT_SORT } from "../../utils
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
 import type { WooCategory } from "../../lib/woo/types";
+import { DEFAULT_LOW_STOCK_THRESHOLD } from "../../lib/woo/format";
 
 interface Props {
   category?: WooCategory;
@@ -25,7 +26,7 @@ const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(A
 
 const { query, variables, data } = await client.queries.shop({ relativePath: "index.json" });
 const shop = data?.shop;
-const lowStock = shop?.lowStockThreshold ?? 5;
+const lowStock = shop?.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD;
 const visibleFilters = resolveVisibleFilters(shop?.catalog?.visibleFilters);
 const mobileSortKeys = resolveMobileSortKeys(shop?.catalog?.mobileSortOptions);
 

@@ -14,7 +14,7 @@ import client from "../../../tina/__generated__/client";
 import { getAllProducts } from "../../lib/woo/rest";
 import { buildProductPage, type ProductPageData } from "../../lib/woo/productPage";
 import { DEFAULT_NEW_PRODUCT_DAYS } from "../../lib/woo/catalog";
-import { stripHtml, discountPercent } from "../../lib/woo/format";
+import { stripHtml, discountPercent, isSoldOut, DEFAULT_LOW_STOCK_THRESHOLD } from "../../lib/woo/format";
 import { resolveDiscountBadgeStyle } from "../../utils/discountBadge";
 import { getLocale } from "../../utils/i18n";
 import { isLocale } from "../../i18n/config";
@@ -38,7 +38,7 @@ const { product, page } = Astro.props;
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : getLocale(Astro.url);
 const shopResult = await client.queries.shop({ relativePath: "index.json" });
 const shop = shopResult.data?.shop;
-const lowStock = shop?.lowStockThreshold ?? 5;
+const lowStock = shop?.lowStockThreshold ?? DEFAULT_LOW_STOCK_THRESHOLD;
 const texts = shop?.productPage;
 
 const globalResult = await client.queries.global({ relativePath: "index.json" });
@@ -73,7 +73,7 @@ const productJsonLd = {
     price: product.price,
     priceCurrency: "PEN",
     url: canonicalUrl,
-    availability: SCHEMA_AVAILABILITY[product.stock_status],
+    availability: SCHEMA_AVAILABILITY[isSoldOut(product) ? "outofstock" : product.stock_status],
   },
 };
 ---

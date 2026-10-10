@@ -1,4 +1,5 @@
 import type { WooProduct, WooProductWithStats } from "./types";
+import { isSoldOut } from "./format";
 import { featuredRank } from "./catalog";
 
 export type DetailKey = "beneficios" | "ingredientes" | "modo-uso" | "descripcion";
@@ -60,7 +61,7 @@ function buildRelated(product: WooProductWithStats, all: WooProductWithStats[]):
   const chosen = new Map<number, WooProductWithStats>();
   for (const candidate of [...linked, ...sameCategory, ...byFeatured]) {
     if (chosen.size >= RELATED_LIMIT) break;
-    if (candidate.id === product.id || candidate.stock_status === "outofstock") continue;
+    if (candidate.id === product.id || isSoldOut(candidate)) continue;
     chosen.set(candidate.id, candidate);
   }
   return [...chosen.values()];

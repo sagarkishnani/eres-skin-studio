@@ -22,7 +22,7 @@
     "askMessage": "Hola, tengo una pregunta sobre {producto}"
   },
   "newProductDays": 30,
-  "lowStockThreshold": 5,
+  "lowStockThreshold": 1,
   "discountBadgeStyle": "diagonal",
   "catalog": {
     "visibleFilters": ["categoria", "marca", "piel"],

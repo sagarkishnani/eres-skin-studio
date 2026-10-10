@@ -97,7 +97,7 @@ En orden, dentro de un `flex-col min-w-0`:
 4. **Nota de envío:** `shop.productPage.shippingNote` en 14px, `text-content-muted`, `mt-2.5`.
 5. **Descripción corta:** `short_description` de Woo (HTML) en `body-md`, `leading-[1.65]`, `text-content-muted`, `text-pretty`, `mt-6`. Se omite si está vacía.
 6. **Stock** (`mt-6`, gap 10px), según la regla del modelo de datos:
-   - "Solo quedan **N** unidades en stock." en 14px, con el número en peso 600;
+   - "Quedan pocas unidades." en 14px;
    - barra de 2px `bg-stone-150`, `max-w-[360px]`, con relleno `bg-sage-500` de ancho `min(100%, N/30)`.
 7. **Compra** (`mt-6`): grilla `auto minmax(0,1fr)` con gap de 10px.
    - **Cantidad:** caja de 54px de alto, `border border-line-strong`, `bg-surface-raised`. Botones "−" y "+" de 44px de ancho (18px, hover `opacity-50`) y el valor en 15px `tabular-nums` con ancho mínimo de 28px.
@@ -261,9 +261,9 @@ interface ProductPurchaseProps {
 - Renderiza precio, nota de envío, stock, cantidad, botones y la barra fija. La cantidad es un único estado compartido entre el bloque y la barra.
 - Al montar llama a `fetchStock([id])` y reemplaza precio y stock con lo que devuelva. Sin respuesta, se queda con los valores del build.
 - **Stock mostrado:**
-  - `outofstock` o `!purchasable` → "Agotado" en `text-content-subtle`, sin barra, con cantidad y botones deshabilitados y la barra fija sin mostrarse.
+  - `outofstock`, `instock` con `stock_quantity` en 0 o `!purchasable` → "Agotado" en `text-content-subtle`, sin barra, con cantidad y botones deshabilitados y la barra fija sin mostrarse.
   - `onbackorder` → "Bajo pedido", sin barra.
-  - `stock_quantity` numérico y `≤ lowStockThreshold` → "Solo quedan N unidades en stock." con barra (`STOCK_BAR_SCALE = 30`).
+  - `instock` con `stock_quantity` entre 1 y `lowStockThreshold` (1 por defecto) → "Quedan pocas unidades." con barra (`STOCK_BAR_SCALE = 30`).
   - En cualquier otro caso → "En stock", sin barra.
 - **Cantidad:** mínimo 1. Máximo `stock_quantity` si es numérico, si no 99. Los botones se deshabilitan en los topes.
 - **Añadir al carrito:** `addToCart(id, qty)`.

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { PiCheckLight, PiHandbagLight } from "react-icons/pi";
 import { addToCart, checkoutUrl, fetchStock, requestCartOpen } from "../../../utils/wooClient";
-import { discountPercent, formatPrice } from "../../../lib/woo/format";
+import { discountPercent, formatPrice, isBuyable, isLowStock, LOW_STOCK_TEXT } from "../../../lib/woo/format";
 import type { StockStatus, WooProduct, WooStock } from "../../../lib/woo/types";
 import QuantityStepper from "./QuantityStepper";
 
@@ -40,11 +40,9 @@ const buyButtonClass =
 type Availability = { kind: "out" } | { kind: "backorder" } | { kind: "low"; units: number } | { kind: "in" };
 
 function availabilityOf(stock: WooStock, lowStockThreshold: number): Availability {
-  if (stock.stock_status === "outofstock" || !stock.purchasable) return { kind: "out" };
+  if (!isBuyable(stock)) return { kind: "out" };
   if (stock.stock_status === "onbackorder") return { kind: "backorder" };
-  if (typeof stock.stock_quantity === "number" && stock.stock_quantity <= lowStockThreshold) {
-    return { kind: "low", units: stock.stock_quantity };
-  }
+  if (isLowStock(stock, lowStockThreshold)) return { kind: "low", units: stock.stock_quantity ?? 0 };
   return { kind: "in" };
 }
 
@@ -59,11 +57,7 @@ function StockNotice({ availability }: { availability: Availability }) {
   const fill = Math.min(100, (availability.units / STOCK_BAR_SCALE) * 100);
   return (
     <div className="flex flex-col gap-2.5">
-      <p className="text-body-xs text-content">
-        {availability.units === 1 ? "Solo queda " : "Solo quedan "}
-        <strong className="font-semibold">{availability.units}</strong>
-        {availability.units === 1 ? " unidad en stock." : " unidades en stock."}
-      </p>
+      <p className="text-body-xs text-content">{LOW_STOCK_TEXT}.</p>
       <div className="h-0.5 max-w-[360px] bg-stone-150" aria-hidden="true">
         <div className="h-full bg-sage-500" style={{ width: `${fill}%` }} />
       </div>
