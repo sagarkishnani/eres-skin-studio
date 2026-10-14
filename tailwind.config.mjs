@@ -136,7 +136,7 @@ export default {
       animation: {
         'fade-up': 'fade-up 600ms cubic-bezier(.16,1,.3,1) both',
         marquee:   'marquee 48s linear infinite',
-        'hero-progress': 'hero-progress 6.5s linear forwards',
+        'hero-progress': 'hero-progress 4s linear forwards',
         'whatsapp-pulse': 'whatsapp-pulse 2.4s ease-out infinite',
       },
       typography: ({ theme }) => ({

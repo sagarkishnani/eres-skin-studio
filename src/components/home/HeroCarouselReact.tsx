@@ -22,6 +22,7 @@ export interface HeroSlide {
 interface Props {
   slides: HeroSlide[];
   autoplay: boolean;
+  slideSeconds: number;
 }
 
 const SWIPE_THRESHOLD_PX = 50;
@@ -56,7 +57,7 @@ function usePageLoaded(): boolean {
   return loaded;
 }
 
-export default function HeroCarouselReact({ slides, autoplay }: Props) {
+export default function HeroCarouselReact({ slides, autoplay, slideSeconds }: Props) {
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -91,7 +92,7 @@ export default function HeroCarouselReact({ slides, autoplay }: Props) {
   }
 
   const progressStyle: CSSProperties = autoplayOn
-    ? { animationPlayState: paused ? "paused" : "running" }
+    ? { animationDuration: `${slideSeconds}s`, animationPlayState: paused ? "paused" : "running" }
     : { transform: `scaleX(${(active + 1) / total})` };
 
   return (
