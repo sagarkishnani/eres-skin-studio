@@ -68,6 +68,7 @@ function eres_checkout_rate_texts(WC_Shipping_Rate $rate): array
         'title' => $texts['title'] ?? $rate->get_label(),
         'subtitle' => $texts['subtitle'] ?? '',
         'summary' => $texts['summary'] ?? $rate->get_label(),
+        'note' => $texts['note'] ?? '',
     ];
 }
 
@@ -127,6 +128,9 @@ function eres_checkout_delivery_methods_html(): string
                                 <span class="eres-delivery__title"><?php echo wp_kses_post(eres_checkout_rate_option_title($rate)); ?></span>
                                 <?php if ($texts['subtitle'] !== '') : ?>
                                     <span class="eres-delivery__subtitle"><?php echo esc_html($texts['subtitle']); ?></span>
+                                <?php endif; ?>
+                                <?php if ($texts['note'] !== '') : ?>
+                                    <span class="eres-delivery__note"><?php echo esc_html($texts['note']); ?></span>
                                 <?php endif; ?>
                             </span>
                         </label>

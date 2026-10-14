@@ -594,6 +594,12 @@ form.checkout {
   color: var(--content-subtle);
 }
 
+.eres-delivery__note {
+  font-size: var(--body-xs);
+  line-height: 1.4;
+  color: var(--accent);
+}
+
 .eres-checkout-page input[type="radio"],
 .eres-checkout-page input[type="checkbox"] {
   appearance: none;

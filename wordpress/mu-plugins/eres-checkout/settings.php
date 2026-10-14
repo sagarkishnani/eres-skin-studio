@@ -78,7 +78,11 @@ function eres_checkout_delivery_values(array $defaults, array $saved): array
 {
     $values = [];
     foreach ($defaults as $method => $default) {
-        $values[$method] = ['subtitle' => eres_checkout_saved_text((array) ($saved[$method] ?? []), 'subtitle', $default['subtitle'])];
+        $saved_texts = (array) ($saved[$method] ?? []);
+        $values[$method] = [
+            'subtitle' => eres_checkout_saved_text($saved_texts, 'subtitle', $default['subtitle']),
+            'note' => eres_checkout_saved_text($saved_texts, 'note', $default['note']),
+        ];
     }
 
     return $values;
@@ -119,6 +123,7 @@ function eres_checkout_apply_settings(array $config): array
     foreach ($values['delivery'] as $method => $texts) {
         if (isset($config['delivery'][$method])) {
             $config['delivery'][$method]['subtitle'] = $texts['subtitle'];
+            $config['delivery'][$method]['note'] = $texts['note'];
         }
     }
 
@@ -343,10 +348,13 @@ function eres_checkout_render_delivery_section(array $delivery): void
     $defaults = eres_checkout_default_config()['delivery'];
     ?>
     <h2>Entrega</h2>
-    <p>Texto que aparece bajo el título de cada tarjeta de entrega. Los precios y los métodos se configuran en la pestaña Envío.</p>
+    <p>Detalle y beneficio que aparecen bajo el título de cada tarjeta de entrega. Un beneficio vacío no se muestra. Los precios y los métodos se configuran en la pestaña Envío.</p>
     <table class="form-table">
         <?php foreach ($delivery as $method => $texts) : ?>
-            <?php $input_id = 'eres-checkout-delivery-' . $method; ?>
+            <?php
+            $input_id = 'eres-checkout-delivery-' . $method;
+            $note_input_id = $input_id . '-note';
+            ?>
             <tr>
                 <th scope="row">
                     <label for="<?php echo esc_attr($input_id); ?>"><?php echo esc_html($defaults[$method]['title']); ?></label>
@@ -354,6 +362,8 @@ function eres_checkout_render_delivery_section(array $delivery): void
                 </th>
                 <td>
                     <input type="text" class="large-text" style="max-width: 640px;" id="<?php echo esc_attr($input_id); ?>" name="<?php echo esc_attr(eres_checkout_settings_input_name('delivery', (string) $method, 'subtitle')); ?>" value="<?php echo esc_attr($texts['subtitle']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_SUBTITLE_MAX_LENGTH); ?>">
+                    <p style="margin-top: 12px;"><label for="<?php echo esc_attr($note_input_id); ?>">Beneficio</label></p>
+                    <input type="text" class="large-text" style="max-width: 640px;" id="<?php echo esc_attr($note_input_id); ?>" name="<?php echo esc_attr(eres_checkout_settings_input_name('delivery', (string) $method, 'note')); ?>" value="<?php echo esc_attr($texts['note']); ?>" maxlength="<?php echo esc_attr((string) ERES_CHECKOUT_SUBTITLE_MAX_LENGTH); ?>">
                 </td>
             </tr>
         <?php endforeach; ?>
@@ -366,7 +376,11 @@ function eres_checkout_sanitize_delivery($posted, array $current): array
     $posted = (array) $posted;
     $delivery = [];
     foreach (array_keys(eres_checkout_default_config()['delivery']) as $method) {
-        $delivery[$method] = ['subtitle' => eres_checkout_limited_text(((array) ($posted[$method] ?? []))['subtitle'] ?? '', ERES_CHECKOUT_SUBTITLE_MAX_LENGTH)];
+        $posted_texts = (array) ($posted[$method] ?? []);
+        $delivery[$method] = [
+            'subtitle' => eres_checkout_limited_text($posted_texts['subtitle'] ?? '', ERES_CHECKOUT_SUBTITLE_MAX_LENGTH),
+            'note' => eres_checkout_limited_text($posted_texts['note'] ?? '', ERES_CHECKOUT_SUBTITLE_MAX_LENGTH),
+        ];
     }
 
     return $delivery;
