@@ -203,6 +203,7 @@ function eres_checkout_delivery_script_settings(array $settings): array
 }
 
 const ERES_CHECKOUT_TERMS_PATH = '/terminos-y-condiciones/';
+const ERES_CHECKOUT_PAYMENT_GATEWAY_NOTE = 'Pago procesado por Culqi, pasarela del grupo Credicorp (BCP)';
 
 // WooCommerce registra sus hooks de plantilla después de cargar los mu-plugins.
 add_action('init', 'eres_checkout_move_payment_out_of_summary', 20);
@@ -232,6 +233,7 @@ function eres_checkout_open_form_column(): void
 function eres_checkout_payment_step(): void
 {
     eres_checkout_step_heading(eres_checkout_step_count(), 'Pago', '¿Cómo prefieres pagar?');
+    echo '<p class="eres-payment-note">' . esc_html(ERES_CHECKOUT_PAYMENT_GATEWAY_NOTE) . '</p>';
     woocommerce_checkout_payment();
 }
 
