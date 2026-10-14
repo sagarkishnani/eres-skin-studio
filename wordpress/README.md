@@ -406,6 +406,7 @@ El mu-plugin `eres-checkout` pinta `/checkout/`, el pago de un pedido (`order-pa
 - País (`PE`) y región (`LMA`) van fijos. La ciudad del pedido es el distrito, o `Lima` en recojo. No hay código postal.
 - Guarda `_billing_tipo_documento`, `_billing_numero_documento` y `_billing_distrito` en el pedido, las mismas claves de antes.
 - Oculta el banner de CookieYes en estas tres páginas.
+- En el paso Pago indica quién procesa el cobro ("Pago procesado por Culqi, pasarela del grupo Credicorp (BCP)"). El texto es la constante `ERES_CHECKOUT_PAYMENT_GATEWAY_NOTE` de `eres-checkout/layout.php`; no se edita desde el panel.
 
 ### Instalación
 
@@ -422,8 +423,8 @@ Se edita en WooCommerce → Ajustes → pestaña **Checkout ERES** (`specs/19-aj
 | Campos | Por campo: Visible, Obligatorio, Etiqueta y Placeholder. Nombre, Apellidos y Correo electrónico siempre se piden; solo cambia su texto. Distrito, Dirección y Referencia solo aparecen con envío a domicilio. |
 | Tipos de documento | Activar o desactivar cada tipo y cambiar su etiqueta. Tiene que quedar al menos uno. |
 | Distritos | Uno por línea, en el orden en que se muestran. Tiene que quedar al menos uno. |
-| Entrega | Subtítulo de cada tarjeta. Vacío = tarjeta sin subtítulo. |
-| Envío gratuito | Monto de compra, descontados los cupones, desde el que el envío a domicilio pasa a costar S/0. La barra "Te faltan S/…" lo anuncia. `0` desactiva el envío gratuito y oculta la barra. No hace falta el método "Envío gratuito" de WooCommerce: si existe en la zona, aparece como una tarjeta de entrega más. |
+| Entrega | Detalle y beneficio de cada tarjeta. El beneficio es la línea destacada bajo el detalle (por defecto, la evaluación computarizada de regalo en el recojo). Un campo vacío no se muestra. |
+| Envío gratuito | Monto de compra, descontados los cupones, desde el que el envío a domicilio pasa a costar S/0. La barra "Te faltan S/…" lo anuncia. `0` desactiva el envío gratuito y oculta la barra. No hace falta el método "Envío gratuito" de WooCommerce: si existe en la zona, aparece como una tarjeta de entrega más. El valor por defecto es 250. El banner superior del sitio anuncia ese monto como texto (`global.announcement` en Tina): al cambiarlo aquí, edita también ese mensaje. |
 | Textos de confianza | Título y texto de los tres mensajes bajo el total. Uno vacío no se muestra. |
 
 - **Restablecer valores**, al pie de la pestaña, descarta lo guardado y vuelve a los valores originales.

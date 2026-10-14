@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PiCheckLight, PiHandbagLight } from "react-icons/pi";
-import { addToCart } from "../../utils/wooClient";
+import { addToCart, requestCartOpen } from "../../utils/wooClient";
 
 interface Props {
   productId: number;
@@ -24,7 +24,12 @@ export default function QuickAddReact({ productId, productName }: Props) {
     if (status === "loading") return;
     setStatus("loading");
     const cart = await addToCart(productId, 1);
-    setStatus(cart ? "done" : "error");
+    if (!cart) {
+      setStatus("error");
+      return;
+    }
+    setStatus("done");
+    requestCartOpen();
   }
 
   const busy = status === "loading";

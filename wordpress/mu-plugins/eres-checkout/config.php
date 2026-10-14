@@ -26,11 +26,11 @@ return [
         'San Isidro', 'San Luis', 'San Miguel', 'Santiago de Surco', 'Surquillo',
     ],
     'delivery' => [
-        'local_pickup' => ['title' => 'Recojo en el local', 'subtitle' => 'Calle Libertad 176, of. 413 · Miraflores', 'summary' => 'Recojo'],
-        'flat_rate' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio'],
-        'free_shipping' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio'],
+        'local_pickup' => ['title' => 'Recojo en el local', 'subtitle' => 'Calle Libertad 176, of. 413 · Miraflores', 'summary' => 'Recojo', 'note' => 'Si recoges en el local te regalamos una evaluación computarizada'],
+        'flat_rate' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio', 'note' => ''],
+        'free_shipping' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio', 'note' => ''],
     ],
-    'free_shipping_threshold' => 300,
+    'free_shipping_threshold' => 250,
     'trust' => [
         ['icon' => 'shield', 'title' => 'Pago 100% seguro', 'text' => 'Encriptado SSL'],
         ['icon' => 'truck', 'title' => 'Envío en 48h', 'text' => 'Lima · Distritos disponibles'],

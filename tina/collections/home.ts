@@ -14,7 +14,13 @@ export const homeCollection: Collection = {
       label: "Hero",
       fields: [
         enabledField,
-        { name: "autoplay", label: "Avanzar solo cada 6,5 s", type: "boolean" },
+        { name: "autoplay", label: "Avanzar solo", type: "boolean" },
+        {
+          name: "slideSeconds",
+          label: "Segundos por slide",
+          description: "De 2 a 15. Vacío o fuera de ese rango, cada slide dura 4 segundos.",
+          type: "number",
+        },
         {
           type: "object",
           name: "slides",
@@ -41,7 +47,7 @@ export const homeCollection: Collection = {
             linkField("cta", "Botón"),
             {
               name: "scrim",
-              label: "Oscurecer imagen (%)",
+              label: "Aclarar imagen (%)",
               description: "De 0 a 40. Úsalo si el texto no se lee sobre la foto.",
               type: "number",
             },

@@ -2,6 +2,7 @@
   "hero": {
     "enabled": true,
     "autoplay": true,
+    "slideSeconds": 4,
     "slides": [
       {
         "image": "/uploads/home/hero-1.webp",

@@ -62,6 +62,7 @@ export const shopCollection: Collection = {
         { name: "deliveryText", label: "Envío", type: "string", required: true },
         { name: "pickupTitle", label: "Recojo · título", type: "string", required: true },
         { name: "pickupText", label: "Recojo · detalle", type: "string" },
+        { name: "pickupNote", label: "Recojo · beneficio", type: "string" },
         { name: "relatedEyebrow", label: "Relacionados · antetítulo", type: "string", required: true },
         { name: "relatedTitle", label: "Relacionados · título", type: "string", required: true },
         {

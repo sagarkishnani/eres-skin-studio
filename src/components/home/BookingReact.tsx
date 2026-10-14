@@ -23,10 +23,10 @@ function EmphasizedTitle({ text }: { text: string }) {
   );
 }
 
-function PlayfairLetterE({ className }: { className: string }) {
+function LogoLetterE({ className }: { className: string }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 404 542" fill="currentColor" className={className}>
-      <path d="M72 301Q128 282 174 264Q219 245 246 224Q282 195 303 154Q324 113 324 64Q324 35 320 27Q316 19 308 19Q283 19 254 41Q225 63 197 102Q169 140 146 189Q122 238 108 294Q94 349 94 404Q94 455 113 478Q132 500 163 500Q199 500 239 478Q279 456 317 400L333 408Q314 441 283 472Q252 503 214 523Q175 542 132 542Q92 542 62 526Q32 510 16 479Q0 447 0 401Q0 358 16 305Q32 251 62 198Q91 144 132 99Q173 54 223 27Q273 0 330 0Q361 0 383 17Q404 33 404 66Q404 106 381 141Q357 175 319 204Q280 232 235 254Q190 276 147 292Q104 308 71 318Z" />
+    <svg aria-hidden="true" viewBox="0 0 77 85" fill="currentColor" className={className}>
+      <path d="M76.0622 43.542V67.812C72.6422 73.352 68.0822 77.092 62.3822 79.702C44.7922 88.012 21.1722 87.032 8.14223 67.652C-6.83777 45.172 1.14223 22.052 13.6822 11.132C33.5522 -6.12797 75.5722 -3.03797 75.4122 18.462C75.4122 24.322 73.2922 31.492 60.7522 31.492H24.2722C17.7522 31.492 12.3822 36.052 9.12222 43.872L9.28222 43.542C5.86222 51.202 3.91223 59.502 8.95223 67.162C21.9822 87.032 76.0522 64.722 76.0522 43.542H76.0622ZM16.6122 30.512H34.5322C54.8922 30.512 70.2022 7.22203 62.8722 3.64203C46.9122 -3.35797 27.8522 13.252 16.6122 30.512Z" />
     </svg>
   );
 }
@@ -38,7 +38,7 @@ export default function BookingReact({ query, variables, data: initialData, what
 
   return (
     <section className="relative overflow-hidden bg-sage-700 py-[clamp(72px,10vw,140px)] text-content-inverse">
-      <PlayfairLetterE className="pointer-events-none absolute bottom-gutter right-gutter h-[clamp(260px,32vw,500px)] w-auto select-none text-content-inverse/[.18]" />
+      <LogoLetterE className="pointer-events-none absolute bottom-gutter right-gutter h-[clamp(260px,32vw,500px)] w-auto select-none text-content-inverse/[.18]" />
       <div className="container-xl relative grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-x-20 gap-y-9">
         <div data-reveal="0" className="flex flex-col gap-[22px]">
           {booking.eyebrow && (
