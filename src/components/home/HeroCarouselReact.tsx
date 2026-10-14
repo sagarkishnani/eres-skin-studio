@@ -107,7 +107,7 @@ export default function HeroCarouselReact({ slides, autoplay, slideSeconds }: Pr
       onFocus={() => setFocused(true)}
       onBlur={(event) => !event.currentTarget.contains(event.relatedTarget as Node) && setFocused(false)}
       onKeyDown={onKeyDown}
-      className="relative h-[600px] touch-pan-y select-none overflow-hidden bg-accent md:h-[min(78vh,720px)]"
+      className="relative h-[600px] touch-pan-y select-none overflow-hidden bg-surface-sunken md:h-[min(78vh,720px)]"
     >
       {slides.map((slide, index) => {
         const isActive = index === active;
@@ -143,15 +143,15 @@ export default function HeroCarouselReact({ slides, autoplay, slideSeconds }: Pr
             )}
             {slide.scrim > 0 && (
               <div
-                className="absolute inset-0 bg-ink"
+                className="absolute inset-0 bg-surface"
                 style={{ opacity: slide.scrim / 100 }}
                 data-tina-field={slide.fields.scrim}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-ink/5 from-25% to-ink/65 md:bg-gradient-to-r md:from-ink/50 md:from-0% md:via-ink/30 md:via-40% md:to-transparent md:to-65%" />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface/85 to-transparent to-65% md:bg-gradient-to-r md:from-surface/80 md:via-surface/45 md:via-40%" />
             <div className="container-xl absolute inset-0 flex flex-col items-start justify-end pb-[72px] md:justify-center md:pb-0">
               <div
-                className={`flex flex-col items-start gap-5 text-content-inverse transition-[opacity,transform] delay-[350ms] duration-[1000ms,1200ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)] ${
+                className={`flex flex-col items-start gap-5 text-content transition-[opacity,transform] delay-[350ms] duration-[1000ms,1200ms] [transition-timing-function:cubic-bezier(.22,.61,.36,1),cubic-bezier(.16,1,.3,1)] ${
                   isActive ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
@@ -170,7 +170,7 @@ export default function HeroCarouselReact({ slides, autoplay, slideSeconds }: Pr
                   <a
                     href={slide.ctaUrl}
                     tabIndex={isActive ? undefined : -1}
-                    className="btn-fill-light mt-2"
+                    className="btn-fill-dark mt-2"
                     data-tina-field={slide.fields.cta}
                   >
                     {slide.ctaLabel}
@@ -185,15 +185,15 @@ export default function HeroCarouselReact({ slides, autoplay, slideSeconds }: Pr
       {total > 1 && (
         <div
           aria-hidden="true"
-          className="absolute left-gutter top-8 z-[2] flex items-center gap-3.5 text-caption-sm font-medium tracking-[.18em] text-content-inverse"
+          className="absolute left-gutter top-8 z-[2] flex items-center gap-3.5 text-caption-sm font-medium tracking-[.18em] text-content"
         >
           <span>{twoDigits(active + 1)}</span>
-          <div className="h-px w-[72px] overflow-hidden bg-content-inverse/35">
+          <div className="h-px w-[72px] overflow-hidden bg-content/25">
             <div
               key={`${active}-${cycle}`}
               onAnimationEnd={() => goTo(active + 1)}
               style={progressStyle}
-              className={`h-full origin-left bg-content-inverse ${autoplayOn ? "animate-hero-progress" : ""}`}
+              className={`h-full origin-left bg-content ${autoplayOn ? "animate-hero-progress" : ""}`}
             />
           </div>
           <span>{twoDigits(total)}</span>
