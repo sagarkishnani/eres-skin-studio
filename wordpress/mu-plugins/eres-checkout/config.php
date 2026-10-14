@@ -30,7 +30,7 @@ return [
         'flat_rate' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio'],
         'free_shipping' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio'],
     ],
-    'free_shipping_threshold' => 300,
+    'free_shipping_threshold' => 250,
     'trust' => [
         ['icon' => 'shield', 'title' => 'Pago 100% seguro', 'text' => 'Encriptado SSL'],
         ['icon' => 'truck', 'title' => 'Envío en 48h', 'text' => 'Lima · Distritos disponibles'],
