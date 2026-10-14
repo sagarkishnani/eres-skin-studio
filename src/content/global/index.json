@@ -9,6 +9,10 @@
       {
         "label": "Reserva tu primera consulta",
         "url": "/contacto"
+      },
+      {
+        "label": "Entrega gratis para compras desde S/ 250",
+        "url": "/productos"
       }
     ]
   },
