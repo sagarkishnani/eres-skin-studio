@@ -47,7 +47,7 @@ export const homeCollection: Collection = {
             linkField("cta", "Botón"),
             {
               name: "scrim",
-              label: "Oscurecer imagen (%)",
+              label: "Aclarar imagen (%)",
               description: "De 0 a 40. Úsalo si el texto no se lee sobre la foto.",
               type: "number",
             },
