@@ -110,7 +110,10 @@ Colecciones:
 - `global` — navegación, footer, SEO por defecto, código inyectado.
 - `home` — contenido de la portada. Cada slide del hero admite `imageMobile`
   (se sirve bajo `md` con `<picture>`); sin ella se usa `image`. En móvil el
-  encuadre siempre es centrado; `focus` solo aplica desde `md`.
+  encuadre siempre es centrado; `focus` solo aplica desde `md`. El texto va
+  oscuro sobre un velo crema, así que la foto tiene que ser clara; `scrim`
+  (0 a 40) la aclara más. `hero.slideSeconds` fija cuánto dura cada slide
+  (2 a 15; vacío o fuera de rango, 4).
 - `post` — artículos del Skin Journal en MDX (`src/content/blog/`): una
   `category` fija (Cuidado, Rutina, Ingredientes, Tratamientos) y `tags` libres.
 - `formConfig` — por formulario: `formType`, `label`, `enabled`, `recipients[]`.
@@ -225,7 +228,8 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   `Esc` o un clic fuera de la foto. `ProductPurchaseReact` refresca precio y stock por su cuenta
   (la columna no lleva `data-woo-id`) y su barra fija escribe
   `<html data-buy-bar>`, que sube el botón de WhatsApp. Cualquier isla abre el
-  carrito con `requestCartOpen()` (evento `eres-skin-studio:cart-open`). Los
+  carrito con `requestCartOpen()` (evento `eres-skin-studio:cart-open`); la
+  ficha y `QuickAddReact` (el botón de la tarjeta) lo llaman al agregar. Los
   textos fijos viven en `shop.productPage`; "Hacer una pregunta" usa
   `global.contact.phone` porque el enlace `wa.link` descarta el `?text=`.
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
@@ -236,7 +240,7 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   plantilla propia, sin Elementor ni el CSS de WooCommerce: los tokens de este
   sitio están copiados como variables en `eres-checkout/assets/checkout.css`,
   así que un cambio de token se replica ahí a mano. Campos, distritos, tipos
-  de documento, textos de entrega y umbral de envío gratuito se editan en
+  de documento, textos de entrega (detalle y beneficio por método) y umbral de envío gratuito se editan en
   WooCommerce → Ajustes → "Checkout ERES" (`eres-checkout/settings.php`, spec
   `specs/19-ajustes-del-checkout.md`): se guardan en la opción
   `eres_checkout_settings` y pisan los valores por defecto de
@@ -392,7 +396,7 @@ cambias uno, vuelve a medir.
 
 **Nunca escribas `text-white/65` ni `bg-white/5`**: asumen fondo oscuro y rompen
 el tema. Las únicas excepciones legítimas son los bloques con fondo oscuro fijo
-(el scrim del hero sobre una foto, el degradado de marca del CTA) y el texto
+(el degradado sobre la portada del Journal, el degradado de marca del CTA) y el texto
 sobre `bg-ink` o `bg-accent`, que usa `text-content-inverse`.
 
 Para "texto en color de marca" usa `text-accent`.
