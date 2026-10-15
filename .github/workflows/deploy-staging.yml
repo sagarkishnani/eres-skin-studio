@@ -68,7 +68,17 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+          # El SSH de Hostinger a veces tarda más que los 5 s que espera ssh-keyscan y sale con 1 sin mensaje.
+          for attempt in 1 2 3 4 5; do
+            if host_keys=$(ssh-keyscan -T 20 -p "$SSH_PORT" "$SSH_HOST") && [ -n "$host_keys" ]; then
+              printf '%s\n' "$host_keys" >> ~/.ssh/known_hosts
+              exit 0
+            fi
+            echo "ssh-keyscan sin respuesta (intento $attempt de 5)"
+            sleep 15
+          done
+          echo "::error::El servidor SSH de Hostinger no respondió."
+          exit 1
 
       # Los excluidos viven solo en el servidor: --delete no los toca mientras no se use --delete-excluded.
       - name: Subir a Hostinger

@@ -263,7 +263,11 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   redespliega si la huella del producto (en `data/woo-rebuild/`) no cambió;
   la huella ignora `FIELDS_SERVED_LIVE` (cantidad en stock, total de ventas),
   que el navegador lee del proxy. Precio y `stock_status` sí redespliegan: el
-  build los usa en filtros, orden y etiqueta de descuento.
+  build los usa en filtros, orden y etiqueta de descuento. Woo arma el
+  webhook con la API REST en segundo plano: un plugin que agregue campos a
+  los productos y falle fuera de una petición web rompe la entrega antes de
+  salir. Por eso `wordpress/mu-plugins/eres-product-rest-without-aioseo.php`
+  quita los campos `aioseo_*` de la API de productos.
 - **Prueba** — `.github/workflows/deploy-staging.yml` publica `staging` en un
   sitio aparte (environment `staging` de GitHub, carpeta en
   `STAGING_DEPLOY_PATH`: el workflow falla si falta o coincide con la de

@@ -141,6 +141,17 @@ Qué pasa con cada cambio:
 
 `rebuild-hook.php` guarda una huella de cada producto en `data/woo-rebuild/` y la compara con la del webhook, sin contar la cantidad en stock ni el total de ventas. Si la huella no cambió, responde `200` con "Sin cambios que requieran rebuild." y no llama a GitHub. La primera actualización de cada producto siempre redespliega, porque todavía no hay huella. El orden "Más vendidos" se recalcula en el rebuild diario.
 
+### mu-plugin de productos sin campos de AIOSEO
+
+All in One SEO agrega `aioseo_head` y otros campos a cada producto de la API REST. Woo arma el cuerpo del webhook con esa API en segundo plano (WP Cron o petición asíncrona), donde AIOSEO no carga su generador de `<head>`: la entrega falla dentro de WordPress con `Call to a member function output() on null` y nunca llega a `rebuild-hook.php`. La versión gratuita de AIOSEO no trae el ajuste "Headless REST API" para apagarlos.
+
+1. Copia `wordpress/mu-plugins/eres-product-rest-without-aioseo.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Productos sin campos de AIOSEO en la API".
+3. Comprobación: `curl -s https://eresskinstudio.com/wp-json/wp/v2/product/<id> | grep -c aioseo_head` devuelve `0`.
+4. Guarda un producto. En WooCommerce → Estado → Acciones programadas, la acción `woocommerce_deliver_webhook_async` queda **Completada** y en GitHub → Actions aparece "Deploy a producción" con evento `repository_dispatch`.
+
+El SEO de las páginas de WordPress no cambia: el plugin solo toca la API de productos, y el sitio Astro no usa esos campos. Al retirar AIOSEO (ver "Qué se queda y qué se retira") el plugin deja de hacer falta, pero no estorba.
+
 Si un webhook aparece **Desactivado**, Woo tuvo varias entregas fallidas seguidas. Revisa los registros (WooCommerce → Estado → Registros, fuente `webhooks-delivery`), corrige y vuelve a activarlo. Mientras tanto, el rebuild diario mantiene el catálogo al día.
 
 ## 7. GitHub Actions
@@ -254,7 +265,7 @@ Si LiteSpeed rechaza `[R=404]` (el sitio responde 500 al pegar la parte definiti
 
 ### Qué se queda y qué se retira
 
-**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los cinco mu-plugins `eres-*` también.
+**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los seis mu-plugins `eres-*` también.
 
 **Plugins que se retiran:**
 
