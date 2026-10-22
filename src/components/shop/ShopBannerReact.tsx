@@ -47,7 +47,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
 
   return (
     <section className="relative bg-surface">
-      <div className="relative h-[220px] overflow-hidden bg-surface-sunken md:h-[clamp(420px,38vw,560px)]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-surface-sunken md:aspect-auto md:h-[clamp(420px,38vw,560px)]">
         {hero.image && (
           <picture>
             {hero.imageMobile && <source media="(max-width: 767px)" srcSet={mediaUrl(hero.imageMobile)} />}
@@ -56,7 +56,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
               alt={hero.imageAlt || ""}
               decoding="async"
               fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover [object-position:50%_62%]"
+              className="absolute inset-0 h-full w-full object-cover md:[object-position:50%_62%]"
               data-tina-field={tinaField(hero, "image")}
             />
           </picture>
