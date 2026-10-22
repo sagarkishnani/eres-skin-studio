@@ -28,6 +28,12 @@ export const shopCollection: Collection = {
           description: "Usa una foto clara: el texto del banner va en color oscuro encima.",
           type: "image",
         },
+        {
+          name: "imageMobile",
+          label: "Imagen en móvil",
+          description: "Opcional. Vertical 4:5, p. ej. 1122×1402. Sin ella se usa la imagen principal.",
+          type: "image",
+        },
         { name: "imageAlt", label: "Texto alternativo", type: "string" },
       ],
     },
