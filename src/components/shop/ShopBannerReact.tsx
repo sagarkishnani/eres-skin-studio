@@ -47,16 +47,19 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
 
   return (
     <section className="relative bg-surface">
-      <div className="relative h-[220px] overflow-hidden bg-surface-sunken md:h-[clamp(420px,38vw,560px)]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-surface-sunken md:aspect-auto md:h-[clamp(420px,38vw,560px)]">
         {hero.image && (
-          <img
-            src={mediaUrl(hero.image)}
-            alt={hero.imageAlt || ""}
-            decoding="async"
-            fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover [object-position:50%_62%]"
-            data-tina-field={tinaField(hero, "image")}
-          />
+          <picture>
+            {hero.imageMobile && <source media="(max-width: 767px)" srcSet={mediaUrl(hero.imageMobile)} />}
+            <img
+              src={mediaUrl(hero.image)}
+              alt={hero.imageAlt || ""}
+              decoding="async"
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover md:[object-position:50%_62%]"
+              data-tina-field={tinaField(hero, "image")}
+            />
+          </picture>
         )}
         <div className="absolute inset-0 hidden bg-gradient-to-t from-surface/55 to-transparent to-55% md:block" />
       </div>
@@ -83,7 +86,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
         {hero.description && (
           <p
             data-reveal="120"
-            className="hidden max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:block md:justify-self-end"
+            className="max-w-[480px] text-body-sm leading-[1.65] text-content-subtle [text-wrap:pretty] md:justify-self-end md:text-body-md md:text-content-muted"
             data-tina-field={tinaField(hero, "description")}
           >
             {hero.description}

@@ -122,7 +122,8 @@ Colecciones:
 - `cookieConsent` — textos del banner de cookies.
 - `promoPopup` — popup promocional: disparadores, frecuencia, rutas excluidas y
   campañas (cupón y/o CTA, con vigencia).
-- `shop` — cabecera (con `hero.titleMobile` para el título bajo `md`), umbral
+- `shop` — cabecera (con `hero.titleMobile` para el título y `hero.imageMobile`
+  para la foto bajo `md`, que se muestra en 4:5), umbral
   de "quedan pocas", estilo de la etiqueta de descuento (`discountBadgeStyle`),
   ajustes del catálogo (`catalog`) y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.

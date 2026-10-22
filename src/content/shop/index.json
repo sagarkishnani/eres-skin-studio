@@ -2,8 +2,9 @@
   "hero": {
     "title": "Productos\npara tu piel.",
     "titleMobile": "Marcas de skincare\nelegidas para ti",
-    "description": "Una selección curada de marcas premium en skincare. Cada producto en Eres está pensado para ayudarte a entender tu piel y construir una rutina honesta, eficiente y a tu medida.",
-    "image": "/uploads/productos/banner.jpg",
+    "description": "Marcas premium, elegidas con criterio, para una rutina honesta que se adapta a tu piel.",
+    "image": "/uploads/productos/linea-de-skincare-sobre-marmol-luminoso.webp",
+    "imageMobile": "/uploads/productos/coleccion-de-cuidado-facial-botanico.webp",
     "imageAlt": "Productos Eres Skin Studio"
   },
   "benefits": [
