@@ -86,7 +86,7 @@ export default function ShopBannerReact({ query, variables, data: initialData, c
         {hero.description && (
           <p
             data-reveal="120"
-            className="hidden max-w-[480px] text-body-md leading-[1.65] text-content-muted [text-wrap:pretty] md:block md:justify-self-end"
+            className="max-w-[480px] text-body-sm leading-[1.65] text-content-subtle [text-wrap:pretty] md:justify-self-end md:text-body-md md:text-content-muted"
             data-tina-field={tinaField(hero, "description")}
           >
             {hero.description}
