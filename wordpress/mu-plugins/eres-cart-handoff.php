@@ -13,8 +13,10 @@ defined('ABSPATH') || exit;
 const ERES_CART_TOKEN_PARAM = 'cart-token';
 const ERES_SESSION_KEYS_TO_COPY = ['cart', 'applied_coupons', 'coupon_discount_totals', 'coupon_discount_tax_totals'];
 const ERES_HANDOFF_SOURCE_SESSION = 'eres_handoff_source_session';
+const ERES_HANDOFF_ORDER_META = '_eres_handoff_source_session';
 
 add_action('template_redirect', 'eres_cart_handoff');
+add_action('woocommerce_checkout_order_created', 'eres_cart_handoff_remember_source_in_order');
 
 function eres_cart_handoff(): void
 {
@@ -70,4 +72,17 @@ function eres_cart_handoff_copy_session(string $token_session_id, array $token_s
 
     WC()->cart->get_cart_from_session();
     $session->save_data();
+}
+
+function eres_cart_handoff_remember_source_in_order(WC_Order $order): void
+{
+    $session = WC()->session;
+    $source_session_id = $session ? (string)$session->get(ERES_HANDOFF_SOURCE_SESSION, '') : '';
+    if ($source_session_id === '') {
+        return;
+    }
+
+    $order->update_meta_data(ERES_HANDOFF_ORDER_META, $source_session_id);
+    $order->save();
+    $session->set(ERES_HANDOFF_SOURCE_SESSION, null);
 }
