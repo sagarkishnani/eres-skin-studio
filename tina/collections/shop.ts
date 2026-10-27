@@ -31,7 +31,7 @@ export const shopCollection: Collection = {
         {
           name: "imageMobile",
           label: "Imagen en móvil",
-          description: "Opcional. Vertical 4:5, p. ej. 1122×1402. Sin ella se usa la imagen principal.",
+          description: "Opcional. Vertical 4:5, p. ej. 1122×1402. En móvil se muestra recortada a 5:4: deja los productos en el tercio superior.",
           type: "image",
         },
         { name: "imageAlt", label: "Texto alternativo", type: "string" },

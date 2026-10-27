@@ -108,10 +108,24 @@ function announce(cart: WooCart | null) {
   return cart;
 }
 
-export function forgetCart(): void {
+function discardLoadedCart(): void {
   cartGeneration += 1;
-  try { localStorage.removeItem(TOKEN_KEY); } catch {}
   window.dispatchEvent(new CustomEvent(CART_UPDATED, { detail: null }));
+}
+
+export function forgetCart(): void {
+  try { localStorage.removeItem(TOKEN_KEY); } catch {}
+  discardLoadedCart();
+}
+
+export function watchCartTokenFromOtherTabs(): () => void {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== TOKEN_KEY) return;
+    if (event.newValue === null) discardLoadedCart();
+    else getCart();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
 }
 
 export async function getCart(): Promise<WooCart | null> {

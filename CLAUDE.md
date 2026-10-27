@@ -123,7 +123,7 @@ Colecciones:
 - `promoPopup` — popup promocional: disparadores, frecuencia, rutas excluidas y
   campañas (cupón y/o CTA, con vigencia).
 - `shop` — cabecera (con `hero.titleMobile` para el título y `hero.imageMobile`
-  para la foto bajo `md`, que se muestra en 4:5), umbral
+  para la foto bajo `md`, que se muestra en 5:4), umbral
   de "quedan pocas", estilo de la etiqueta de descuento (`discountBadgeStyle`),
   ajustes del catálogo (`catalog`) y SEO de `/productos`.
 - `journal` — título, bajada, mensaje vacío y SEO de `/skin-journal`.
@@ -235,7 +235,11 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   `global.contact.phone` porque el enlace `wa.link` descarta el `?text=`.
 - **Checkout** — "Finalizar compra" va a `PUBLIC_WOO_CHECKOUT_URL?cart-token=…`
   (vacía ⇒ sin botón). El mu-plugin `wordpress/mu-plugins/eres-cart-handoff.php`
-  copia ese carrito a la sesión del navegador. El checkout, `order-pay` y
+  copia ese carrito a la sesión del navegador y guarda en el pedido la sesión
+  de la Store API de origen; cuando el pedido pasa a `processing`, `on-hold` o
+  `completed`, borra esa sesión y el carrito del sitio queda vacío aunque la
+  clienta no llegue a `/gracias` (spec `specs/24-carrito-vacio-y-banner-tienda.md`).
+  El checkout, `order-pay` y
   "pedido recibido" los pinta `wordpress/mu-plugins/eres-checkout.php` (spec
   `specs/18-checkout-homologado.md`, guía `wordpress/README.md` §13) con
   plantilla propia, sin Elementor ni el CSS de WooCommerce: los tokens de este
@@ -255,7 +259,10 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   vacía ⇒ sin redirección) con `?pedido=<número>`. `/gracias` (con `noindex`)
   muestra el número si cumple `^[A-Za-z0-9-]{1,32}$` y entonces llama a
   `forgetCart()`, que borra el `Cart-Token` y emite `CART_UPDATED` con `null`.
-  Sin `?pedido=` el carrito no se toca. Spec: `specs/13-paginas-404-y-gracias.md`.
+  Sin `?pedido=` el carrito no se toca. No es el único lugar que lo vacía: el
+  traspaso borra la sesión al pagarse el pedido, y `useCart` escucha `storage`
+  para vaciar las demás pestañas cuando una borra el token. Spec:
+  `specs/13-paginas-404-y-gracias.md`.
 - **Rebuild** — los webhooks de producto de Woo llaman a
   `public/rebuild-hook.php` (firma HMAC), que dispara `repository_dispatch`
   (`woo-catalog-changed`) → `.github/workflows/deploy.yml`. El mismo workflow
