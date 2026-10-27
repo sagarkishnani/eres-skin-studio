@@ -12,6 +12,7 @@ defined('ABSPATH') || exit;
 
 const ERES_CART_TOKEN_PARAM = 'cart-token';
 const ERES_SESSION_KEYS_TO_COPY = ['cart', 'applied_coupons', 'coupon_discount_totals', 'coupon_discount_tax_totals'];
+const ERES_HANDOFF_SOURCE_SESSION = 'eres_handoff_source_session';
 
 add_action('template_redirect', 'eres_cart_handoff');
 
@@ -24,16 +25,17 @@ function eres_cart_handoff(): void
     $token = sanitize_text_field(wp_unslash($_GET[ERES_CART_TOKEN_PARAM]));
     $clean_url = remove_query_arg(ERES_CART_TOKEN_PARAM);
 
-    $token_session = eres_cart_handoff_token_session($token);
+    $token_session_id = eres_cart_handoff_token_session_id($token);
+    $token_session = $token_session_id !== null ? eres_cart_handoff_token_session($token_session_id) : null;
     if ($token_session !== null) {
-        eres_cart_handoff_copy_session($token_session);
+        eres_cart_handoff_copy_session($token_session_id, $token_session);
     }
 
     wp_safe_redirect($clean_url, 302);
     exit;
 }
 
-function eres_cart_handoff_token_session(string $token): ?array
+function eres_cart_handoff_token_session_id(string $token): ?string
 {
     if (!class_exists(CartTokenUtils::class) || !CartTokenUtils::validate_cart_token($token)) {
         return null;
@@ -41,15 +43,20 @@ function eres_cart_handoff_token_session(string $token): ?array
 
     $payload = CartTokenUtils::get_cart_token_payload($token);
     $session_id = is_array($payload) ? (string)($payload['user_id'] ?? '') : '';
-    if ($session_id === '' || !WC()->session) {
+    return $session_id !== '' ? $session_id : null;
+}
+
+function eres_cart_handoff_token_session(string $token_session_id): ?array
+{
+    if (!WC()->session) {
         return null;
     }
 
-    $data = WC()->session->get_session($session_id);
+    $data = WC()->session->get_session($token_session_id);
     return is_array($data) && !empty($data['cart']) ? $data : null;
 }
 
-function eres_cart_handoff_copy_session(array $token_session): void
+function eres_cart_handoff_copy_session(string $token_session_id, array $token_session): void
 {
     $session = WC()->session;
     $session->set_customer_session_cookie(true);
@@ -59,6 +66,7 @@ function eres_cart_handoff_copy_session(array $token_session): void
             $session->set($key, maybe_unserialize($token_session[$key]));
         }
     }
+    $session->set(ERES_HANDOFF_SOURCE_SESSION, $token_session_id);
 
     WC()->cart->get_cart_from_session();
     $session->save_data();
