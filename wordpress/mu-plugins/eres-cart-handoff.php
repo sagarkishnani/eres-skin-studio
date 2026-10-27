@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: ERES · Traspaso de carrito
- * Description: Abre el checkout con el carrito armado en eresskinstudio.com. El sitio en Astro manda /checkout/?cart-token=<token> y este plugin copia ese carrito de la Store API a la sesión del navegador.
- * Version: 1.0.0
+ * Description: Abre el checkout con el carrito armado en eresskinstudio.com. El sitio en Astro manda /checkout/?cart-token=<token> y este plugin copia ese carrito de la Store API a la sesión del navegador, y borra esa sesión de la Store API cuando el pedido se paga.
+ * Version: 1.1.0
  * Requires PHP: 8.0
  */
 

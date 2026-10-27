@@ -50,6 +50,7 @@ Nunca uses claves con permiso de escritura. Si una clave se filtra, revócala en
 1. Copia `wordpress/mu-plugins/eres-cart-handoff.php` a `wp-content/mu-plugins/` del WordPress (crea la carpeta si no existe).
 2. Plugins → **Imprescindibles**: debe aparecer "ERES · Traspaso de carrito". Los mu-plugins no se activan: se cargan solos.
 3. Comprobación rápida: abre `https://<wordpress>/checkout/?cart-token=invalido`. Debe redirigir a `/checkout/` sin errores.
+4. El plugin también vacía el carrito del sitio cuando un pedido se paga (pasa a `processing`, `on-hold` o `completed`): guarda en el pedido el meta `_eres_handoff_source_session` y borra esa sesión de la Store API. El deploy no toca WordPress: cada versión nueva de este archivo se sube a mano a `wp-content/mu-plugins/` de producción.
 
 ### mu-plugin del carrito sin caché
 
