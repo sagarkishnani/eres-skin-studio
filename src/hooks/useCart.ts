@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getCart, updateCartItem, removeCartItem, CART_UPDATED } from "../utils/wooClient";
+import { getCart, updateCartItem, removeCartItem, watchCartTokenFromOtherTabs, CART_UPDATED } from "../utils/wooClient";
 import type { WooCart } from "../lib/woo/types";
 
 const BUMP_MS = 350;
@@ -15,7 +15,11 @@ export function useCart() {
     getCart().finally(() => setLoaded(true));
     const onUpdate = (event: Event) => setCart((event as CustomEvent<WooCart | null>).detail);
     window.addEventListener(CART_UPDATED, onUpdate);
-    return () => window.removeEventListener(CART_UPDATED, onUpdate);
+    const stopWatchingOtherTabs = watchCartTokenFromOtherTabs();
+    return () => {
+      window.removeEventListener(CART_UPDATED, onUpdate);
+      stopWatchingOtherTabs();
+    };
   }, []);
 
   const count = cart?.items_count ?? 0;
