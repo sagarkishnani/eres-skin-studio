@@ -14,9 +14,13 @@ const ERES_CART_TOKEN_PARAM = 'cart-token';
 const ERES_SESSION_KEYS_TO_COPY = ['cart', 'applied_coupons', 'coupon_discount_totals', 'coupon_discount_tax_totals'];
 const ERES_HANDOFF_SOURCE_SESSION = 'eres_handoff_source_session';
 const ERES_HANDOFF_ORDER_META = '_eres_handoff_source_session';
+const ERES_PAID_ORDER_STATUSES = ['processing', 'on-hold', 'completed'];
 
 add_action('template_redirect', 'eres_cart_handoff');
 add_action('woocommerce_checkout_order_created', 'eres_cart_handoff_remember_source_in_order');
+foreach (ERES_PAID_ORDER_STATUSES as $paid_status) {
+    add_action("woocommerce_order_status_{$paid_status}", 'eres_cart_handoff_forget_source_of_paid_order', 10, 2);
+}
 
 function eres_cart_handoff(): void
 {
@@ -85,4 +89,26 @@ function eres_cart_handoff_remember_source_in_order(WC_Order $order): void
     $order->update_meta_data(ERES_HANDOFF_ORDER_META, $source_session_id);
     $order->save();
     $session->set(ERES_HANDOFF_SOURCE_SESSION, null);
+}
+
+function eres_cart_handoff_forget_source_of_paid_order(int $order_id, $order = null): void
+{
+    $order = $order instanceof WC_Order ? $order : wc_get_order($order_id);
+    if (!$order instanceof WC_Order) {
+        return;
+    }
+
+    $source_session_id = (string)$order->get_meta(ERES_HANDOFF_ORDER_META);
+    if ($source_session_id === '') {
+        return;
+    }
+
+    // La pasarela puede confirmar el pago por webhook, sin la sesión del navegador cargada.
+    $session = WC()->session instanceof WC_Session_Handler ? WC()->session : new WC_Session_Handler();
+    if ($source_session_id !== (string)$session->get_customer_id()) {
+        $session->delete_session($source_session_id);
+    }
+
+    $order->delete_meta_data(ERES_HANDOFF_ORDER_META);
+    $order->save();
 }
