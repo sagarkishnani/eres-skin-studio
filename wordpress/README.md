@@ -156,19 +156,13 @@ El SEO de las páginas de WordPress no cambia: el plugin solo toca la API de pro
 
 ### mu-plugin de rebuild al editar marcas y categorías
 
-WooCommerce no tiene webhooks de marcas ni categorías: renombrar o borrar una no toca los productos y no dispara nada. `eres-term-rebuild.php` escucha la creación, edición y borrado de términos de `product_brand` y `product_cat` y, 60 segundos después, manda a `rebuild-hook.php` un aviso firmado con el tema `product_term.updated`. Los cambios seguidos dentro de esa ventana salen en un solo deploy.
+WooCommerce no tiene webhooks de marcas ni categorías: renombrar o borrar una no toca los productos y no dispara nada. `eres-term-rebuild.php` escucha la creación, edición y borrado de términos de `product_brand` y `product_cat` y, 60 segundos después, manda a `rebuild-hook.php` un aviso con el tema `product_term.updated`. Los cambios seguidos dentro de esa ventana salen en un solo deploy.
+
+No se configura nada: el plugin toma la URL de entrega y el secreto del primer webhook **activo** de la tabla de arriba (cualquiera cuya URL termine en `/rebuild-hook.php`). Si los cuatro están desactivados o borrados, no avisa.
 
 1. Copia `wordpress/mu-plugins/eres-term-rebuild.php` a `wp-content/mu-plugins/`.
-2. En `wp-config.php`, con el mismo `webhook_secret` de `woo-config.php`:
-
-   ```php
-   define('ERES_REBUILD_HOOK_URL', 'https://eresskinstudio.com/rebuild-hook.php');
-   define('ERES_REBUILD_HOOK_SECRET', '<webhook_secret>');
-   ```
-
-   Con cualquiera de las dos vacía o sin definir, el plugin no avisa.
-3. Plugins → **Imprescindibles**: debe aparecer "ERES · Rebuild al editar marcas y categorías".
-4. Comprobación: renombra una marca o una categoría. En WooCommerce → Estado → Acciones programadas, grupo `eres-term-rebuild`, la acción `eres_term_rebuild_deliver` queda **Completada** al minuto, y en GitHub → Actions aparece "Deploy a producción" con evento `repository_dispatch`. Si queda **Fallida**, el registro de la acción trae la respuesta de `rebuild-hook.php`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Rebuild al editar marcas y categorías".
+3. Comprobación: renombra una marca o una categoría. En WooCommerce → Estado → Acciones programadas, grupo `eres-term-rebuild`, la acción `eres_term_rebuild_deliver` queda **Completada** al minuto, y en GitHub → Actions aparece "Deploy a producción" con evento `repository_dispatch`. Si queda **Fallida**, el registro de la acción trae la respuesta de `rebuild-hook.php`.
 
 Si un webhook aparece **Desactivado**, Woo tuvo varias entregas fallidas seguidas. Revisa los registros (WooCommerce → Estado → Registros, fuente `webhooks-delivery`), corrige y vuelve a activarlo. Mientras tanto, el rebuild diario mantiene el catálogo al día.
 

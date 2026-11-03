@@ -273,8 +273,8 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   que el navegador lee del proxy. Precio y `stock_status` sí redespliegan: el
   build los usa en filtros, orden y etiqueta de descuento. Woo no tiene
   webhooks de marcas ni categorías: `wordpress/mu-plugins/eres-term-rebuild.php`
-  avisa con el tema `product_term.updated` (firmado con
-  `ERES_REBUILD_HOOK_SECRET` de `wp-config.php`) un minuto después de crear,
+  avisa con el tema `product_term.updated` (con la URL y el secreto del
+  primer webhook activo hacia `rebuild-hook.php`) un minuto después de crear,
   editar o borrar una marca o categoría, y agrupa en un deploy los cambios
   seguidos. Woo arma el
   webhook con la API REST en segundo plano: un plugin que agregue campos a
