@@ -1,5 +1,5 @@
 <?php
-// Recibe los webhooks de productos de WooCommerce y dispara el rebuild en GitHub Actions.
+// Recibe los webhooks de productos, marcas y categorías de WooCommerce y dispara el rebuild en GitHub Actions.
 // Woo no permite mandar el header Authorization que pide GitHub, por eso existe este relevo.
 // Un cambio que solo toca existencias no redespliega: el navegador ya lo lee de woo-api.php.
 
@@ -9,6 +9,8 @@ header('X-Content-Type-Options: nosniff');
 const GITHUB_EVENT_TYPE = 'woo-catalog-changed';
 const MAX_BODY_BYTES = 262144;
 const UPDATED_TOPIC = 'product.updated';
+// Woo no tiene webhooks de marcas ni categorías: este tema lo manda wordpress/mu-plugins/eres-term-rebuild.php.
+const TERM_TOPIC = 'product_term.updated';
 // El precio y el estado de stock sí cuentan: el build los usa en filtros, orden y etiqueta de descuento.
 const FIELDS_SERVED_LIVE = ['stock_quantity', 'total_sales', 'date_modified', 'date_modified_gmt', '_links'];
 
@@ -35,7 +37,7 @@ if (!isValidSignature($body, $_SERVER['HTTP_X_WC_WEBHOOK_SIGNATURE'] ?? '', $sec
     respond(401, 'Firma inválida.');
 }
 
-if (!str_starts_with($topic, 'product.')) respond(200, 'Tema ignorado.');
+if (!str_starts_with($topic, 'product.') && $topic !== TERM_TOPIC) respond(200, 'Tema ignorado.');
 
 $product = json_decode($body, true);
 if (!is_array($product)) $product = [];
