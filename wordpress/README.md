@@ -24,7 +24,7 @@ Una carpeta real de Astro (`nosotras/`) gana sola a la página de WordPress del 
 - **Precio y stock:** el navegador los refresca a través de `woo-api.php`, sin redeploy. Un cambio se ve al recargar la página.
 - **Carrito:** vive en la Store API de Woo. `woo-api.php` lo proxea y el navegador guarda el `Cart-Token`.
 - **Checkout:** "Finalizar compra" abre `/checkout/?cart-token=…` en WordPress. El mu-plugin `eres-cart-handoff` carga ese carrito.
-- **Rebuild:** los webhooks de producto llaman a `rebuild-hook.php`, que vacía la caché de `woo-api.php` y dispara `.github/workflows/deploy.yml`, salvo que el cambio sea solo de existencias. Además hay un rebuild diario a las 04:00 de Lima.
+- **Rebuild:** los webhooks de producto llaman a `rebuild-hook.php`, que vacía la caché de `woo-api.php` y dispara `.github/workflows/deploy.yml`, salvo que el cambio sea solo de existencias. Las marcas y categorías no tienen webhook: las avisa el mu-plugin `eres-term-rebuild.php`. Además hay un rebuild diario a las 04:00 de Lima.
 
 ## 1. Requisitos
 
@@ -139,6 +139,7 @@ Qué pasa con cada cambio:
 | Precio, oferta, o pasar de "hay existencias" a "agotado" y viceversa | Al recargar la página; el redeploy actualiza después los filtros, el orden y la etiqueta de descuento | Sí |
 | Nombre, fotos, descripción, categorías, etiquetas, campos de la ficha | Cuando termina el redeploy (unos minutos) | Sí |
 | Producto creado, eliminado o restaurado | Cuando termina el redeploy | Sí |
+| Marca o categoría creada, renombrada o eliminada | Cuando termina el redeploy | Sí, con el mu-plugin de marcas y categorías |
 
 `rebuild-hook.php` guarda una huella de cada producto en `data/woo-rebuild/` y la compara con la del webhook, sin contar la cantidad en stock ni el total de ventas. Si la huella no cambió, responde `200` con "Sin cambios que requieran rebuild." y no llama a GitHub. La primera actualización de cada producto siempre redespliega, porque todavía no hay huella. El orden "Más vendidos" se recalcula en el rebuild diario.
 
@@ -152,6 +153,16 @@ All in One SEO agrega `aioseo_head` y otros campos a cada producto de la API RES
 4. Guarda un producto. En WooCommerce → Estado → Acciones programadas, la acción `woocommerce_deliver_webhook_async` queda **Completada** y en GitHub → Actions aparece "Deploy a producción" con evento `repository_dispatch`.
 
 El SEO de las páginas de WordPress no cambia: el plugin solo toca la API de productos, y el sitio Astro no usa esos campos. Al retirar AIOSEO (ver "Qué se queda y qué se retira") el plugin deja de hacer falta, pero no estorba.
+
+### mu-plugin de rebuild al editar marcas y categorías
+
+WooCommerce no tiene webhooks de marcas ni categorías: renombrar o borrar una no toca los productos y no dispara nada. `eres-term-rebuild.php` escucha la creación, edición y borrado de términos de `product_brand` y `product_cat` y, 60 segundos después, manda a `rebuild-hook.php` un aviso con el tema `product_term.updated`. Los cambios seguidos dentro de esa ventana salen en un solo deploy.
+
+No se configura nada: el plugin toma la URL de entrega y el secreto del primer webhook **activo** de la tabla de arriba (cualquiera cuya URL termine en `/rebuild-hook.php`). Si los cuatro están desactivados o borrados, no avisa.
+
+1. Copia `wordpress/mu-plugins/eres-term-rebuild.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Rebuild al editar marcas y categorías".
+3. Comprobación: renombra una marca o una categoría. En WooCommerce → Estado → Acciones programadas, grupo `eres-term-rebuild`, la acción `eres_term_rebuild_deliver` queda **Completada** al minuto, y en GitHub → Actions aparece "Deploy a producción" con evento `repository_dispatch`. Si queda **Fallida**, el registro de la acción trae la respuesta de `rebuild-hook.php`.
 
 Si un webhook aparece **Desactivado**, Woo tuvo varias entregas fallidas seguidas. Revisa los registros (WooCommerce → Estado → Registros, fuente `webhooks-delivery`), corrige y vuelve a activarlo. Mientras tanto, el rebuild diario mantiene el catálogo al día.
 
@@ -217,7 +228,7 @@ Tres reglas para todo el pase:
 3. Completa los Secrets y Variables de GitHub (paso 7). `HOSTINGER_DEPLOY_PATH` es la ruta absoluta de `public_html`.
 4. Completa `woo-config.php` (paso 5): `allowed_origins`, `webhook_secret`, `github_repo` y `github_token`.
 5. Crea `site-config.php` en `public_html` a partir de `public/config.example.php`, con el SMTP y `turnstile_secret`.
-6. Crea los cuatro webhooks de producto (paso 6).
+6. Crea los cuatro webhooks de producto e instala el mu-plugin de marcas y categorías (paso 6).
 7. Agrega `eresskinstudio.com` a los dominios del widget de Turnstile en Cloudflare.
 8. Confirma en TinaCloud que la rama `main` está indexada.
 9. Exporta las entradas de SureForms y los reclamos del plugin "Reclamaciones".
@@ -266,7 +277,7 @@ Si LiteSpeed rechaza `[R=404]` (el sitio responde 500 al pegar la parte definiti
 
 ### Qué se queda y qué se retira
 
-**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los seis mu-plugins `eres-*` también.
+**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los siete mu-plugins `eres-*` también.
 
 **Plugins que se retiran:**
 
