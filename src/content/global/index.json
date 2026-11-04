@@ -324,7 +324,7 @@
     "description": "Limpiezas faciales, tratamientos faciales avanzados y depilación láser en Lima."
   },
   "codeInjection": {
-    "head": "",
+    "head": "<!-- Google tag (gtag.js) -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-YFZP4QY4NP\"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n\n\n  gtag('config', 'G-YFZP4QY4NP');\n</script>",
     "bodyEnd": ""
   }
 }
