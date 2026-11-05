@@ -14,3 +14,8 @@ export function readConsent(): ConsentPrefs | null {
 }
 
 export const FUNCTIONAL_CATEGORY = "funcional";
+export const ANALYTICS_CATEGORY = "analitica";
+
+export function hasAnalyticsConsent(prefs: ConsentPrefs | null = readConsent()): boolean {
+  return prefs?.[ANALYTICS_CATEGORY] === true;
+}

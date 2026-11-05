@@ -5,6 +5,7 @@ import { addToCart, checkoutUrl, fetchStock, requestCartOpen } from "../../../ut
 import { discountPercent, formatPrice, isBuyable, isLowStock, LOW_STOCK_TEXT } from "../../../lib/woo/format";
 import type { StockStatus, WooProduct, WooStock } from "../../../lib/woo/types";
 import QuantityStepper from "./QuantityStepper";
+import { trackViewItem } from "../../../utils/analytics";
 
 interface ProductPurchaseProps {
   id: number;
@@ -180,6 +181,10 @@ export default function ProductPurchaseReact(props: ProductPurchaseProps) {
   const [quantity, setQuantity] = useState(1);
   const [addStatus, setAddStatus] = useState<Status>("idle");
   const [buyStatus, setBuyStatus] = useState<Status>("idle");
+
+  useEffect(() => {
+    trackViewItem({ id: props.id, name: props.name, price: parseFloat(props.price), quantity: 1 });
+  }, [props.id]);
 
   useEffect(() => {
     fetchStock([props.id]).then((fresh) => {
