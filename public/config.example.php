@@ -7,4 +7,6 @@ return [
   'smtp_pass'        => 'CHANGE-ME',
   'fallback_email'   => 'hola@eresskinstudio.com',   // used when form-config.json has no recipients
   'turnstile_secret' => '',                    // Cloudflare Turnstile secret key; empty = captcha off
+  'claims_endpoint'  => 'https://eresskinstudio.com/wp-json/eres/v1/claims', // empty = claims are not registered in WordPress
+  'claims_secret'    => '',                    // same value as ERES_CLAIMS_SECRET in wp-config.php
 ];
