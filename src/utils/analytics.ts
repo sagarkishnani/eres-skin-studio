@@ -1,5 +1,5 @@
 import type { WooCartItem } from "../lib/woo/types";
-import { hasAnalyticsConsent } from "./cookieConsent";
+import { hasAnalyticsConsent, type ConsentPrefs } from "./cookieConsent";
 
 declare global {
   interface Window {
@@ -55,6 +55,18 @@ export function trackAddToCart(product: TrackedProduct) {
   if (!canTrack(product)) return;
   sendToMeta("AddToCart", product);
   sendToGoogle("add_to_cart", product);
+}
+
+export function applyTrackingConsent(prefs: ConsentPrefs) {
+  const granted = hasAnalyticsConsent(prefs);
+  const state = granted ? "granted" : "denied";
+  window.gtag?.("consent", "update", {
+    analytics_storage: state,
+    ad_storage: state,
+    ad_user_data: state,
+    ad_personalization: state,
+  });
+  window.fbq?.("consent", granted ? "grant" : "revoke");
 }
 
 export function cartItemUnitPrice(item: WooCartItem): number {
