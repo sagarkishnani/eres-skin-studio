@@ -22,7 +22,14 @@ const ERES_CLAIM_STATUSES = [
 const ERES_CLAIM_DEFAULT_STATUS = 'pendiente';
 const ERES_CLAIM_CAPABILITY = 'manage_woocommerce';
 
+const ERES_CLAIM_STATUS_FILTER = 'eres_claim_status';
+
 add_action('init', 'eres_claims_register_post_type');
+add_filter('manage_' . ERES_CLAIM_POST_TYPE . '_posts_columns', 'eres_claims_list_columns');
+add_action('manage_' . ERES_CLAIM_POST_TYPE . '_posts_custom_column', 'eres_claims_render_list_column', 10, 2);
+add_action('restrict_manage_posts', 'eres_claims_render_status_filter');
+add_action('pre_get_posts', 'eres_claims_sort_and_filter_list');
+add_filter('post_row_actions', 'eres_claims_row_actions', 10, 2);
 
 function eres_claims_register_post_type(): void
 {
@@ -74,4 +81,88 @@ function eres_claims_capabilities(): array
     $capabilities['create_posts'] = 'do_not_allow';
 
     return $capabilities;
+}
+
+function eres_claims_list_columns(array $columns): array
+{
+    return [
+        'cb'           => $columns['cb'] ?? '',
+        'title'        => 'N° correlativo',
+        'claim_name'   => 'Nombre',
+        'claim_type'   => 'Tipo',
+        'claim_status' => 'Estado',
+        'claim_date'   => 'Fecha',
+        'claim_email'  => 'Correo',
+    ];
+}
+
+function eres_claims_render_list_column(string $column, int $postId): void
+{
+    echo esc_html(match ($column) {
+        'claim_name'   => (string)get_post_meta($postId, ERES_CLAIM_META_NAME, true),
+        'claim_type'   => (string)get_post_meta($postId, ERES_CLAIM_META_REQUEST_TYPE, true),
+        'claim_status' => eres_claims_status_label(eres_claims_status($postId)),
+        'claim_date'   => (string)get_the_date('d/m/Y H:i', $postId),
+        'claim_email'  => (string)get_post_meta($postId, ERES_CLAIM_META_EMAIL, true),
+        default        => '',
+    });
+}
+
+function eres_claims_status(int $postId): string
+{
+    $status = (string)get_post_meta($postId, ERES_CLAIM_META_STATUS, true);
+    return array_key_exists($status, ERES_CLAIM_STATUSES) ? $status : ERES_CLAIM_DEFAULT_STATUS;
+}
+
+function eres_claims_status_label(string $status): string
+{
+    return ERES_CLAIM_STATUSES[$status] ?? ERES_CLAIM_STATUSES[ERES_CLAIM_DEFAULT_STATUS];
+}
+
+function eres_claims_selected_status_filter(): string
+{
+    $status = sanitize_key(wp_unslash($_GET[ERES_CLAIM_STATUS_FILTER] ?? ''));
+    return array_key_exists($status, ERES_CLAIM_STATUSES) ? $status : '';
+}
+
+function eres_claims_render_status_filter(string $postType): void
+{
+    if ($postType !== ERES_CLAIM_POST_TYPE) {
+        return;
+    }
+
+    $selected = eres_claims_selected_status_filter();
+    echo '<select name="' . esc_attr(ERES_CLAIM_STATUS_FILTER) . '">';
+    echo '<option value="">Todos los estados</option>';
+    foreach (ERES_CLAIM_STATUSES as $status => $label) {
+        printf('<option value="%s"%s>%s</option>', esc_attr($status), selected($selected, $status, false), esc_html($label));
+    }
+    echo '</select>';
+}
+
+function eres_claims_sort_and_filter_list(WP_Query $query): void
+{
+    if (!is_admin() || !$query->is_main_query() || $query->get('post_type') !== ERES_CLAIM_POST_TYPE) {
+        return;
+    }
+
+    if (!$query->get('orderby')) {
+        $query->set('orderby', 'date');
+        $query->set('order', 'DESC');
+    }
+
+    $status = eres_claims_selected_status_filter();
+    if ($status !== '') {
+        $query->set('meta_query', [['key' => ERES_CLAIM_META_STATUS, 'value' => $status]]);
+    }
+}
+
+function eres_claims_row_actions(array $actions, WP_Post $post): array
+{
+    if ($post->post_type !== ERES_CLAIM_POST_TYPE) {
+        return $actions;
+    }
+
+    unset($actions['inline hide-if-no-js']);
+    return $actions;
 }
