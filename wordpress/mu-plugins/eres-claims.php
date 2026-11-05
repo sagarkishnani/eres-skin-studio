@@ -23,6 +23,9 @@ const ERES_CLAIM_DEFAULT_STATUS = 'pendiente';
 const ERES_CLAIM_CAPABILITY = 'manage_woocommerce';
 
 const ERES_CLAIM_STATUS_FILTER = 'eres_claim_status';
+const ERES_CLAIM_STATUS_FIELD = 'eres_claim_status_value';
+const ERES_CLAIM_NONCE_ACTION = 'eres_claim_save_status';
+const ERES_CLAIM_NONCE_FIELD = 'eres_claim_status_nonce';
 
 add_action('init', 'eres_claims_register_post_type');
 add_filter('manage_' . ERES_CLAIM_POST_TYPE . '_posts_columns', 'eres_claims_list_columns');
@@ -30,6 +33,8 @@ add_action('manage_' . ERES_CLAIM_POST_TYPE . '_posts_custom_column', 'eres_clai
 add_action('restrict_manage_posts', 'eres_claims_render_status_filter');
 add_action('pre_get_posts', 'eres_claims_sort_and_filter_list');
 add_filter('post_row_actions', 'eres_claims_row_actions', 10, 2);
+add_action('add_meta_boxes_' . ERES_CLAIM_POST_TYPE, 'eres_claims_add_meta_boxes');
+add_action('save_post_' . ERES_CLAIM_POST_TYPE, 'eres_claims_save_status');
 
 function eres_claims_register_post_type(): void
 {
@@ -165,4 +170,58 @@ function eres_claims_row_actions(array $actions, WP_Post $post): array
 
     unset($actions['inline hide-if-no-js']);
     return $actions;
+}
+
+function eres_claims_add_meta_boxes(WP_Post $post): void
+{
+    add_meta_box('eres-claim-details', 'Datos del reclamo', 'eres_claims_render_details_box', ERES_CLAIM_POST_TYPE, 'normal', 'high');
+    add_meta_box('eres-claim-status', 'Estado', 'eres_claims_render_status_box', ERES_CLAIM_POST_TYPE, 'side', 'high');
+}
+
+function eres_claims_render_details_box(WP_Post $post): void
+{
+    $rows = get_post_meta($post->ID, ERES_CLAIM_META_ROWS, true);
+    if (!is_array($rows) || $rows === []) {
+        echo '<p>Este reclamo no tiene datos.</p>';
+        return;
+    }
+
+    printf('<p><strong>%s</strong> · %s</p>', esc_html($post->post_title), esc_html((string)get_the_date('d/m/Y H:i', $post)));
+    echo '<table class="widefat striped"><tbody>';
+    foreach ($rows as $row) {
+        printf(
+            '<tr><th scope="row" style="width:30%%">%s</th><td>%s</td></tr>',
+            esc_html((string)($row['label'] ?? '')),
+            nl2br(esc_html((string)($row['value'] ?? '')))
+        );
+    }
+    echo '</tbody></table>';
+}
+
+function eres_claims_render_status_box(WP_Post $post): void
+{
+    wp_nonce_field(ERES_CLAIM_NONCE_ACTION, ERES_CLAIM_NONCE_FIELD);
+    $current = eres_claims_status($post->ID);
+    echo '<select name="' . esc_attr(ERES_CLAIM_STATUS_FIELD) . '" style="width:100%">';
+    foreach (ERES_CLAIM_STATUSES as $status => $label) {
+        printf('<option value="%s"%s>%s</option>', esc_attr($status), selected($current, $status, false), esc_html($label));
+    }
+    echo '</select>';
+    echo '<p class="description">Guarda con "Actualizar".</p>';
+}
+
+function eres_claims_save_status(int $postId): void
+{
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    $nonce = sanitize_text_field(wp_unslash($_POST[ERES_CLAIM_NONCE_FIELD] ?? ''));
+    if ($nonce === '' || !wp_verify_nonce($nonce, ERES_CLAIM_NONCE_ACTION) || !current_user_can('edit_post', $postId)) {
+        return;
+    }
+
+    $status = sanitize_key(wp_unslash($_POST[ERES_CLAIM_STATUS_FIELD] ?? ''));
+    if (array_key_exists($status, ERES_CLAIM_STATUSES)) {
+        update_post_meta($postId, ERES_CLAIM_META_STATUS, $status);
+    }
 }
