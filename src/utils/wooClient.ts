@@ -2,6 +2,7 @@
 
 import type { WooProduct, WooStock, WooCategory } from "../lib/woo/types";
 import type { WooCart } from "../lib/woo/types";
+import { cartItemUnitPrice, trackAddToCart } from "./analytics";
 
 function endpoint(): string {
   const external = import.meta.env.PUBLIC_WOO_API_URL;
@@ -133,13 +134,16 @@ export async function getCart(): Promise<WooCart | null> {
 }
 
 export async function addToCart(id: number, quantity = 1): Promise<WooCart | null> {
-  return announce(
+  const cart = announce(
     await call<WooCart>("cart-add", {}, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...cartHeaders() },
       body: JSON.stringify({ id, quantity }),
     })
   );
+  const added = cart?.items.find((item) => item.id === id);
+  if (added) trackAddToCart({ id, name: added.name, price: cartItemUnitPrice(added), quantity });
+  return cart;
 }
 
 export async function updateCartItem(key: string, quantity: number): Promise<WooCart | null> {

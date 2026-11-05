@@ -446,7 +446,7 @@ Se edita en WooCommerce → Ajustes → pestaña **Checkout ERES** (`specs/19-aj
 | Campos | Por campo: Visible, Obligatorio, Etiqueta y Placeholder. Nombre, Apellidos y Correo electrónico siempre se piden; solo cambia su texto. Distrito, Dirección y Referencia solo aparecen con envío a domicilio. |
 | Tipos de documento | Activar o desactivar cada tipo y cambiar su etiqueta. Tiene que quedar al menos uno. |
 | Distritos | Uno por línea, en el orden en que se muestran. Tiene que quedar al menos uno. |
-| Entrega | Detalle y beneficio de cada tarjeta. El beneficio es la línea destacada bajo el detalle (por defecto, la evaluación computarizada de regalo en el recojo). Un campo vacío no se muestra. |
+| Entrega | Detalle y beneficio de cada tarjeta. El beneficio es la línea destacada bajo el detalle (por defecto, el diagnóstico facial computarizado de regalo en el recojo). Un campo vacío no se muestra. |
 | Envío gratuito | Monto de compra, descontados los cupones, desde el que el envío a domicilio pasa a costar S/0. La barra "Te faltan S/…" lo anuncia. `0` desactiva el envío gratuito y oculta la barra. No hace falta el método "Envío gratuito" de WooCommerce: si existe en la zona, aparece como una tarjeta de entrega más. El valor por defecto es 250. El banner superior del sitio anuncia ese monto como texto (`global.announcement` en Tina): al cambiarlo aquí, edita también ese mensaje. |
 | Textos de confianza | Título y texto de los tres mensajes bajo el total. Uno vacío no se muestra. |
 

@@ -373,6 +373,24 @@ esté apagado; sin la isla, Tina no tiene qué editar.
   editar un campo del popup.
 - Las redes son las de `global.footer.social`, con iconos Phosphor Light.
 
+### Medición (GA4 y Pixel de Meta)
+
+Los códigos base de GA4 y del Pixel se pegan en `global.codeInjection.head`.
+Un script de `BaseLayout.astro` corre antes que ellos y los deja sin
+consentimiento: Consent Mode de Google en `denied` (GA4 manda pings sin
+cookies) y `fbq('consent', 'revoke')` (Meta retiene todo). Si el código
+inyectado trae el Pixel, ese script lo carga primero, y el snippet del CMS ve
+`window.fbq` definido y no se carga dos veces. Al aceptar la categoría
+`analitica` del banner, `applyTrackingConsent()` (`src/utils/analytics.ts`)
+actualiza los dos.
+
+- **Eventos de tienda** — `ProductPurchaseReact` envía ViewContent /
+  `view_item` y `addToCart()` de `wooClient.ts` envía AddToCart /
+  `add_to_cart`, en `PEN` y solo con consentimiento. El ID es el de Woo, el
+  mismo que usa el plugin Facebook for WooCommerce.
+- **Checkout** — InitiateCheckout lo envía ese plugin desde
+  WordPress, que no lee el banner de este sitio.
+
 ### Modo mantenimiento
 
 `BaseLayout.astro` consulta la colección `maintenance` en build time; con
