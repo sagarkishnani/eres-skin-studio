@@ -26,6 +26,12 @@ const ERES_CLAIM_STATUS_FILTER = 'eres_claim_status';
 const ERES_CLAIM_STATUS_FIELD = 'eres_claim_status_value';
 const ERES_CLAIM_NONCE_ACTION = 'eres_claim_save_status';
 const ERES_CLAIM_NONCE_FIELD = 'eres_claim_status_nonce';
+const ERES_CLAIM_REST_NAMESPACE = 'eres/v1';
+const ERES_CLAIM_REST_ROUTE = '/claims';
+const ERES_CLAIM_SIGNATURE_HEADER = 'x-eres-signature';
+const ERES_CLAIM_CORRELATIVE_PATTERN = '/^[A-Z]{3}-\d{6}$/';
+// send-email.php fecha los envíos en hora de Lima, no en la zona horaria de WordPress.
+const ERES_CLAIM_SUBMISSION_TIMEZONE = 'America/Lima';
 
 add_action('init', 'eres_claims_register_post_type');
 add_filter('manage_' . ERES_CLAIM_POST_TYPE . '_posts_columns', 'eres_claims_list_columns');
@@ -35,6 +41,7 @@ add_action('pre_get_posts', 'eres_claims_sort_and_filter_list');
 add_filter('post_row_actions', 'eres_claims_row_actions', 10, 2);
 add_action('add_meta_boxes_' . ERES_CLAIM_POST_TYPE, 'eres_claims_add_meta_boxes');
 add_action('save_post_' . ERES_CLAIM_POST_TYPE, 'eres_claims_save_status');
+add_action('rest_api_init', 'eres_claims_register_route');
 
 function eres_claims_register_post_type(): void
 {
@@ -224,4 +231,134 @@ function eres_claims_save_status(int $postId): void
     if (array_key_exists($status, ERES_CLAIM_STATUSES)) {
         update_post_meta($postId, ERES_CLAIM_META_STATUS, $status);
     }
+}
+
+function eres_claims_register_route(): void
+{
+    register_rest_route(ERES_CLAIM_REST_NAMESPACE, ERES_CLAIM_REST_ROUTE, [
+        'methods'             => WP_REST_Server::CREATABLE,
+        'callback'            => 'eres_claims_receive',
+        'permission_callback' => 'eres_claims_has_valid_signature',
+    ]);
+}
+
+function eres_claims_secret(): string
+{
+    return defined('ERES_CLAIMS_SECRET') ? (string)ERES_CLAIMS_SECRET : '';
+}
+
+function eres_claims_has_valid_signature(WP_REST_Request $request): bool|WP_Error
+{
+    $secret = eres_claims_secret();
+    if ($secret === '') {
+        return new WP_Error('eres_claims_not_configured', 'Registro de reclamos no configurado.', ['status' => 503]);
+    }
+
+    $signature = (string)$request->get_header(ERES_CLAIM_SIGNATURE_HEADER);
+    $expected = base64_encode(hash_hmac('sha256', $request->get_body(), $secret, true));
+    if ($signature === '' || !hash_equals($expected, $signature)) {
+        return new WP_Error('eres_claims_invalid_signature', 'Firma inválida.', ['status' => 401]);
+    }
+
+    return true;
+}
+
+function eres_claims_receive(WP_REST_Request $request): WP_REST_Response|WP_Error
+{
+    $claim = eres_claims_parse_payload($request->get_json_params());
+    if ($claim === null) {
+        return new WP_Error('eres_claims_invalid_payload', 'Reclamo inválido.', ['status' => 400]);
+    }
+
+    $existingId = eres_claims_find_by_correlative($claim['correlativo']);
+    if ($existingId !== null) {
+        return new WP_REST_Response(['id' => $existingId, 'created' => false], 200);
+    }
+
+    $postId = wp_insert_post([
+        'post_type'     => ERES_CLAIM_POST_TYPE,
+        'post_status'   => 'publish',
+        'post_title'    => $claim['correlativo'],
+        'post_date_gmt' => $claim['submittedAtGmt'],
+        'post_date'     => get_date_from_gmt($claim['submittedAtGmt']),
+        'meta_input'    => [
+            ERES_CLAIM_META_ROWS         => $claim['rows'],
+            ERES_CLAIM_META_NAME         => $claim['name'],
+            ERES_CLAIM_META_EMAIL        => $claim['email'],
+            ERES_CLAIM_META_REQUEST_TYPE => $claim['requestType'],
+            ERES_CLAIM_META_STATUS       => ERES_CLAIM_DEFAULT_STATUS,
+        ],
+    ], true);
+    if (is_wp_error($postId)) {
+        return new WP_Error('eres_claims_not_saved', $postId->get_error_message(), ['status' => 500]);
+    }
+
+    return new WP_REST_Response(['id' => $postId, 'created' => true], 201);
+}
+
+function eres_claims_parse_payload(mixed $payload): ?array
+{
+    if (!is_array($payload)) {
+        return null;
+    }
+
+    $correlativo = (string)($payload['correlativo'] ?? '');
+    $submittedAtGmt = eres_claims_submission_gmt((string)($payload['submittedAt'] ?? ''));
+    $rows = eres_claims_parse_rows($payload['rows'] ?? null);
+    if (!preg_match(ERES_CLAIM_CORRELATIVE_PATTERN, $correlativo) || $submittedAtGmt === null || $rows === null) {
+        return null;
+    }
+
+    return [
+        'correlativo'    => $correlativo,
+        'submittedAtGmt' => $submittedAtGmt,
+        'rows'           => $rows,
+        'name'           => sanitize_text_field((string)($payload['name'] ?? '')),
+        'email'          => sanitize_email((string)($payload['email'] ?? '')),
+        'requestType'    => sanitize_text_field((string)($payload['requestType'] ?? '')),
+    ];
+}
+
+function eres_claims_submission_gmt(string $submittedAt): ?string
+{
+    $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $submittedAt, new DateTimeZone(ERES_CLAIM_SUBMISSION_TIMEZONE));
+    if ($date === false) {
+        return null;
+    }
+
+    return $date->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+}
+
+function eres_claims_parse_rows(mixed $rows): ?array
+{
+    if (!is_array($rows) || $rows === []) {
+        return null;
+    }
+
+    $parsed = [];
+    foreach ($rows as $row) {
+        if (!is_array($row) || !isset($row['label']) || !is_scalar($row['label'])) {
+            return null;
+        }
+        $parsed[] = [
+            'label' => sanitize_text_field((string)$row['label']),
+            'value' => sanitize_textarea_field(is_scalar($row['value'] ?? null) ? (string)$row['value'] : ''),
+        ];
+    }
+
+    return $parsed;
+}
+
+function eres_claims_find_by_correlative(string $correlativo): ?int
+{
+    $ids = get_posts([
+        'post_type'      => ERES_CLAIM_POST_TYPE,
+        'post_status'    => 'any',
+        'title'          => $correlativo,
+        'fields'         => 'ids',
+        'posts_per_page' => 1,
+        'no_found_rows'  => true,
+    ]);
+
+    return $ids === [] ? null : (int)$ids[0];
 }
