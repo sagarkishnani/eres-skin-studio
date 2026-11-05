@@ -512,3 +512,40 @@ Otro día, cuando el pase esté confirmado:
 ### Al cambiar un token de diseño
 
 `eres-checkout/assets/checkout.css` copia los tokens de `tailwind.config.mjs` como variables CSS en `:root`. Un cambio de color o tipografía en el sitio Astro se replica ahí a mano, y se vuelve a subir la carpeta.
+
+## 14. Reclamos web
+
+Cada reclamo enviado desde `/libro-de-reclamaciones` queda registrado en WP Admin → **Reclamos web** (`specs/25-registro-de-reclamos-en-wordpress.md`). `send-email.php` lo envía firmado a `/wp-json/eres/v1/claims` justo después de guardarlo en `data/submissions/`. Si WordPress no responde, el reclamo igual llega por correo y queda en `data/submissions/`: el error solo se anota en el `error_log` del sitio Astro.
+
+### Instalación
+
+1. Copia `wordpress/mu-plugins/eres-claims.php` a `wp-content/mu-plugins/`.
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Reclamos web".
+3. Genera un secreto aleatorio de 32 caracteres o más (por ejemplo, con un generador de contraseñas) y defínelo en `wp-config.php`:
+
+   ```php
+   define('ERES_CLAIMS_SECRET', '<secreto>');
+   ```
+
+4. En `public_html/site-config.php` agrega las dos claves, con **el mismo** secreto:
+
+   ```php
+   'claims_endpoint' => 'https://eresskinstudio.com/wp-json/eres/v1/claims',
+   'claims_secret'   => '<secreto>',
+   ```
+
+5. En el sitio de prueba deja `claims_endpoint` vacío: no hay WordPress y los reclamos de prueba no deben llegar al panel real.
+
+### Uso
+
+- Ven el menú los administradores y los gestores de la tienda (`manage_woocommerce`).
+- La lista muestra Correlativo, Nombre, Tipo, Estado, Fecha y Correo, del más reciente al más antiguo, con filtro por estado.
+- El detalle muestra los mismos datos que el correo. Solo se edita el estado: Pendiente, En proceso o Atendido, y se guarda con "Actualizar".
+- No se crean reclamos a mano. Un correlativo repetido no se duplica.
+- El menú "Libro de Reclamaciones" del plugin viejo sigue mostrando solo sus propios reclamos hasta la limpieza del paso 10.
+
+### Comprobación
+
+1. Envía un reclamo de prueba desde `/libro-de-reclamaciones`.
+2. Debe aparecer en **Reclamos web** como "Pendiente", con el mismo `LDR-…` del correo.
+3. Si no aparece, revisa el `error_log` de `public_html`: `HTTP 401` es un secreto distinto en los dos archivos; `HTTP 503`, falta `ERES_CLAIMS_SECRET`; `HTTP 0`, la llamada no salió del servidor.
