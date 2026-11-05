@@ -252,7 +252,7 @@ function projectCart($c) {
         'items'       => array_map(fn($i) => [
             'key'      => $i['key'] ?? '',
             'id'       => (int)($i['id'] ?? 0),
-            'name'     => $i['name'] ?? '',
+            'name'     => decodeEntities($i['name'] ?? ''),
             'quantity' => (int)($i['quantity'] ?? 0),
             'image'    => $i['images'][0]['thumbnail'] ?? ($i['images'][0]['src'] ?? ''),
             'totals'   => $i['totals'] ?? null,
@@ -261,6 +261,11 @@ function projectCart($c) {
         'totals'      => $c['totals'] ?? null,
         'needs_payment' => (bool)($c['needs_payment'] ?? false),
     ];
+}
+
+// La Store API entrega los nombres pasados por wptexturize, con entidades como &#8211;.
+function decodeEntities($text) {
+    return html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
 function sanitize($value, $type) {

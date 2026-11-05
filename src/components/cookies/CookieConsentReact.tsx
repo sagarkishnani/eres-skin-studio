@@ -11,6 +11,7 @@ import {
   OPEN_CONSENT_EVENT,
   readConsent,
 } from "../../utils/cookieConsent";
+import { applyTrackingConsent } from "../../utils/analytics";
 
 interface Props {
   query: string;
@@ -150,6 +151,7 @@ export default function CookieConsentReact({
 
   const persistAndClose = (next: Record<string, boolean>) => {
     writeConsent(next);
+    applyTrackingConsent(next);
     window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: next }));
     setView("hidden");
   };

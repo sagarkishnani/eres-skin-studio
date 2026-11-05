@@ -26,7 +26,7 @@ return [
         'San Isidro', 'San Luis', 'San Miguel', 'Santiago de Surco', 'Surquillo',
     ],
     'delivery' => [
-        'local_pickup' => ['title' => 'Recojo en el local', 'subtitle' => 'Calle Libertad 176, of. 413 · Miraflores', 'summary' => 'Recojo', 'note' => 'Si recoges en el local te regalamos una evaluación computarizada'],
+        'local_pickup' => ['title' => 'Recojo en el local', 'subtitle' => 'Calle Libertad 176, of. 413 · Miraflores', 'summary' => 'Recojo', 'note' => 'Si recoges en el local te regalamos un diagnóstico facial computarizado'],
         'flat_rate' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio', 'note' => ''],
         'free_shipping' => ['title' => 'Envío a domicilio', 'subtitle' => 'Envío en 48h · Distritos seleccionados de Lima', 'summary' => 'Envío a domicilio', 'note' => ''],
     ],

@@ -12,6 +12,7 @@ import CookieConsent from "../components/cookies/CookieConsent.astro";
 import WhatsAppButton from "../components/shared/WhatsAppButton.astro";
 import PromoPopup from "../components/promo-popup/PromoPopup.astro";
 import { isStagingSite } from "../utils/siteEnv";
+import { ANALYTICS_CATEGORY, CONSENT_STORAGE_KEY } from "../utils/cookieConsent";
 
 interface Props {
   title?: string;
@@ -36,6 +37,7 @@ const seoDescription =
 const ogImage = globalData?.seo?.ogImage || "";
 const injectHead = globalData?.codeInjection?.head || "";
 const injectBodyEnd = globalData?.codeInjection?.bodyEnd || "";
+const injectsMetaPixel = injectHead.includes("connect.facebook.net");
 
 const smoothScroll = globalData?.motion?.smoothScroll !== false;
 const revealAnimations = globalData?.motion?.revealAnimations !== false;
@@ -103,6 +105,38 @@ try {
     </script>
 
     {viewTransitions && <ClientRouter />}
+    <script
+      is:inline
+      define:vars={{ consentStorageKey: CONSENT_STORAGE_KEY, analyticsCategory: ANALYTICS_CATEGORY, injectsMetaPixel }}
+    >
+      // Va antes del código inyectado desde el CMS: GA4 y el Pixel de Meta tienen que nacer sin consentimiento.
+      (function () {
+        var granted = false;
+        try {
+          var saved = JSON.parse(localStorage.getItem(consentStorageKey) || "null");
+          granted = !!saved && saved[analyticsCategory] === true;
+        } catch (e) {}
+        var state = granted ? "granted" : "denied";
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+        window.gtag("consent", "default", {
+          analytics_storage: state,
+          ad_storage: state,
+          ad_user_data: state,
+          ad_personalization: state,
+        });
+
+        if (!injectsMetaPixel || window.fbq) return;
+        // Cargador oficial del Pixel: el del CMS ve window.fbq ya definido y no se carga dos veces, pero su init y su PageView quedan detrás del revoke.
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        window.fbq("consent", granted ? "grant" : "revoke");
+      })();
+    </script>
     <Fragment set:html={injectHead} />
   </head>
   <body>
