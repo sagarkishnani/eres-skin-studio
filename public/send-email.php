@@ -117,6 +117,10 @@ if (!empty($_FILES)) {
 
 saveSubmission($formType, $correlativo, $input, $uploadedFiles);
 
+if ($formType === 'libro-de-reclamaciones') {
+    registerClaimInWordPress($cfg['claims_endpoint'] ?? '', $cfg['claims_secret'] ?? '', $correlativo, $input);
+}
+
 require __DIR__ . '/phpmailer/PHPMailer.php';
 require __DIR__ . '/phpmailer/SMTP.php';
 require __DIR__ . '/phpmailer/Exception.php';
@@ -291,6 +295,57 @@ function verifyTurnstile(string $secret, string $token, string $remoteIp): bool 
 
     $data = json_decode($resp, true);
     return is_array($data) && !empty($data['success']);
+}
+
+// The email and data/submissions are the record that cannot fail: a WordPress error is only logged.
+function registerClaimInWordPress(string $endpoint, string $secret, string $correlativo, array $data): void {
+    if ($endpoint === '' || $secret === '') return;
+
+    $rows = [];
+    foreach (getFieldRows('libro-de-reclamaciones', $data) as $label => $value) {
+        $rows[] = ['label' => $label, 'value' => (string)$value];
+    }
+    $body = json_encode([
+        'correlativo' => $correlativo,
+        'submittedAt' => date('Y-m-d H:i:s'),
+        'name'        => trim($data['nombreCompleto'] ?? ''),
+        'email'       => trim($data['correo'] ?? ''),
+        'requestType' => trim($data['tipoSolicitud'] ?? ''),
+        'rows'        => $rows,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $headers = [
+        'Content-Type: application/json',
+        'X-Eres-Signature: ' . base64_encode(hash_hmac('sha256', $body, $secret, true)),
+    ];
+
+    $status = 0;
+    if (function_exists('curl_init')) {
+        $ch = curl_init($endpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $body,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT        => 5,
+        ]);
+        curl_exec($ch);
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    } else {
+        $ctx = stream_context_create(['http' => [
+            'method'        => 'POST',
+            'header'        => implode("\r\n", $headers),
+            'content'       => $body,
+            'timeout'       => 5,
+            'ignore_errors' => true,
+        ]]);
+        @file_get_contents($endpoint, false, $ctx);
+        if (preg_match('#^HTTP/\S+\s+(\d{3})#', $http_response_header[0] ?? '', $match)) $status = (int)$match[1];
+    }
+
+    if ($status !== 200 && $status !== 201) {
+        error_log("send-email.php: el reclamo $correlativo no se registró en WordPress (HTTP $status)");
+    }
 }
 
 function getSubjectPrefix(string $type): string {

@@ -346,6 +346,13 @@ página por documento de la colección `legal` (`/terminos-y-condiciones`,
   `dynamicForms`. `send-email.php` numera cada reclamo como `LDR-000001` y le
   envía a la consumidora una constancia con los datos que presentó; el reclamo
   queda además en `data/submissions/`.
+- **Reclamos web** — después de guardarlo, `send-email.php` envía cada reclamo
+  firmado (HMAC con `claims_secret` de `site-config.php` = `ERES_CLAIMS_SECRET`
+  de `wp-config.php`) a `/wp-json/eres/v1/claims`. El mu-plugin
+  `wordpress/mu-plugins/eres-claims.php` lo guarda como `eres_claim` y lo
+  lista en WP Admin → "Reclamos web" con su estado (Pendiente, En proceso,
+  Atendido). Un fallo solo va al `error_log`: el correo y `data/submissions/`
+  no dependen de WordPress. Spec: `specs/25-registro-de-reclamos-en-wordpress.md`.
 - Las dos islas usan `client:tina`: en producción estas páginas no cargan React
   salvo por el formulario.
 
