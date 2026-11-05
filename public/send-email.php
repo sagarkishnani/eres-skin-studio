@@ -331,7 +331,6 @@ function registerClaimInWordPress(string $endpoint, string $secret, string $corr
         ]);
         curl_exec($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
     } else {
         $ctx = stream_context_create(['http' => [
             'method'        => 'POST',
