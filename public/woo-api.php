@@ -92,6 +92,12 @@ $ROUTES = [
         'body' => ['key' => 'str'],
         'project' => 'projectCart', 'ttl' => null,
     ],
+    // Endpoint de wordpress/mu-plugins/eres-purchase-tracking.php: la clave del pedido es la única credencial.
+    'order-tracking' => [
+        'api' => 'eres', 'method' => 'POST', 'path' => '/order-tracking',
+        'body' => ['key' => 'str'],
+        'project' => 'projectOrderTracking', 'ttl' => null,
+    ],
 ];
 
 $resource = $_GET['resource'] ?? '';
@@ -143,6 +149,10 @@ if ($ttl > 0) {
 if ($route['api'] === 'v3') {
     $url = $STORE_URL . '/wp-json/wc/v3' . $route['path'] . '?' . http_build_query($query);
     $headers = ['Authorization: Basic ' . base64_encode("$CK:$CS")];
+} elseif ($route['api'] === 'eres') {
+    $url = $STORE_URL . '/wp-json/eres/v1' . $route['path'];
+    header('Cache-Control: no-store');
+    $headers = [];
 } else {
     // Un caché de página en el WordPress (LiteSpeed) ignora Cart-Token y serviría el carrito de otra sesión: la URL única lo esquiva.
     $query['_'] = bin2hex(random_bytes(8));
@@ -260,6 +270,29 @@ function projectCart($c) {
         ], $c['items'] ?? []),
         'totals'      => $c['totals'] ?? null,
         'needs_payment' => (bool)($c['needs_payment'] ?? false),
+    ];
+}
+
+function projectOrderTracking($t) {
+    $p = $t['purchase'] ?? null;
+    return [
+        'track'    => (bool)($t['track'] ?? false),
+        'purchase' => is_array($p) ? [
+            'transactionId' => (string)($p['transactionId'] ?? ''),
+            'eventId'       => (string)($p['eventId'] ?? ''),
+            'value'         => (float)($p['value'] ?? 0),
+            'currency'      => (string)($p['currency'] ?? ''),
+            'tax'           => (float)($p['tax'] ?? 0),
+            'shipping'      => (float)($p['shipping'] ?? 0),
+            'coupon'        => (string)($p['coupon'] ?? ''),
+            'items'         => array_map(fn($i) => [
+                'metaId'   => (string)($i['metaId'] ?? ''),
+                'gaId'     => (string)($i['gaId'] ?? ''),
+                'name'     => decodeEntities($i['name'] ?? ''),
+                'price'    => (float)($i['price'] ?? 0),
+                'quantity' => (int)($i['quantity'] ?? 0),
+            ], $p['items'] ?? []),
+        ] : null,
     ];
 }
 
