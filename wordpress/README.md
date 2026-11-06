@@ -82,7 +82,7 @@ El acordeón de la ficha (`specs/10-ficha-de-producto.md`) lee tres campos por p
 
 ### mu-plugin de la página de gracias
 
-Después del pago, lleva a la clienta de la página "pedido recibido" de WooCommerce a `/gracias?pedido=<número>` del sitio Astro (`specs/13-paginas-404-y-gracias.md`). `/gracias` muestra el número y vacía el carrito del navegador.
+Después del pago, lleva a la clienta de la página "pedido recibido" de WooCommerce a `/gracias?pedido=<número>&clave=<clave>` del sitio Astro (`specs/13-paginas-404-y-gracias.md`). `/gracias` muestra el número y vacía el carrito del navegador.
 
 1. Copia `wordpress/mu-plugins/eres-thank-you-redirect.php` a `wp-content/mu-plugins/`.
 2. Plugins → **Imprescindibles**: debe aparecer "ERES · Página de gracias".
@@ -97,6 +97,16 @@ Después del pago, lleva a la clienta de la página "pedido recibido" de WooComm
 5. No redirige pedidos fallidos ni URLs con una `key` inválida: ahí se queda la página de WooCommerce.
 6. Si la tienda ofrece transferencia bancaria, los datos de la cuenta ya no se ven tras el pago: solo llegan en el correo de "pedido en espera".
 7. Comprobación: haz un pedido de prueba con "Pago contra entrega". Debe terminar en `https://eresskinstudio.com/gracias/?pedido=<número>` con el carrito vacío.
+
+### mu-plugin del evento de compra
+
+Como la redirección a `/gracias` corta la página "pedido recibido", los plugins de GA4 y de Meta no envían la compra desde el navegador. Este mu-plugin le entrega a `/gracias` los datos del pedido para enviarla allí, con el mismo `event_id` que el CAPI de Meta, y hace que ese CAPI salga recién cuando el pedido está pagado (`specs/26-evento-de-compra.md`).
+
+1. Copia `wordpress/mu-plugins/eres-purchase-tracking.php` a `wp-content/mu-plugins/` y actualiza `eres-thank-you-redirect.php` (1.1.0, agrega `?clave=`).
+2. Plugins → **Imprescindibles**: debe aparecer "ERES · Evento de compra".
+3. Sube el `woo-api.php` nuevo (ruta `order-tracking`) junto con el deploy de Astro.
+4. Desactiva **Site Kit by Google**: carga una segunda etiqueta de Google en el checkout y duplica `page_view` y `begin_checkout`.
+5. Comprobación: sigue la verificación de la spec 26.
 
 ## 4. Token de GitHub para el rebuild
 
@@ -277,7 +287,7 @@ Si LiteSpeed rechaza `[R=404]` (el sitio responde 500 al pegar la parte definiti
 
 ### Qué se queda y qué se retira
 
-**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los siete mu-plugins `eres-*` también.
+**Plugins que se quedan:** WooCommerce, Culqi, WP Mail SMTP, LiteSpeed Cache, Hostinger Tools, Google Analytics for WooCommerce y Meta for WooCommerce. Los mu-plugins `eres-*` también.
 
 **Plugins que se retiran:**
 

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: ERES · Página de gracias
- * Description: Después del pago lleva a la clienta de la página "pedido recibido" de WooCommerce a /gracias del sitio en Astro, con el número de pedido. Se configura con la constante ERES_THANK_YOU_URL en wp-config.php (vacía = sin redirección).
- * Version: 1.0.0
+ * Description: Después del pago lleva a la clienta de la página "pedido recibido" de WooCommerce a /gracias del sitio en Astro, con el número y la clave del pedido. Se configura con la constante ERES_THANK_YOU_URL en wp-config.php (vacía = sin redirección).
+ * Version: 1.1.0
  * Requires PHP: 8.0
  */
 
@@ -10,6 +10,8 @@ defined('ABSPATH') || exit;
 
 const ERES_THANK_YOU_DEFAULT_URL = 'https://eresskinstudio.com/gracias/';
 const ERES_THANK_YOU_ORDER_PARAM = 'pedido';
+// Con la clave, /gracias pide a eres-purchase-tracking.php los datos del evento de compra.
+const ERES_THANK_YOU_KEY_PARAM = 'clave';
 
 // WooCommerce vacía el carrito de la sesión en template_redirect con prioridad 20: hay que redirigir después.
 add_action('template_redirect', 'eres_thank_you_redirect', 30);
@@ -26,7 +28,11 @@ function eres_thank_you_redirect(): void
         return;
     }
 
-    wp_redirect(add_query_arg(ERES_THANK_YOU_ORDER_PARAM, rawurlencode($order->get_order_number()), $target), 302);
+    $params = [
+        ERES_THANK_YOU_ORDER_PARAM => rawurlencode($order->get_order_number()),
+        ERES_THANK_YOU_KEY_PARAM => rawurlencode($order->get_order_key()),
+    ];
+    wp_redirect(add_query_arg($params, $target), 302);
     exit;
 }
 

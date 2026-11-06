@@ -1,7 +1,7 @@
 // Sin credenciales: solo habla con public/woo-api.php. Un recurso nuevo se agrega primero a $ROUTES del proxy.
 
 import type { WooProduct, WooStock, WooCategory } from "../lib/woo/types";
-import type { WooCart } from "../lib/woo/types";
+import type { WooCart, WooPurchase, WooOrderTracking } from "../lib/woo/types";
 import { cartItemUnitPrice, trackAddToCart } from "./analytics";
 
 function endpoint(): string {
@@ -14,16 +14,15 @@ function endpoint(): string {
 interface ApiOk<T> { ok: true; data: T }
 interface ApiErr { ok: false; error: string }
 
-async function call<T>(
+async function request<T>(
   resource: string,
   params: Record<string, string | number> = {},
   init?: RequestInit
-): Promise<T | null> {
+): Promise<{ res: Response; data: T } | null> {
   const qs = new URLSearchParams({ resource, ...Object.fromEntries(
     Object.entries(params).map(([k, v]) => [k, String(v)])
   ) });
 
-  const generation = cartGeneration;
   try {
     const res = await fetch(`${endpoint()}?${qs}`, {
       ...init,
@@ -34,14 +33,25 @@ async function call<T>(
       console.warn(`[woo] ${resource}: ${body.error}`);
       return null;
     }
-    // Una respuesta pedida antes de forgetCart() traería el carrito ya comprado y volvería a guardar su token.
-    if (generation !== cartGeneration) return null;
-    rememberCartToken(res);
-    return body.data;
+    return { res, data: body.data };
   } catch (err) {
     console.warn(`[woo] ${resource} no respondió`, err);
     return null;
   }
+}
+
+async function call<T>(
+  resource: string,
+  params: Record<string, string | number> = {},
+  init?: RequestInit
+): Promise<T | null> {
+  const generation = cartGeneration;
+  const result = await request<T>(resource, params, init);
+  if (!result) return null;
+  // Una respuesta pedida antes de forgetCart() traería el carrito ya comprado y volvería a guardar su token.
+  if (generation !== cartGeneration) return null;
+  rememberCartToken(result.res);
+  return result.data;
 }
 
 export async function fetchStock(ids: number[]): Promise<Map<number, WooStock>> {
@@ -164,6 +174,16 @@ export async function removeCartItem(key: string): Promise<WooCart | null> {
       body: JSON.stringify({ key }),
     })
   );
+}
+
+// El servidor la entrega una sola vez por pedido: una recarga de /gracias no repite la compra.
+export async function claimPurchaseToTrack(orderKey: string): Promise<WooPurchase | null> {
+  const result = await request<WooOrderTracking>("order-tracking", {}, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key: orderKey }),
+  });
+  return result?.data.track ? result.data.purchase : null;
 }
 
 // El carrito vive en la sesión de la Store API, no en la cookie de WordPress: wordpress/mu-plugins/eres-cart-handoff.php lo traspasa con ?cart-token.

@@ -94,3 +94,27 @@ export interface WooCart {
   } | null;
   needs_payment: boolean;
 }
+
+export interface WooPurchaseItem {
+  metaId: string;
+  gaId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface WooPurchase {
+  transactionId: string;
+  eventId: string;
+  value: number;
+  currency: string;
+  tax: number;
+  shipping: number;
+  coupon: string;
+  items: WooPurchaseItem[];
+}
+
+export interface WooOrderTracking {
+  track: boolean;
+  purchase: WooPurchase | null;
+}

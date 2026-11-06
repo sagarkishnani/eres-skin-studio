@@ -256,7 +256,7 @@ Astro y WordPress comparten dominio (`eresskinstudio.com`) y carpeta
   que `HeaderReact` consume con `consumeCartOpenQuery()` para abrir el carrito.
 - **Gracias** — tras el pago, `wordpress/mu-plugins/eres-thank-you-redirect.php`
   manda la página "pedido recibido" a `ERES_THANK_YOU_URL` (`wp-config.php`;
-  vacía ⇒ sin redirección) con `?pedido=<número>`. `/gracias` (con `noindex`)
+  vacía ⇒ sin redirección) con `?pedido=<número>&clave=<order_key>`. `/gracias` (con `noindex`)
   muestra el número si cumple `^[A-Za-z0-9-]{1,32}$` y entonces llama a
   `forgetCart()`, que borra el `Cart-Token` y emite `CART_UPDATED` con `null`.
   Sin `?pedido=` el carrito no se toca. No es el único lugar que lo vacía: el
@@ -397,6 +397,14 @@ actualiza los dos.
   mismo que usa el plugin Facebook for WooCommerce.
 - **Checkout** — InitiateCheckout lo envía ese plugin desde
   WordPress, que no lee el banner de este sitio.
+- **Compra** — la redirección a `/gracias` corta el hook
+  `woocommerce_thankyou`, así que los plugins no envían la compra del
+  navegador. `eres-thank-you-redirect.php` agrega `?clave=<order_key>` y
+  `useTrackPurchase` la canjea una sola vez, vía la ruta `order-tracking` de
+  `woo-api.php`, en `wordpress/mu-plugins/eres-purchase-tracking.php`: envía
+  `Purchase` con el `_meta_event_id` del pedido (el mismo del CAPI) y
+  `purchase` con `transaction_id`. Ese mu-plugin también retrasa el CAPI de
+  Meta hasta `processing` o `completed`. Spec: `specs/26-evento-de-compra.md`.
 
 ### Modo mantenimiento
 

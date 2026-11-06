@@ -1,4 +1,4 @@
-import type { WooCartItem } from "../lib/woo/types";
+import type { WooCartItem, WooPurchase } from "../lib/woo/types";
 import { hasAnalyticsConsent, type ConsentPrefs } from "./cookieConsent";
 
 declare global {
@@ -55,6 +55,38 @@ export function trackAddToCart(product: TrackedProduct) {
   if (!canTrack(product)) return;
   sendToMeta("AddToCart", product);
   sendToGoogle("add_to_cart", product);
+}
+
+// eventID y transaction_id son los que deduplican contra el CAPI de Meta y el plugin de GA4 de WordPress.
+export function trackPurchase(purchase: WooPurchase) {
+  if (!hasAnalyticsConsent()) return;
+  window.fbq?.(
+    "track",
+    "Purchase",
+    {
+      content_ids: purchase.items.map((item) => item.metaId),
+      content_type: "product",
+      contents: purchase.items.map((item) => ({ id: item.metaId, quantity: item.quantity })),
+      num_items: purchase.items.reduce((total, item) => total + item.quantity, 0),
+      value: purchase.value,
+      currency: purchase.currency,
+    },
+    { eventID: purchase.eventId }
+  );
+  window.gtag?.("event", "purchase", {
+    transaction_id: purchase.transactionId,
+    value: purchase.value,
+    currency: purchase.currency,
+    tax: purchase.tax,
+    shipping: purchase.shipping,
+    ...(purchase.coupon && { coupon: purchase.coupon }),
+    items: purchase.items.map((item) => ({
+      item_id: item.gaId,
+      item_name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+    })),
+  });
 }
 
 export function applyTrackingConsent(prefs: ConsentPrefs) {
