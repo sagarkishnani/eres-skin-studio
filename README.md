@@ -8,7 +8,7 @@ que cada edición desde el panel es un commit.
 
 ## Requisitos
 
-- Node 20 o superior
+- Node 24
 
 ## Empezar
 
